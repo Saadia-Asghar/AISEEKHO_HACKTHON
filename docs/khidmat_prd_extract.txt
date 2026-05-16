@@ -1,0 +1,194 @@
+KhidmatAI
+AI-Powered Service Orchestrator for the Informal Economy
+Product Requirements Document  •  Google Antigravity Hackathon 2026
+Challenge 2: AI Service Orchestrator for Informal Economy
+1. Executive Summary
+KhidmatAI is an agentic AI platform that automates the entire lifecycle of informal service requests — plumbers, electricians, AC technicians, tutors, beauticians — in Pakistan’s largely undigitized service economy. A user types or speaks a request in Urdu, Roman Urdu, or English; KhidmatAI’s multi-agent pipeline (orchestrated entirely via Google Antigravity) understands intent, discovers nearby providers, ranks them, simulates a booking confirmation, and schedules follow-up reminders — all without any human dispatcher.
+2. Problem Statement
+2.1  The Informal Economy Gap
+Pakistan’s informal service sector — estimated at 70% of GDP — relies almost entirely on WhatsApp messages, phone calls, and word-of-mouth referrals. This creates systemic inefficiency on both sides:
+2.2  Why Existing Solutions Fail
+Listing apps (e.g., OLX, Rozgaar.pk) require manual browsing — no automation or booking
+WhatsApp bots are single-purpose and lack reasoning across steps
+Enterprise tools are unaffordable and irrelevant to informal workers
+No solution supports Urdu/Roman Urdu as primary input language with agentic reasoning
+3. Product Vision & Goals
+3.1  Vision Statement
+3.2  Hackathon Goals (Prioritized)
+4. System Architecture
+4.1  High-Level Overview
+KhidmatAI is built as a multi-agent system where Google Antigravity acts as the orchestration layer, routing tasks between specialized sub-agents, managing state, and executing tool calls. External LLMs may be used for NLU and generation tasks, but all planning, routing, and decision-making flows through Antigravity.
+4.2  Agent Pipeline (Antigravity-Orchestrated)
+4.3  Antigravity Integration Details
+Orchestration: All agent-to-agent calls registered as Antigravity workflow nodes
+Tool Registration: Maps API, Places API, mock booking DB registered as Antigravity tools
+Reasoning Trace: Antigravity’s built-in logging captures planning steps → decision → action for each node
+State Management: Booking state (pending → confirmed → reminder_sent) managed via Antigravity session context
+Multi-step Reasoning: Antigravity controls the planning loop — agents re-query if initial results are insufficient
+4.4  Tech Stack
+5. Functional Requirements
+5.1  FR-1: Intent Understanding
+The system MUST accept free-form text in Urdu, Roman Urdu, or English and extract a structured intent object.
+5.2  FR-2: Provider Discovery
+Query Google Maps Places API (or mock dataset) with service_type + location
+Filter results within configurable radius (default: 5 km)
+Return minimum 3 candidate providers with: name, distance, rating, availability flag
+Gracefully fall back to mock JSON dataset if API unavailable
+5.3  FR-3: Matching & Ranking
+Score each provider on a weighted formula:
+Distance score: 40% weight (inverse of km)
+Rating score: 35% weight (normalized 1–5)
+Availability: 25% weight (binary: available now vs. scheduled)
+Antigravity reasoning trace MUST show scoring calculation for top 3 candidates
+Final recommendation presented with plain-language explanation
+5.4  FR-4: Action Simulation (CRITICAL per challenge brief)
+System MUST simulate a complete booking — not just recommend
+Booking simulation writes a record to mock DB / Google Sheet with fields:
+booking_id, customer_name, provider_id, service, slot_datetime, status=CONFIRMED
+System generates a booking receipt (text or PDF) with all booking details
+Provider assignment confirmed and reflected in state
+Full state transition logged: PENDING → CONFIRMED → REMINDER_SCHEDULED
+5.5  FR-5: Follow-Up Automation
+Schedule a reminder notification 1 hour before appointment (simulated via FCM or WhatsApp mock)
+After appointment slot passes, send a “service completed?” confirmation prompt
+Log all follow-up events in Antigravity trace with timestamps
+5.6  FR-6: Agentic Workflow Trace (MANDATORY)
+This is a non-negotiable deliverable. The system MUST produce a human-readable trace showing:
+Each agent activated (Intent → Discovery → Ranking → Booking → Follow-Up → Trace)
+Tools called at each step with input/output
+Reasoning at each decision point (why provider X was selected)
+Timestamps for each step
+Final outcome summary
+6. Non-Functional Requirements
+7. User Scenarios & Acceptance Tests
+7.1  Primary Demo Scenario (Challenge Example)
+7.2  Additional Test Scenarios
+Scenario 2 — Plumber (English input)
+Scenario 3 — Tutor (Urdu script)
+Scenario 4 — No provider found (edge case)
+8. Deliverables
+9. Evaluation Criterion Alignment
+This section maps every judging criterion directly to specific implementation decisions to ensure maximum scoring.
+10. Implementation Build Plan
+Recommended build sequence for the Antigravity team, ordered to ensure the most critical hackathon requirements are working first.
+Phase 1 — Antigravity Core (Build First)
+Set up Antigravity project; register all 6 agents as workflow nodes
+Register Google Maps + Places API as Antigravity tools
+Implement Intent Agent with Gemini LLM call; test Urdu/Roman Urdu parsing
+Implement Discovery Agent with mock dataset fallback
+Phase 2 — Booking Simulation (Critical Requirement)
+Implement Ranking Agent with weighted scoring; output reasoning chain
+Implement Booking Agent; connect to Firebase/Sheets mock; generate receipt
+Implement Follow-Up Agent; log reminder schedule to Antigravity trace
+Implement Trace Agent; compile and format full workflow log
+Phase 3 — UI & Demo Polish
+Build Flutter mobile app with conversational input and booking status screen
+Add Antigravity trace viewer (collapsible step-by-step)
+Record 3–5 min demo video with primary scenario + 1 edge case
+Write README with architecture diagram and Antigravity integration notes
+11. Constraints & Guidelines
+Antigravity MUST be central to system logic — not a thin wrapper around another orchestrator
+External LLMs (Gemini, etc.) are permitted but must be invoked as Antigravity tools
+No real personal/sensitive data in the demo
+Mobile app is required; web app is a bonus
+Mock data is acceptable and encouraged when real APIs are rate-limited during demo
+---TABLES---
+[Table 1]
+Challenge Alignment
+This PRD directly addresses Challenge 2: Build an Agentic AI System that automates the end-to-end lifecycle of a service request — from user intent in Urdu/Roman Urdu/English to booking and follow-up — with Google Antigravity as the mandatory orchestration layer.
+[Table 2]
+Demo scenario: User types “Mujhe kal subah G-13 mein AC technician chahiye” → KhidmatAI extracts intent, discovers Ali AC Services (2.1 km away, 4.8★), simulates a 10:00 AM booking, generates a receipt, and schedules a 1-hour reminder — full traceable Antigravity workflow in under 4 seconds.
+[Table 3]
+Customer Pain | Provider Pain
+No real-time availability information
+Cannot compare providers by rating or distance
+Confirmation is verbal — no receipt or record
+No follow-up or reminders | Missed bookings due to communication gaps
+No automated scheduling or calendar
+Reputation invisible to new customers
+Dependent on referral networks
+[Table 4]
+“Speak your need. KhidmatAI handles the rest.”
+[Table 5]
+# | Goal | Evaluation Criterion
+G1 | Demonstrate full Antigravity orchestration as the central brain | 25% — Use of Antigravity
+G2 | Show agentic reasoning: plan → decide → act → follow-up | 20% — Agentic Workflow
+G3 | Deliver accurate, explainable provider matching | 20% — Matching Quality
+G4 | Simulate a realistic end-to-end booking with confirmation | 15% — Action Simulation
+G5 | Clean, well-integrated technical implementation | 10% — Technical Impl.
+G6 | Intuitive UX with multilingual support | 10% — Innovation & UX
+[Table 6]
+Architecture Principle
+Antigravity is NOT a wrapper — it IS the system. Every agent call, tool invocation, and state transition is registered, traced, and logged by Antigravity. The human-readable agent trace is a first-class deliverable.
+[Table 7]
+Step | Agent | Action | Output / Artifact
+1 | Intent Agent | Parses Urdu / Roman Urdu / English input; extracts service_type, location, datetime via LLM call | Structured intent JSON
+2 | Discovery Agent | Calls Google Maps / Places API (or mock dataset) filtered by location + category | Ranked provider list
+3 | Ranking Agent | Scores providers on distance, rating, availability; selects top candidate with reasoning chain | Provider recommendation + reasoning
+4 | Booking Agent | Simulates confirmation: writes to mock DB / spreadsheet, generates receipt, assigns slot | Booking receipt + state update
+5 | Follow-Up Agent | Schedules reminder (1 hr before), status update, and completion confirmation | Scheduled notifications log
+6 | Trace Agent | Compiles full decision log, tool calls, and timestamps from Antigravity telemetry | Human-readable agent trace
+[Table 8]
+Layer | Technology
+Orchestration | Google Antigravity (mandatory core)
+NLU / LLM | Gemini Pro via Antigravity tool call (external LLM permitted)
+Location / Maps | Google Maps Platform — Places API, Distance Matrix API
+Booking Backend | Firebase Firestore (mock) or Google Sheets via Sheets API
+Frontend | Flutter (mobile — required) + React web (optional)
+Notifications | FCM push notifications or WhatsApp Cloud API (simulated)
+Language Support | Urdu, Roman Urdu, English — handled at Intent Agent level
+Mock Data Fallback | Static JSON dataset of 50 providers across Islamabad sectors
+[Table 9]
+Input | “Mujhe kal subah G-13 mein AC technician chahiye”
+Output fields | service_type, location, datetime_preference, urgency
+Languages | Urdu script, Roman Urdu, English (auto-detected)
+Acceptance criteria | Intent correctly parsed in ≥90% of demo test cases
+[Table 10]
+Requirement | Specification
+Response Time | Full pipeline (intent → booking receipt) completes in ≤8 seconds on demo device
+Offline Fallback | Mock data layer activates if Maps/Places API unavailable; all agents still function
+Privacy | No real personal data used; mock provider/customer data only
+Language | Urdu/Roman Urdu input handled without pre-processing by the user
+Traceability | Every Antigravity workflow step is logged and exportable
+Demo Reliability | At least one full booking simulation must complete successfully on stage
+[Table 11]
+User Input | “Mujhe kal subah G-13 mein AC technician chahiye”
+Extracted Intent | service=AC Technician | location=G-13 Islamabad | time=Tomorrow morning
+Discovery Result | 3 providers found within 5 km radius
+Top Recommendation | Ali AC Services — 2.1 km, 4.8★, available tomorrow AM
+Booking Simulated | Slot: 10:00 AM | booking_id: KHI-20260516-001 | Status: CONFIRMED
+Receipt Generated | PDF/text receipt with all booking details
+Follow-Up | Reminder scheduled: 9:00 AM (1 hr before) | Completion check: 11:30 AM
+Trace | 6-step Antigravity trace log with reasoning at each node
+[Table 12]
+Input | “I need a plumber in F-7 urgently”
+Expected | Urgency flag raised; nearest available plumber booked within 2 hours
+[Table 13]
+Input | “مجھے ایک میتھ کا ٹیوٹر چاہیے ایٹھویں میں” (Math tutor in I-8)
+Expected | Urdu script parsed; top math tutor in I-8 matched and booked
+[Table 14]
+Input | “Electrician in DHA Phase 9 right now” (no mock provider in range)
+Expected | Agent widens radius to 10 km; if still none, suggests earliest available slot with explanation
+[Table 15]
+# | Deliverable | Specification
+D1 | Mobile App (MUST) | Flutter app supporting multilingual input, agent status display, booking receipt view
+D2 | Web App (Optional) | React dashboard showing full Antigravity trace and provider map
+D3 | Demo Video (3–5 min) | Shows: user input → intent parse → provider match → booking sim → follow-up → trace
+D4 | Agent Trace Log | Exported Antigravity trace for the primary demo scenario (JSON + human-readable)
+D5 | README / Docs | Architecture diagram, Antigravity usage explanation, API/tools used, assumptions
+D6 | Mock Dataset | 50-provider JSON file across 10 Islamabad sectors, 6 service categories
+[Table 16]
+Criterion | Weight | How KhidmatAI Wins This
+Use of Google Antigravity | 25% | Antigravity IS the orchestration layer — every agent call, tool use, and state change routes through it. Live trace shown on demo.
+Agentic Reasoning & Workflow | 20% | 6-agent pipeline with visible planning loop. Judges see intent → discovery → rank → book → follow-up in real-time trace.
+Matching Quality & Decision Logic | 20% | Weighted scoring formula with transparent reasoning. Top-3 candidates shown with score breakdown — not a black box.
+Action Simulation & Execution | 15% | Mock DB write + receipt generation + state transition CONFIRMED — not just a recommendation. Real artifact produced.
+Technical Implementation | 10% | Clean Flutter + Antigravity + Firebase architecture. Handles edge cases (no provider, fallback dataset, wrong language).
+Innovation & UX | 10% | Multilingual Urdu/Roman Urdu support unique in this space. Simple WhatsApp-style UI. Pakistan-relevant demo scenario.
+[Table 17]
+From the Challenge Brief — Non-Negotiable
+This is NOT a simple listing or booking app. Focus on agentic automation, not UI complexity. At least one booking must be simulated end-to-end. Must demonstrate reasoning + decision-making. Use mock data if real APIs are unavailable. Avoid use of real personal/sensitive data.
+[Table 18]
+KhidmatAI — Google Antigravity Hackathon 2026
+Challenge 2: AI Service Orchestrator for Informal Economy
+Speak your need. KhidmatAI handles the rest.

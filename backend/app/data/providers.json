@@ -1,0 +1,990 @@
+[
+  {
+    "id": "p1",
+    "name": "Ali AC Services",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician",
+      "hvac"
+    ],
+    "area": "G-13",
+    "lat": 33.6865,
+    "lng": 72.9805,
+    "rating": 4.8,
+    "reviews": 124,
+    "available_slots": [
+      "11:00",
+      "15:00"
+    ],
+    "phone": "+92-300-0000001"
+  },
+  {
+    "id": "p2",
+    "name": "CoolAir Islamabad G-13",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician",
+      "hvac"
+    ],
+    "area": "G-13",
+    "lat": 33.6778,
+    "lng": 72.9823,
+    "rating": 4.5,
+    "reviews": 181,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000002"
+  },
+  {
+    "id": "p3",
+    "name": "Ali AC Services",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician",
+      "hvac"
+    ],
+    "area": "G-11",
+    "lat": 33.6715,
+    "lng": 72.9655,
+    "rating": 4.5,
+    "reviews": 36,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000003"
+  },
+  {
+    "id": "p4",
+    "name": "CoolAir Islamabad G-11",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician",
+      "hvac"
+    ],
+    "area": "G-11",
+    "lat": 33.6825,
+    "lng": 72.9732,
+    "rating": 4.4,
+    "reviews": 144,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000004"
+  },
+  {
+    "id": "p5",
+    "name": "Ali AC Services",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician",
+      "hvac"
+    ],
+    "area": "G-10",
+    "lat": 33.68,
+    "lng": 72.9571,
+    "rating": 4.8,
+    "reviews": 138,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000005"
+  },
+  {
+    "id": "p6",
+    "name": "CoolAir Islamabad G-10",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician",
+      "hvac"
+    ],
+    "area": "G-10",
+    "lat": 33.6695,
+    "lng": 72.9723,
+    "rating": 4.3,
+    "reviews": 53,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000006"
+  },
+  {
+    "id": "p7",
+    "name": "Ali AC Services",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician",
+      "hvac"
+    ],
+    "area": "F-7",
+    "lat": 33.7192,
+    "lng": 73.0407,
+    "rating": 4.3,
+    "reviews": 41,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000007"
+  },
+  {
+    "id": "p8",
+    "name": "CoolAir Islamabad F-7",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician",
+      "hvac"
+    ],
+    "area": "F-7",
+    "lat": 33.7221,
+    "lng": 73.0508,
+    "rating": 4.4,
+    "reviews": 171,
+    "available_slots": [
+      "11:00",
+      "15:00"
+    ],
+    "phone": "+92-300-0000008"
+  },
+  {
+    "id": "p9",
+    "name": "Ali AC Services",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician",
+      "hvac"
+    ],
+    "area": "F-8",
+    "lat": 33.7171,
+    "lng": 73.0442,
+    "rating": 4.3,
+    "reviews": 79,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000009"
+  },
+  {
+    "id": "p10",
+    "name": "CoolAir Islamabad F-8",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician",
+      "hvac"
+    ],
+    "area": "F-8",
+    "lat": 33.7077,
+    "lng": 73.0336,
+    "rating": 4.3,
+    "reviews": 50,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000010"
+  },
+  {
+    "id": "p11",
+    "name": "Ali AC Services",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician",
+      "hvac"
+    ],
+    "area": "I-8",
+    "lat": 33.6657,
+    "lng": 73.0393,
+    "rating": 4.4,
+    "reviews": 123,
+    "available_slots": [
+      "11:00",
+      "15:00"
+    ],
+    "phone": "+92-300-0000011"
+  },
+  {
+    "id": "p12",
+    "name": "CoolAir Islamabad I-8",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician",
+      "hvac"
+    ],
+    "area": "I-8",
+    "lat": 33.6575,
+    "lng": 73.0439,
+    "rating": 4.7,
+    "reviews": 195,
+    "available_slots": [
+      "11:00",
+      "15:00"
+    ],
+    "phone": "+92-300-0000012"
+  },
+  {
+    "id": "p13",
+    "name": "Ali AC Services",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician",
+      "hvac"
+    ],
+    "area": "I-9",
+    "lat": 33.6542,
+    "lng": 73.0355,
+    "rating": 4.2,
+    "reviews": 148,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000013"
+  },
+  {
+    "id": "p14",
+    "name": "CoolAir Islamabad I-9",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician",
+      "hvac"
+    ],
+    "area": "I-9",
+    "lat": 33.6598,
+    "lng": 73.0372,
+    "rating": 4.5,
+    "reviews": 113,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000014"
+  },
+  {
+    "id": "p15",
+    "name": "Ali AC Services",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician",
+      "hvac"
+    ],
+    "area": "Bahria",
+    "lat": 33.5444,
+    "lng": 73.1157,
+    "rating": 4.0,
+    "reviews": 110,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000015"
+  },
+  {
+    "id": "p16",
+    "name": "CoolAir Islamabad Bahria",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician",
+      "hvac"
+    ],
+    "area": "Bahria",
+    "lat": 33.5331,
+    "lng": 73.1266,
+    "rating": 4.5,
+    "reviews": 110,
+    "available_slots": [
+      "11:00",
+      "15:00"
+    ],
+    "phone": "+92-300-0000016"
+  },
+  {
+    "id": "p17",
+    "name": "Ali AC Services",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician",
+      "hvac"
+    ],
+    "area": "DHA",
+    "lat": 33.52,
+    "lng": 73.1562,
+    "rating": 4.6,
+    "reviews": 66,
+    "available_slots": [
+      "11:00",
+      "15:00"
+    ],
+    "phone": "+92-300-0000017"
+  },
+  {
+    "id": "p18",
+    "name": "CoolAir Islamabad DHA",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician",
+      "hvac"
+    ],
+    "area": "DHA",
+    "lat": 33.5159,
+    "lng": 73.151,
+    "rating": 4.2,
+    "reviews": 179,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000018"
+  },
+  {
+    "id": "p19",
+    "name": "Ali AC Services",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician",
+      "hvac"
+    ],
+    "area": "Blue Area",
+    "lat": 33.7113,
+    "lng": 73.0578,
+    "rating": 4.9,
+    "reviews": 65,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000019"
+  },
+  {
+    "id": "p20",
+    "name": "CoolAir Islamabad Blue Area",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician",
+      "hvac"
+    ],
+    "area": "Blue Area",
+    "lat": 33.7035,
+    "lng": 73.0528,
+    "rating": 4.1,
+    "reviews": 190,
+    "available_slots": [
+      "11:00",
+      "15:00"
+    ],
+    "phone": "+92-300-0000020"
+  },
+  {
+    "id": "p21",
+    "name": "Hassan Plumbing",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "G-13",
+    "lat": 33.6871,
+    "lng": 72.9799,
+    "rating": 4.4,
+    "reviews": 182,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000021"
+  },
+  {
+    "id": "p22",
+    "name": "PipePro G-13",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "G-13",
+    "lat": 33.6847,
+    "lng": 72.9859,
+    "rating": 4.8,
+    "reviews": 32,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000022"
+  },
+  {
+    "id": "p23",
+    "name": "Hassan Plumbing",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "G-11",
+    "lat": 33.6728,
+    "lng": 72.9762,
+    "rating": 4.7,
+    "reviews": 194,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000023"
+  },
+  {
+    "id": "p24",
+    "name": "PipePro G-11",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "G-11",
+    "lat": 33.6757,
+    "lng": 72.9645,
+    "rating": 4.0,
+    "reviews": 97,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000024"
+  },
+  {
+    "id": "p25",
+    "name": "Hassan Plumbing",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "G-10",
+    "lat": 33.6792,
+    "lng": 72.9651,
+    "rating": 4.1,
+    "reviews": 190,
+    "available_slots": [
+      "11:00",
+      "15:00"
+    ],
+    "phone": "+92-300-0000025"
+  },
+  {
+    "id": "p26",
+    "name": "PipePro G-10",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "G-10",
+    "lat": 33.6772,
+    "lng": 72.9667,
+    "rating": 4.1,
+    "reviews": 71,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000026"
+  },
+  {
+    "id": "p27",
+    "name": "Hassan Plumbing",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "F-7",
+    "lat": 33.726,
+    "lng": 73.0437,
+    "rating": 4.0,
+    "reviews": 112,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000027"
+  },
+  {
+    "id": "p28",
+    "name": "PipePro F-7",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "F-7",
+    "lat": 33.7153,
+    "lng": 73.041,
+    "rating": 4.9,
+    "reviews": 108,
+    "available_slots": [
+      "11:00",
+      "15:00"
+    ],
+    "phone": "+92-300-0000028"
+  },
+  {
+    "id": "p29",
+    "name": "Hassan Plumbing",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "F-8",
+    "lat": 33.7109,
+    "lng": 73.0391,
+    "rating": 4.1,
+    "reviews": 154,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000029"
+  },
+  {
+    "id": "p30",
+    "name": "PipePro F-8",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "F-8",
+    "lat": 33.7226,
+    "lng": 73.0385,
+    "rating": 4.1,
+    "reviews": 198,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000030"
+  },
+  {
+    "id": "p31",
+    "name": "Hassan Plumbing",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "I-8",
+    "lat": 33.6606,
+    "lng": 73.0374,
+    "rating": 4.8,
+    "reviews": 138,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000031"
+  },
+  {
+    "id": "p32",
+    "name": "PipePro I-8",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "I-8",
+    "lat": 33.6667,
+    "lng": 73.0453,
+    "rating": 4.7,
+    "reviews": 109,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000032"
+  },
+  {
+    "id": "p33",
+    "name": "Hassan Plumbing",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "I-9",
+    "lat": 33.6547,
+    "lng": 73.033,
+    "rating": 4.9,
+    "reviews": 145,
+    "available_slots": [
+      "11:00",
+      "15:00"
+    ],
+    "phone": "+92-300-0000033"
+  },
+  {
+    "id": "p34",
+    "name": "PipePro I-9",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "I-9",
+    "lat": 33.6476,
+    "lng": 73.0324,
+    "rating": 4.6,
+    "reviews": 88,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000034"
+  },
+  {
+    "id": "p35",
+    "name": "Hassan Plumbing",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "Bahria",
+    "lat": 33.5321,
+    "lng": 73.1233,
+    "rating": 4.1,
+    "reviews": 47,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000035"
+  },
+  {
+    "id": "p36",
+    "name": "PipePro Bahria",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "Bahria",
+    "lat": 33.5458,
+    "lng": 73.1131,
+    "rating": 4.2,
+    "reviews": 154,
+    "available_slots": [
+      "11:00",
+      "15:00"
+    ],
+    "phone": "+92-300-0000036"
+  },
+  {
+    "id": "p37",
+    "name": "Hassan Plumbing",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "DHA",
+    "lat": 33.5141,
+    "lng": 73.157,
+    "rating": 4.5,
+    "reviews": 151,
+    "available_slots": [
+      "11:00",
+      "15:00"
+    ],
+    "phone": "+92-300-0000037"
+  },
+  {
+    "id": "p38",
+    "name": "PipePro DHA",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "DHA",
+    "lat": 33.5196,
+    "lng": 73.1485,
+    "rating": 4.1,
+    "reviews": 198,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000038"
+  },
+  {
+    "id": "p39",
+    "name": "Hassan Plumbing",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "Blue Area",
+    "lat": 33.7088,
+    "lng": 73.0595,
+    "rating": 4.7,
+    "reviews": 197,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000039"
+  },
+  {
+    "id": "p40",
+    "name": "PipePro Blue Area",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "Blue Area",
+    "lat": 33.7036,
+    "lng": 73.0584,
+    "rating": 4.3,
+    "reviews": 57,
+    "available_slots": [
+      "11:00",
+      "15:00"
+    ],
+    "phone": "+92-300-0000040"
+  },
+  {
+    "id": "p41",
+    "name": "Bright Spark",
+    "category": "electrician",
+    "categories": [
+      "electrician"
+    ],
+    "area": "G-13",
+    "lat": 33.6792,
+    "lng": 72.9776,
+    "rating": 4.4,
+    "reviews": 101,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000041"
+  },
+  {
+    "id": "p42",
+    "name": "Volt Experts G-13",
+    "category": "electrician",
+    "categories": [
+      "electrician"
+    ],
+    "area": "G-13",
+    "lat": 33.6902,
+    "lng": 72.9716,
+    "rating": 4.8,
+    "reviews": 170,
+    "available_slots": [
+      "11:00",
+      "15:00"
+    ],
+    "phone": "+92-300-0000042"
+  },
+  {
+    "id": "p43",
+    "name": "Bright Spark",
+    "category": "electrician",
+    "categories": [
+      "electrician"
+    ],
+    "area": "G-11",
+    "lat": 33.6814,
+    "lng": 72.9706,
+    "rating": 4.0,
+    "reviews": 53,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000043"
+  },
+  {
+    "id": "p44",
+    "name": "Volt Experts G-11",
+    "category": "electrician",
+    "categories": [
+      "electrician"
+    ],
+    "area": "G-11",
+    "lat": 33.6846,
+    "lng": 72.9647,
+    "rating": 4.5,
+    "reviews": 84,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000044"
+  },
+  {
+    "id": "p45",
+    "name": "Bright Spark",
+    "category": "electrician",
+    "categories": [
+      "electrician"
+    ],
+    "area": "G-10",
+    "lat": 33.6814,
+    "lng": 72.9596,
+    "rating": 4.0,
+    "reviews": 129,
+    "available_slots": [
+      "11:00",
+      "15:00"
+    ],
+    "phone": "+92-300-0000045"
+  },
+  {
+    "id": "p46",
+    "name": "Volt Experts G-10",
+    "category": "electrician",
+    "categories": [
+      "electrician"
+    ],
+    "area": "G-10",
+    "lat": 33.6795,
+    "lng": 72.9643,
+    "rating": 4.4,
+    "reviews": 172,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000046"
+  },
+  {
+    "id": "p47",
+    "name": "Bright Spark",
+    "category": "electrician",
+    "categories": [
+      "electrician"
+    ],
+    "area": "F-7",
+    "lat": 33.7213,
+    "lng": 73.0382,
+    "rating": 4.2,
+    "reviews": 44,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000047"
+  },
+  {
+    "id": "p48",
+    "name": "Volt Experts F-7",
+    "category": "electrician",
+    "categories": [
+      "electrician"
+    ],
+    "area": "F-7",
+    "lat": 33.7222,
+    "lng": 73.0472,
+    "rating": 4.1,
+    "reviews": 179,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000048"
+  },
+  {
+    "id": "p49",
+    "name": "Bright Spark",
+    "category": "electrician",
+    "categories": [
+      "electrician"
+    ],
+    "area": "F-8",
+    "lat": 33.7217,
+    "lng": 73.0385,
+    "rating": 4.1,
+    "reviews": 160,
+    "available_slots": [
+      "11:00",
+      "15:00"
+    ],
+    "phone": "+92-300-0000049"
+  },
+  {
+    "id": "p50",
+    "name": "Volt Experts F-8",
+    "category": "electrician",
+    "categories": [
+      "electrician"
+    ],
+    "area": "F-8",
+    "lat": 33.71,
+    "lng": 73.0395,
+    "rating": 4.6,
+    "reviews": 90,
+    "available_slots": [
+      "09:00",
+      "10:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-0000050"
+  }
+]
