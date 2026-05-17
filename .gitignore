@@ -1,11 +1,6 @@
 node_modules/
-.expo/
-dist/
-.env
-backend/.venv/
-backend/data/*.db
+.venv/
+.next/
 __pycache__/
-*.pyc
+*.egg-info/
 .DS_Store
-page_*.png
-*.log

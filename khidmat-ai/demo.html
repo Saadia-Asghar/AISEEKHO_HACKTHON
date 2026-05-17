@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KhidmatAI Evaluator Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #F8F9FA; }
+        .agent-IntentAgent { color: #1A73E8; }
+        .agent-DiscoveryAgent { color: #9c27b0; }
+        .agent-RankingAgent { color: #FBBC04; }
+        .agent-DecisionAgent { color: #34A853; }
+        .agent-BookingAgent { color: #009688; }
+        .agent-FollowUpAgent { color: #5F6368; }
+        
+        .bg-IntentAgent { background-color: #1A73E8; }
+        .bg-DiscoveryAgent { background-color: #9c27b0; }
+        .bg-RankingAgent { background-color: #FBBC04; }
+        .bg-DecisionAgent { background-color: #34A853; }
+        .bg-BookingAgent { background-color: #009688; }
+        .bg-FollowUpAgent { background-color: #5F6368; }
+    </style>
+</head>
+<body class="min-h-screen p-8 text-gray-900">
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8 text-blue-600">KhidmatAI Evaluator Dashboard</h1>
+        
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- LEFT COLUMN -->
+            <div class="w-full lg:w-2/5 flex flex-col gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                    <h2 class="text-xl font-semibold mb-4">Test a Request</h2>
+                    <textarea 
+                        id="userInput"
+                        class="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none mb-4 min-h-[100px]"
+                        placeholder="Type request..."
+                    >Mujhe kal subah G-13 mein AC technician chahiye</textarea>
+                    <button 
+                        id="runBtn"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded transition-colors"
+                        onclick="runPipeline()"
+                    >
+                        Run Agent Pipeline
+                    </button>
+                </div>
+
+                <div id="bookingResult" class="hidden bg-white p-6 rounded-lg shadow-sm border border-green-200 bg-green-50/30">
+                    <h3 class="text-lg font-bold text-green-800 mb-2">Booking Confirmed</h3>
+                    <div class="space-y-2 text-sm">
+                        <p><span class="font-semibold text-gray-600">ID:</span> <span class="font-mono">BK-20250516-0042</span></p>
+                        <p><span class="font-semibold text-gray-600">Provider:</span> Ali AC Services</p>
+                        <p><span class="font-semibold text-gray-600">Service:</span> ac_repair</p>
+                        <p><span class="font-semibold text-gray-600">Time:</span> Tomorrow 10:00 AM</p>
+                        <p><span class="font-semibold text-gray-600">Cost:</span> PKR 2500</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN -->
+            <div class="w-full lg:w-3/5 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                <h2 class="text-xl font-semibold mb-6">Agent Reasoning Trace</h2>
+                
+                <div id="emptyState" class="h-64 flex items-center justify-center border-2 border-dashed border-gray-200 rounded text-gray-400">
+                    Run the pipeline to see the trace.
+                </div>
+                
+                <div id="traceContent" class="hidden">
+                    <div class="overflow-x-auto rounded border border-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200 text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left font-medium text-gray-500">Step</th>
+                                    <th class="px-4 py-3 text-left font-medium text-gray-500">Agent</th>
+                                    <th class="px-4 py-3 text-left font-medium text-gray-500">Action</th>
+                                    <th class="px-4 py-3 text-left font-medium text-gray-500">Output</th>
+                                    <th class="px-4 py-3 text-right font-medium text-gray-500">Duration</th>
+                                </tr>
+                            </thead>
+                            <tbody id="traceBody" class="bg-white divide-y divide-gray-200">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-6 text-right">
+                        <p class="text-2xl font-bold text-gray-800">
+                            Total Pipeline: <span id="totalDuration" class="text-blue-600">0ms</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const mockTrace = [
+            { step: 1, agent: "IntentAgent", action: "parse_intent", output: '{"service_type": "ac_repair", "location": "G-13"}', time: 1240 },
+            { step: 2, agent: "DiscoveryAgent", action: "find_providers", output: "5 providers found within 8km radius", time: 890 },
+            { step: 3, agent: "RankingAgent", action: "score_providers", output: "Ali AC — score 0.87 (dist:2.1km, rating:4.8★)", time: 340 },
+            { step: 4, agent: "DecisionAgent", action: "select_best", output: "Selected: Ali AC Services — closest available", time: 1100 },
+            { step: 5, agent: "BookingAgent", action: "create_booking", output: "booking_id: BK-20250516-0042", time: 720 },
+            { step: 6, agent: "FollowUpAgent", action: "schedule_reminder", output: "Reminder set for 09:00 AM tomorrow", time: 210 }
+        ];
+
+        async function runPipeline() {
+            const btn = document.getElementById("runBtn");
+            const emptyState = document.getElementById("emptyState");
+            const traceContent = document.getElementById("traceContent");
+            const traceBody = document.getElementById("traceBody");
+            const bookingResult = document.getElementById("bookingResult");
+            const totalDuration = document.getElementById("totalDuration");
+            
+            btn.disabled = true;
+            btn.innerText = "Processing Pipeline...";
+            btn.classList.replace("bg-blue-600", "bg-blue-400");
+            
+            emptyState.classList.add("hidden");
+            traceContent.classList.remove("hidden");
+            bookingResult.classList.add("hidden");
+            traceBody.innerHTML = "";
+            totalDuration.innerText = "0ms";
+            
+            let total = 0;
+            
+            for (let i = 0; i < mockTrace.length; i++) {
+                const item = mockTrace[i];
+                // Simulate network/processing delay
+                await new Promise(r => setTimeout(r, 600));
+                
+                total += item.time;
+                totalDuration.innerText = total + "ms";
+                
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-gray-50";
+                tr.innerHTML = `
+                    <td class="px-4 py-3 whitespace-nowrap">${item.step}</td>
+                    <td class="px-4 py-3 whitespace-nowrap font-bold agent-${item.agent}">${item.agent}</td>
+                    <td class="px-4 py-3 whitespace-nowrap">${item.action}</td>
+                    <td class="px-4 py-3 truncate max-w-xs">${item.output}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-right font-mono">${item.time}ms</td>
+                `;
+                traceBody.appendChild(tr);
+            }
+            
+            await new Promise(r => setTimeout(r, 400));
+            bookingResult.classList.remove("hidden");
+            
+            btn.disabled = false;
+            btn.innerText = "Run Agent Pipeline";
+            btn.classList.replace("bg-blue-400", "bg-blue-600");
+        }
+    </script>
+</body>
+</html>

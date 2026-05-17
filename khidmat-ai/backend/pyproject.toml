@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "khidmat-ai-backend"
+version = "0.1.0"
+description = "FastAPI Backend for KhidmatAI"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "pydantic",
+    "pydantic-settings",
+    "python-dotenv",
+    "firebase-admin",
+    "langchain",
+    "langchain-google-genai",
+    "google-cloud-tasks",
+    "google-cloud-secret-manager",
+    "requests",
+    "httpx",
+    "pillow"
+]
