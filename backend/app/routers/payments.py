@@ -3,7 +3,7 @@ from pathlib import Path
 
 from fastapi import APIRouter, HTTPException
 
-from app.db import payments_db
+from app.db import bookings_db, payments_db
 from app.db.database import _connect
 from app.models.schemas import ConfirmPaymentRequest, NotificationResult
 from app.services import notifications as notify
@@ -54,6 +54,7 @@ def confirm_booking_payment(body: ConfirmPaymentRequest):
     pay_row = payments_db.get_payment_by_booking(body.booking_id)
     amount = int(pay_row["amount_pkr"]) if pay_row else 1500
     payments_db.update_booking_payment(body.booking_id, "paid", amount)
+    bookings_db.confirm_booking(body.booking_id)
 
     notif_raw = notify.send_booking_notifications(
         body.customer_phone,

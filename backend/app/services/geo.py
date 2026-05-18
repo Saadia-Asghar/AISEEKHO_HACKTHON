@@ -29,10 +29,7 @@ def haversine_km(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
 
 
 def resolve_user_coords(location: str) -> tuple[float, float]:
-    key = location.upper().replace(" ", "")
-    if key in AREA_COORDS:
-        return AREA_COORDS[key]
-    for area, coords in AREA_COORDS.items():
-        if area in key or key in area:
-            return coords
-    return AREA_COORDS["G-13"]
+    from app.services.google_maps import resolve_coords
+
+    lat, lng, _source = resolve_coords(location)
+    return lat, lng

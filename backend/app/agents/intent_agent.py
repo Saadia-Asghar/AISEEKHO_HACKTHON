@@ -1,8 +1,9 @@
+import os
 from typing import Any
 
 from app.agents.base import BaseAgent
 from app.models.schemas import AgentPhase, ServiceIntent
-from app.services.nlu import understand_intent
+from app.services.gemini_intent import understand_intent
 
 
 class IntentUnderstandingAgent(BaseAgent):
@@ -11,16 +12,18 @@ class IntentUnderstandingAgent(BaseAgent):
 
     def run(self, context: dict[str, Any]) -> dict[str, Any]:
         message = context["message"]
-        parsed = understand_intent(message)
+        parsed, intent_mode = understand_intent(message)
         intent = ServiceIntent(**parsed)
         context["intent"] = intent
+        context["intent_mode"] = intent_mode
         context["last_trace"] = self.trace(
             "parse_natural_language",
-            {"message": message},
+            {"message": message, "mode": intent_mode},
             intent.model_dump(),
             (
-                f"Detected language '{intent.language}'. Extracted service '{intent.service_label}', "
-                f"location '{intent.location}', time '{intent.time_expression}'."
+                f"Intent parsed via {intent_mode}. Language '{intent.language}', "
+                f"service '{intent.service_label}', location '{intent.location}', "
+                f"time '{intent.time_expression}'."
             ),
         )
         return context

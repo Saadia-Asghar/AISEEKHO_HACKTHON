@@ -134,7 +134,7 @@ def _seed_providers_if_empty(conn: sqlite3.Connection) -> None:
 
 def next_booking_id() -> str:
     today = datetime.utcnow().strftime("%Y%m%d")
-    prefix = f"HZR-{today}-"
+    prefix = f"KHI-{today}-"
     with _connect() as conn:
         row = conn.execute(
             "SELECT COUNT(*) as c FROM bookings WHERE id LIKE ?",
@@ -181,7 +181,7 @@ def save_booking(
                 location,
                 slot,
                 slot_datetime,
-                "PENDING_PAYMENT",
+                "PENDING",
                 confirmation_message,
                 receipt,
                 created,
@@ -198,7 +198,7 @@ def save_booking(
         "location": location,
         "slot": slot,
         "slot_datetime": slot_datetime,
-        "status": "PENDING_PAYMENT",
+        "status": "PENDING",
         "payment_status": payment_status,
         "amount_pkr": amount_pkr,
         "confirmation_message": confirmation_message,

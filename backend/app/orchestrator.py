@@ -9,13 +9,18 @@ from app.agents.trace_agent import TraceAgent
 from app.db import database
 from app.db import payments_db
 from app.models.schemas import (
+    AlternativeRanking,
     LocationInfo,
     OrchestrationResponse,
     PaymentInfo,
     PersonalizationSummary,
+    Provider,
+    ProviderScoreSummary,
+    RankingResult,
     TraceEntry,
     TraceSummary,
 )
+from app.db import auth_db
 from app.services.payments import create_payment
 
 
@@ -39,7 +44,7 @@ class KhidmatOrchestrator:
         self,
         message: str,
         session_id: str | None = None,
-        customer_name: str = "Demo Customer",
+        customer_name: str | None = None,
         user_id: str | None = None,
         user_lat: float | None = None,
         user_lng: float | None = None,
@@ -47,10 +52,17 @@ class KhidmatOrchestrator:
     ) -> OrchestrationResponse:
         database.init_db()
         sid = session_id or str(uuid4())
+        resolved_name = customer_name or "Guest"
+        if user_id and not customer_name:
+            try:
+                profile = auth_db.get_user_profile(user_id)
+                resolved_name = profile.get("name") or resolved_name
+            except ValueError:
+                pass
         context: dict = {
             "message": message,
             "session_id": sid,
-            "customer_name": customer_name,
+            "customer_name": resolved_name,
             "user_id": user_id,
             "user_lat": user_lat,
             "user_lng": user_lng,
@@ -70,6 +82,9 @@ class KhidmatOrchestrator:
         database.save_trace(sid, [t.model_dump() for t in traces], summary.model_dump())
 
         top_three = context.get("top_three", context["candidates"][:3])
+        recommended: Provider = context["recommended"]
+        ranking = self._build_ranking(recommended, top_three)
+        alternatives = self._build_alternatives(top_three)
 
         personalization: PersonalizationSummary | None = context.get("personalization")
         booking = context["booking"]
@@ -103,7 +118,9 @@ class KhidmatOrchestrator:
             intent=context["intent"],
             candidates=context["candidates"],
             top_three=top_three,
-            recommended=context["recommended"],
+            recommended=recommended,
+            ranking=ranking,
+            alternatives=alternatives,
             booking=booking,
             payment=payment,
             follow_up=context["follow_up"],
@@ -114,6 +131,46 @@ class KhidmatOrchestrator:
             user_location=user_location,
             notifications=[],
         )
+
+
+    @staticmethod
+    def _build_ranking(top: Provider, ranked: list[Provider]) -> RankingResult:
+        alts: list[AlternativeRanking] = []
+        for p in ranked:
+            if p.id == top.id:
+                continue
+            bd = p.score_breakdown or {}
+            alts.append(
+                AlternativeRanking(
+                    provider=p,
+                    score=p.score or 0.0,
+                    distance_km=p.distance_km,
+                    rating=p.effective_rating or p.rating,
+                    availability=bd.get("availability_25pct", 0.0) / 0.25 if bd else 0.0,
+                    score_breakdown=bd,
+                )
+            )
+            if len(alts) >= 2:
+                break
+        return RankingResult(top_provider=top, alternatives=alts)
+
+    @staticmethod
+    def _build_alternatives(ranked: list[Provider]) -> list[ProviderScoreSummary]:
+        out: list[ProviderScoreSummary] = []
+        for p in ranked[1:3]:
+            bd = p.score_breakdown or {}
+            out.append(
+                ProviderScoreSummary(
+                    name=p.name,
+                    provider_id=p.id,
+                    score=p.score or 0.0,
+                    distance_score=bd.get("distance_40pct", 0.0),
+                    rating_score=bd.get("rating_35pct", 0.0),
+                    availability_score=bd.get("availability_25pct", 0.0),
+                    total_score=p.score or 0.0,
+                )
+            )
+        return out
 
 
 ServiceOrchestrator = KhidmatOrchestrator

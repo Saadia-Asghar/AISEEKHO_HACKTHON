@@ -4,12 +4,8 @@ from typing import Any
 
 from app.agents.base import BaseAgent
 from app.models.schemas import AgentPhase, Provider
-from app.services.geo import (
-    DEFAULT_RADIUS_KM,
-    WIDEN_RADIUS_KM,
-    haversine_km,
-    resolve_user_coords,
-)
+from app.services.geo import DEFAULT_RADIUS_KM, WIDEN_RADIUS_KM, haversine_km
+from app.services.google_maps import resolve_coords
 
 PROVIDERS_PATH = Path(__file__).resolve().parent.parent / "data" / "providers.json"
 
@@ -64,8 +60,7 @@ class ProviderDiscoveryAgent(BaseAgent):
             user_lat, user_lng = float(gps_lat), float(gps_lng)
             location_source = "gps"
         else:
-            user_lat, user_lng = resolve_user_coords(intent.location)
-            location_source = "sector_default"
+            user_lat, user_lng, location_source = resolve_coords(intent.location)
         context["user_location"] = {
             "lat": user_lat,
             "lng": user_lng,
@@ -90,7 +85,7 @@ class ProviderDiscoveryAgent(BaseAgent):
                 and intent.location.upper() in p.get("area", "").upper()
             ]
             if area_matches:
-                user_lat, user_lng = resolve_user_coords(intent.location)
+                user_lat, user_lng, _ = resolve_coords(intent.location)
                 matches = self._filter(area_matches, intent, user_lat, user_lng, WIDEN_RADIUS_KM + 5)
                 widened = True
                 radius = WIDEN_RADIUS_KM + 5
@@ -117,7 +112,11 @@ class ProviderDiscoveryAgent(BaseAgent):
             {
                 "count": len(matches),
                 "within_radius": [m.name for m in matches[:5]],
-                "tool": "gps" if location_source == "gps" else "mock_places_api",
+                "tool": (
+                    "gps"
+                    if location_source == "gps"
+                    else ("google_maps" if location_source == "google_maps" else "local_sectors")
+                ),
             },
             (
                 f"Found {len(matches)} providers within {radius} km using {location_source} "

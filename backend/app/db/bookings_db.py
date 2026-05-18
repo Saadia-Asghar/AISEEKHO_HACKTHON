@@ -4,6 +4,7 @@ import json
 from datetime import datetime
 from typing import Any
 
+from app.db.booking_status import normalize_status, transition
 from app.db.database import _connect
 
 
@@ -12,21 +13,21 @@ def list_bookings(user_id: str, status_filter: str | None = None) -> list[dict[s
         if status_filter == "upcoming":
             q = """
                 SELECT * FROM bookings WHERE user_id = ?
-                AND status IN ('CONFIRMED', 'PENDING_PAYMENT', 'REMINDER_SCHEDULED')
+                AND UPPER(status) IN ('CONFIRMED', 'PENDING', 'PENDING_PAYMENT', 'REMINDER_SCHEDULED')
+                AND UPPER(status) != 'CANCELLED'
                 ORDER BY created_at DESC
             """
             rows = conn.execute(q, (user_id,)).fetchall()
         elif status_filter == "past":
             q = """
                 SELECT * FROM bookings WHERE user_id = ?
-                AND status IN ('COMPLETED', 'CONFIRMED', 'REMINDER_SCHEDULED')
-                AND payment_status = 'paid'
+                AND UPPER(status) = 'COMPLETED'
                 ORDER BY created_at DESC LIMIT 50
             """
             rows = conn.execute(q, (user_id,)).fetchall()
         elif status_filter == "cancelled":
             rows = conn.execute(
-                "SELECT * FROM bookings WHERE user_id = ? AND status = 'cancelled' ORDER BY created_at DESC",
+                "SELECT * FROM bookings WHERE user_id = ? AND UPPER(status) = 'CANCELLED' ORDER BY created_at DESC",
                 (user_id,),
             ).fetchall()
         else:
@@ -45,13 +46,32 @@ def cancel_booking(booking_id: str, user_id: str | None = None) -> dict[str, Any
             raise ValueError("Booking not found")
         if user_id and row["user_id"] and row["user_id"] != user_id:
             raise ValueError("Not your booking")
-        if row["status"] == "cancelled":
-            return {"booking_id": booking_id, "status": "cancelled"}
+        new_status = transition(row["status"], "CANCELLED")
+        conn.execute("UPDATE bookings SET status = ? WHERE id = ?", (new_status, booking_id))
+    return {"booking_id": booking_id, "status": "CANCELLED"}
+
+
+def confirm_booking(booking_id: str) -> dict[str, Any]:
+    with _connect() as conn:
+        row = conn.execute("SELECT status FROM bookings WHERE id = ?", (booking_id,)).fetchone()
+        if not row:
+            raise ValueError("Booking not found")
+        new_status = transition(row["status"], "CONFIRMED")
         conn.execute(
-            "UPDATE bookings SET status = 'cancelled' WHERE id = ?",
-            (booking_id,),
+            "UPDATE bookings SET status = ?, payment_status = 'paid' WHERE id = ?",
+            (new_status, booking_id),
         )
-    return {"booking_id": booking_id, "status": "cancelled"}
+    return {"booking_id": booking_id, "status": "CONFIRMED"}
+
+
+def complete_booking(booking_id: str) -> dict[str, Any]:
+    with _connect() as conn:
+        row = conn.execute("SELECT status FROM bookings WHERE id = ?", (booking_id,)).fetchone()
+        if not row:
+            raise ValueError("Booking not found")
+        new_status = transition(row["status"], "COMPLETED")
+        conn.execute("UPDATE bookings SET status = ? WHERE id = ?", (new_status, booking_id))
+    return {"booking_id": booking_id, "status": "COMPLETED"}
 
 
 def count_upcoming(user_id: str) -> int:
@@ -59,8 +79,8 @@ def count_upcoming(user_id: str) -> int:
         row = conn.execute(
             """
             SELECT COUNT(*) as c FROM bookings WHERE user_id = ?
-            AND status IN ('CONFIRMED', 'PENDING_PAYMENT', 'REMINDER_SCHEDULED')
-            AND status != 'cancelled'
+            AND UPPER(status) IN ('CONFIRMED', 'PENDING', 'PENDING_PAYMENT', 'REMINDER_SCHEDULED')
+            AND UPPER(status) != 'CANCELLED'
             """,
             (user_id,),
         ).fetchone()

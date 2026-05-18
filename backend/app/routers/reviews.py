@@ -18,6 +18,36 @@ class ReviewBody(BaseModel):
     comment: str | None = None
 
 
+@router.get("/api/reviews/user/{user_id}")
+def list_user_reviews(user_id: str, limit: int = 20):
+    with _connect() as conn:
+        rows = conn.execute(
+            """
+            SELECT r.stars, r.comment, r.created_at, r.provider_id, r.booking_id,
+                   p.name AS provider_name
+            FROM provider_ratings r
+            LEFT JOIN providers p ON p.id = r.provider_id
+            WHERE r.user_id = ?
+            ORDER BY r.created_at DESC
+            LIMIT ?
+            """,
+            (user_id, limit),
+        ).fetchall()
+    return {
+        "reviews": [
+            {
+                "rating": row["stars"],
+                "comment": row["comment"],
+                "created_at": row["created_at"],
+                "provider_id": row["provider_id"],
+                "provider_name": row["provider_name"] or "Provider",
+                "booking_id": row["booking_id"],
+            }
+            for row in rows
+        ]
+    }
+
+
 @router.post("/api/reviews")
 def create_review(body: ReviewBody):
     try:

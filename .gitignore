@@ -1,4 +1,7 @@
 node_modules/
+backend/data/*.db
+.env
+backend/.env
 .venv/
 .next/
 __pycache__/

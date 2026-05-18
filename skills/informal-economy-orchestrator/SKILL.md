@@ -24,7 +24,7 @@ pip install -r requirements.txt
 python run.py
 
 # Mobile (Expo)
-cd mobile && npm install && npx expo start
+cd khidmat-ai/mobile && npm install && npx expo start
 
 # Optional ADK web UI
 pip install google-adk httpx

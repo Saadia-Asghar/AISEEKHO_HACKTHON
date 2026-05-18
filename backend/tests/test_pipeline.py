@@ -14,7 +14,7 @@ def test_demo_ac_g13():
     assert r.intent.service_label == "AC Technician"
     assert r.intent.location == "G-13"
     assert r.recommended.category == "ac_technician"
-    assert r.booking.booking_id.startswith("HZR-")
+    assert r.booking.booking_id.startswith("KHI-")
     assert r.booking.slot in ("09:00", "10:00", "11:00", "14:00", "16:00")
     assert r.payment.amount_pkr > 0
     assert r.booking.payment_status == "pending"

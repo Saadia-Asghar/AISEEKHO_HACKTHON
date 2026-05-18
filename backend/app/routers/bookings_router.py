@@ -13,9 +13,22 @@ def list_user_bookings(
     return {"bookings": bookings_db.list_bookings(user_id, tab)}
 
 
+@router.get("/user/{user_id}")
+def list_bookings_by_user(user_id: str, tab: str | None = Query(None)):
+    return {"bookings": bookings_db.list_bookings(user_id, tab)}
+
+
 @router.get("/upcoming/count")
 def upcoming_count(user_id: str):
     return {"count": bookings_db.count_upcoming(user_id)}
+
+
+@router.post("/{booking_id}/confirm")
+def confirm_booking_route(booking_id: str):
+    try:
+        return bookings_db.confirm_booking(booking_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
 
 
 @router.patch("/{booking_id}/cancel")

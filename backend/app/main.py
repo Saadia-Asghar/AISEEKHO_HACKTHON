@@ -2,13 +2,25 @@ import os
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.db.database import get_trace, init_db
+from app.deps.auth import optional_user_id
 from app.models.schemas import OrchestrationResponse, ServiceRequest
 from app.orchestrator import KhidmatOrchestrator
-from app.routers import auth, bookings_router, otp_auth, payments, providers_router, reviews, suggestions, users
+from app.routers import (
+    auth,
+    auth_api,
+    bookings_router,
+    google_services,
+    otp_auth,
+    payments,
+    providers_router,
+    reviews,
+    suggestions,
+    users,
+)
 
 load_dotenv()
 
@@ -38,6 +50,7 @@ orchestrator = KhidmatOrchestrator()
 
 app.include_router(users.router)
 app.include_router(auth.router)
+app.include_router(auth_api.router)
 app.include_router(otp_auth.router)
 app.include_router(otp_auth.legacy_router)
 app.include_router(payments.router)
@@ -45,6 +58,7 @@ app.include_router(reviews.router)
 app.include_router(providers_router.router)
 app.include_router(bookings_router.router)
 app.include_router(suggestions.router)
+app.include_router(google_services.router)
 
 
 @app.get("/health")
@@ -57,6 +71,7 @@ def health():
         "agents": 5,
         "providers": 30,
         "gemini_configured": bool(os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")),
+        "google_maps_configured": bool(os.getenv("GOOGLE_MAPS_API_KEY")),
         "clerk_configured": bool(os.getenv("CLERK_SECRET_KEY")),
         "stripe_configured": bool(os.getenv("STRIPE_SECRET_KEY")),
         "twilio_configured": bool(os.getenv("TWILIO_ACCOUNT_SID")),
@@ -65,13 +80,19 @@ def health():
 
 
 @app.post("/api/orchestrate", response_model=OrchestrationResponse)
-def orchestrate(request: ServiceRequest):
+def orchestrate(
+    request: ServiceRequest,
+    token_user_id: str | None = Depends(optional_user_id),
+):
+    user_id = request.user_id or token_user_id
+    if token_user_id and request.user_id and request.user_id != token_user_id:
+        raise HTTPException(status_code=403, detail="user_id does not match token")
     try:
         return orchestrator.run(
             request.message,
             request.session_id,
             request.customer_name,
-            request.user_id,
+            user_id,
             request.user_lat,
             request.user_lng,
             request.customer_phone,

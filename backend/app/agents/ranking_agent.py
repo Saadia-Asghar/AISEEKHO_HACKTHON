@@ -46,7 +46,7 @@ class RankingAgent(BaseAgent):
         urgency: bool,
         personalization_ctx: dict[str, Any],
     ) -> tuple[float, str, dict[str, float], PersonalizationSummary | None]:
-        # 40% distance, 30% rating (user-vote aware), 25% availability, 5% personalization
+        # 40% distance, 35% rating, 25% availability (+ small personalization bonus)
         distance_component = max(0.0, 10.0 - 2.0 * min(provider.distance_km, 5.0))
 
         agg = user_data.get_provider_aggregate_rating(provider.id)
@@ -64,11 +64,10 @@ class RankingAgent(BaseAgent):
 
         breakdown = {
             "distance_40pct": round(distance_component * 0.4, 2),
-            "rating_30pct": round(rating_component * 0.3, 2),
+            "rating_35pct": round(rating_component * 0.35, 2),
             "availability_25pct": round(availability_component * 0.25, 2),
-            "personalization_5pct": round(pers_component * 0.05, 2),
         }
-        total = round(sum(breakdown.values()), 2)
+        total = round(sum(breakdown.values()) + round(pers_component * 0.05, 2), 2)
 
         pers_summary = None
         if pers_notes:
@@ -80,13 +79,11 @@ class RankingAgent(BaseAgent):
 
         reason = (
             f"Total {total}/10 — distance {provider.distance_km}km → {breakdown['distance_40pct']} (40%), "
-            f"rating {effective_rating}★ (incl. user votes) → {breakdown['rating_30pct']} (30%), "
+            f"rating {effective_rating}★ → {breakdown['rating_35pct']} (35%), "
             f"availability → {breakdown['availability_25pct']} (25%)"
         )
         if pers_notes:
-            reason += f", personalization → {breakdown['personalization_5pct']} (5%) [{'; '.join(pers_notes)}]"
-        else:
-            reason += f", personalization → {breakdown['personalization_5pct']} (5%)"
+            reason += f" [personalization: {'; '.join(pers_notes)}]"
 
         return total, reason, breakdown, pers_summary
 

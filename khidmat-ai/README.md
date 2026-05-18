@@ -1,9 +1,16 @@
-# KhidmatAI
+# KhidmatAI monorepo
 
-Monorepo for the KhidmatAI service orchestrator.
+- **`mobile/`** — Expo Router app (single frontend; tabs + stack)
+- **`web/`** — Next.js ops dashboard
+- **`backend/`** — legacy copy; use repo root **`backend/`** for the live API
 
-## Structure
-- `backend/`: FastAPI Python app containing the agents and backend logic.
-- `mobile/`: React Native + Expo app.
-- `web/`: Next.js 14 web dashboard.
-- `shared/`: Shared types and constants.
+## Mobile quick start
+
+```powershell
+cd mobile
+npm install
+$env:EXPO_PUBLIC_API_URL="http://127.0.0.1:8000"
+npx expo start
+```
+
+Screens: Home · Bookings · Trace · Profile · Auth · Results · Booking confirm · Provider detail.

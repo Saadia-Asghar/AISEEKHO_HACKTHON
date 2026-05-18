@@ -117,12 +117,38 @@ class TraceSummary(BaseModel):
     human_readable: str
 
 
+class AlternativeRanking(BaseModel):
+    provider: Provider
+    score: float
+    distance_km: float
+    rating: float
+    availability: float
+    score_breakdown: dict[str, float] = Field(default_factory=dict)
+
+
+class RankingResult(BaseModel):
+    top_provider: Provider
+    alternatives: list[AlternativeRanking] = Field(default_factory=list)
+
+
+class ProviderScoreSummary(BaseModel):
+    name: str
+    provider_id: str
+    score: float
+    distance_score: float
+    rating_score: float
+    availability_score: float
+    total_score: float
+
+
 class OrchestrationResponse(BaseModel):
     session_id: str
     intent: ServiceIntent
     candidates: list[Provider]
     top_three: list[Provider]
     recommended: Provider
+    ranking: RankingResult | None = None
+    alternatives: list[ProviderScoreSummary] = Field(default_factory=list)
     booking: BookingResult
     payment: PaymentInfo
     follow_up: FollowUpResult
@@ -137,7 +163,7 @@ class OrchestrationResponse(BaseModel):
 class ServiceRequest(BaseModel):
     message: str
     session_id: str | None = None
-    customer_name: str = "Demo Customer"
+    customer_name: str | None = None
     user_id: str | None = None
     user_lat: float | None = None
     user_lng: float | None = None

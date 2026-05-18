@@ -35,7 +35,7 @@ class BookingAgent(BaseAgent):
         intent = context["intent"]
         provider: Provider = context["recommended"]
         session_id = context["session_id"]
-        customer_name = context.get("customer_name", "Demo Customer")
+        customer_name = context.get("customer_name") or "Guest"
         slot = self._pick_slot(provider, intent.parsed_datetime_hint, intent.urgency)
         slot_datetime = self._slot_datetime(intent.parsed_datetime_hint, slot)
 
@@ -89,10 +89,10 @@ class BookingAgent(BaseAgent):
         context["booking"] = booking
         context["last_trace"] = self.trace(
             "simulate_booking",
-            {"provider_id": provider.id, "slot": slot, "state": "PENDING→CONFIRMED"},
+            {"provider_id": provider.id, "slot": slot, "state": "PENDING"},
             {**booking.model_dump(), "artifact": "booking_receipt"},
             (
-                f"Booking {booking.booking_id} persisted (PENDING_PAYMENT, PKR {amount_pkr}). "
+                f"Booking {booking.booking_id} persisted (PENDING, PKR {amount_pkr}). "
                 f"Receipt generated; awaiting payment confirmation."
             ),
         )

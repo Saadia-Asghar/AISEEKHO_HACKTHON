@@ -1,22 +1,14 @@
-# HazirAI
+# KhidmatAI
 
-**Bolein, Hum Karein** — You speak, we do.
-
-AI service orchestrator for Pakistan’s home services: voice/text booking, provider matching, and agent trace visibility.
-
-## Brand
-
-- Primary: `#6C3FE8` (purple) · Accent: `#F97316` (orange)
-- Dark UI: bg `#09090B`, cards `#27272A`
-- Logo: purple circle + **H** (`mobile/src/components/HazirLogo.tsx`)
+**Bolein, Hum Karein** — AI service orchestrator for Pakistan home services.
 
 ## Stack
 
-| Layer | Tech |
-|-------|------|
-| Mobile | Expo 52, React Native, Inter, `@gorhom/bottom-sheet`, axios |
-| Backend | FastAPI, SQLite, 5-agent pipeline |
-| Auth | Phone + mock OTP `1234` |
+| Layer | Path | Tech |
+|-------|------|------|
+| Mobile | `khidmat-ai/mobile` | Expo Router, React Native, AsyncStorage auth |
+| Backend | `backend` | FastAPI, SQLite, 5-agent pipeline |
+| Web | `khidmat-ai/web` | Next.js dashboard (optional) |
 
 ## Run
 
@@ -27,25 +19,30 @@ cd backend
 pip install -r requirements.txt
 python run.py
 
-# Mobile (set LAN IP for device testing)
-cd mobile
+# Mobile (device: use your LAN IP)
+cd khidmat-ai\mobile
 npm install
 $env:EXPO_PUBLIC_API_URL="http://YOUR_LAN_IP:8000"
 npx expo start
 ```
 
+## Auth
+
+Phone `+92` + 10 digits → OTP **1234** (mock). Session stored in AsyncStorage; `user_id` is sent on every API call.
+
 ## API highlights
 
-- `POST /auth/otp/send` · `POST /auth/otp/verify`
-- `POST /api/orchestrate` — intent → discovery → ranking → booking → follow-up
-- `GET /api/bookings` · `PATCH /api/bookings/{id}/cancel`
-- `GET /api/suggestions?hour=N` — 4 time-aware service chips
-- `GET /api/providers/{id}/reviews` · `POST /api/reviews`
+- `POST /api/auth/verify` · `POST /api/orchestrate`
+- `GET /api/bookings/user/{user_id}` · `PATCH /api/bookings/{id}/cancel`
+- `GET /api/suggestions?hour=0-23` · `GET /api/providers/{id}` · `POST /api/reviews`
 
-30 mock providers (electrician, plumber, AC, cleaner, carpenter, painter) across **G-9, G-13, F-7, F-10, I-8**.
+### Google (hackathon)
 
-## Mobile flow
+Copy `backend/.env.example` → `backend/.env` and set:
 
-Splash (2s) → Onboarding (3 slides) → Phone auth → **Home** · **Bookings** · **Profile**
+- `GOOGLE_API_KEY` — Gemini intent + voice transcription (`POST /api/speech/transcribe`)
+- `GOOGLE_MAPS_API_KEY` — Geocoding for discovery (falls back to local sector coords)
 
-Demo login: any phone + OTP **1234**.
+Check: `GET http://127.0.0.1:8000/api/google/status` and `GET /health`.
+
+**Connected flow:** Mobile auth → SQLite users · Home mic → Gemini STT → orchestrate · Trace loads from DB · Reviews saved to `provider_ratings`.
