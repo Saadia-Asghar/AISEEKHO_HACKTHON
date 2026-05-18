@@ -11,9 +11,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, Link } from 'expo-router';
-import { colors, radius, spacing } from '../../constants/theme';
+import { colors, fonts, radius, spacing } from '../../constants/theme';
 import { getSession } from '../../lib/auth';
 import { cancelBooking, getBookings } from '../../api/client';
+import Avatar from '../../components/Avatar';
+import Badge from '../../components/ui/Badge';
+import Button from '../../components/ui/Button';
 
 type Tab = 'upcoming' | 'past' | 'cancelled';
 
@@ -24,16 +27,6 @@ type BookingRow = {
   slot?: string;
   slot_datetime?: string;
   status?: string;
-};
-
-const EMOJI: Record<string, string> = {
-  electrician: '💡',
-  plumber: '🔧',
-  ac_technician: '⚡',
-  cleaner: '🧹',
-  painter: '🎨',
-  tutor: '📚',
-  carpenter: '🪚',
 };
 
 export default function BookingsScreen() {
@@ -64,11 +57,6 @@ export default function BookingsScreen() {
     load();
   }, [load]);
 
-  const onRefresh = () => {
-    setRefreshing(true);
-    load();
-  };
-
   const onCancel = (id: string) => {
     Alert.alert('Cancel booking?', 'This cannot be undone.', [
       { text: 'No', style: 'cancel' },
@@ -85,13 +73,12 @@ export default function BookingsScreen() {
     ]);
   };
 
-  const onRebook = () => {
-    router.push('/');
-  };
-
   return (
-    <SafeAreaView style={styles.safe} edges={['bottom']}>
-      <View style={styles.tabs}>
+    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+      <View style={styles.header}>
+        <Text style={styles.title}>My Bookings</Text>
+      </View>
+      <View style={styles.tabsWrap}>
         {(['upcoming', 'past', 'cancelled'] as Tab[]).map((t) => (
           <Pressable
             key={t}
@@ -102,59 +89,62 @@ export default function BookingsScreen() {
             }}
           >
             <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
-              {t.charAt(0).toUpperCase() + t.slice(1)}
+              {t === 'upcoming' ? 'Upcoming' : t === 'past' ? 'Past' : 'Cancelled'}
             </Text>
           </Pressable>
         ))}
       </View>
 
       {loading ? (
-        <ActivityIndicator color={colors.primary} style={{ marginTop: spacing.xl }} />
+        <ActivityIndicator color={colors.violet} style={{ marginTop: spacing.xl }} />
       ) : (
         <ScrollView
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} tintColor={colors.violet} />
+          }
           contentContainerStyle={rows.length ? styles.list : styles.emptyWrap}
         >
           {rows.length === 0 ? (
             <View style={styles.empty}>
-              <Text style={styles.emptyIcon}>📋</Text>
-              <Text style={styles.emptyTitle}>No bookings yet</Text>
-              <Link href="/" asChild>
-                <Pressable style={styles.findBtn}>
-                  <Text style={styles.findText}>Find a Service</Text>
-                </Pressable>
-              </Link>
+              <Text style={styles.emptyIcon}>🎉</Text>
+              <Text style={styles.emptyTitle}>
+                {tab === 'cancelled' ? 'No cancelled bookings' : 'No bookings yet'}
+              </Text>
+              <Text style={styles.emptySub}>
+                {tab === 'cancelled' ? 'All your bookings are going great!' : 'Book a service from Home'}
+              </Text>
+              {tab !== 'cancelled' ? (
+                <Link href="/" asChild>
+                  <Button label="Find a Service" style={{ marginTop: spacing.lg }} />
+                </Link>
+              ) : null}
             </View>
           ) : (
-            rows.map((b) => {
-              const svc = (b.service_type || 'service').toLowerCase();
-              const emoji = EMOJI[svc] || '🔧';
-              return (
-                <View key={b.id} style={styles.card}>
-                  <View style={styles.cardTop}>
-                    <Text style={styles.emoji}>{emoji}</Text>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.svc}>{b.service_type || 'Service'}</Text>
-                      <Text style={styles.provider}>{b.provider_name}</Text>
-                      <Text style={styles.date}>{b.slot || b.slot_datetime}</Text>
-                    </View>
-                    <View style={[styles.badge, (b.status || '').includes('CANCEL') && styles.badgeCancel]}>
-                      <Text style={styles.badgeText}>{b.status || 'PENDING'}</Text>
-                    </View>
+            rows.map((b) => (
+              <View key={b.id} style={styles.bCard}>
+                <View style={styles.bCardTop}>
+                  <Avatar name={b.provider_name || 'P'} size={46} square />
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.bName}>{b.provider_name}</Text>
+                    <Text style={styles.bSub}>{b.service_type || 'Service'}</Text>
+                    <Text style={styles.bDate}>{b.slot || b.slot_datetime}</Text>
                   </View>
-                  {tab === 'upcoming' ? (
-                    <View style={styles.actions}>
-                      <Pressable onPress={() => onCancel(b.id)}>
-                        <Text style={styles.cancel}>Cancel</Text>
-                      </Pressable>
-                      <Pressable onPress={onRebook}>
-                        <Text style={styles.rebook}>Rebook</Text>
-                      </Pressable>
-                    </View>
-                  ) : null}
+                  <Badge
+                    label={(b.status || 'PENDING').replace(/_/g, ' ')}
+                    variant={(b.status || '').includes('CANCEL') ? 'rose' : 'jade'}
+                  />
                 </View>
-              );
-            })
+                {tab === 'upcoming' ? (
+                  <View style={styles.bActions}>
+                    <Button label="Cancel" variant="outline" onPress={() => onCancel(b.id)} style={{ flex: 1 }} />
+                  </View>
+                ) : tab === 'past' ? (
+                  <View style={styles.bActions}>
+                    <Button label="🔄 Rebook" onPress={() => router.push('/')} style={{ flex: 1 }} />
+                  </View>
+                ) : null}
+              </View>
+            ))
           )}
         </ScrollView>
       )}
@@ -164,52 +154,37 @@ export default function BookingsScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
-  tabs: { flexDirection: 'row', padding: spacing.sm, gap: spacing.sm },
-  tab: {
-    flex: 1,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-  },
-  tabActive: { backgroundColor: colors.primary },
-  tabText: { color: colors.muted, fontWeight: '600', fontSize: 12 },
-  tabTextActive: { color: colors.text },
-  list: { padding: spacing.md, paddingBottom: spacing.xl },
-  card: {
+  header: { paddingHorizontal: spacing.lg, paddingTop: spacing.md },
+  title: { fontFamily: fonts.display, fontSize: 22, fontWeight: '600', color: colors.text },
+  tabsWrap: {
+    flexDirection: 'row',
     backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    padding: spacing.md,
-    marginBottom: spacing.md,
+    borderRadius: 12,
+    padding: 4,
+    marginHorizontal: spacing.lg,
+    marginVertical: 14,
+  },
+  tab: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 9 },
+  tabActive: { backgroundColor: colors.card2 },
+  tabText: { fontSize: 12, fontWeight: '600', color: colors.text3, fontFamily: fonts.body },
+  tabTextActive: { color: colors.text },
+  list: { paddingHorizontal: spacing.lg, paddingBottom: 100 },
+  bCard: {
+    backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.border,
+    borderRadius: radius.lg,
+    padding: 16,
+    marginBottom: 12,
   },
-  cardTop: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
-  emoji: { fontSize: 28 },
-  svc: { color: colors.text, fontWeight: '700' },
-  provider: { color: colors.muted, marginTop: 2 },
-  date: { color: colors.muted, fontSize: 12, marginTop: 4 },
-  badge: {
-    backgroundColor: colors.success + '33',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: radius.sm,
-  },
-  badgeCancel: { backgroundColor: colors.error + '33' },
-  badgeText: { color: colors.text, fontSize: 10, fontWeight: '700' },
-  actions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.lg, marginTop: spacing.sm },
-  cancel: { color: colors.error, fontWeight: '600' },
-  rebook: { color: colors.primary, fontWeight: '600' },
-  emptyWrap: { flexGrow: 1, justifyContent: 'center' },
-  empty: { alignItems: 'center', padding: spacing.xl },
-  emptyIcon: { fontSize: 48, marginBottom: spacing.md },
-  emptyTitle: { color: colors.text, fontSize: 18, fontWeight: '700' },
-  findBtn: {
-    marginTop: spacing.lg,
-    backgroundColor: colors.primary,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderRadius: radius.xl,
-  },
-  findText: { color: colors.text, fontWeight: '700' },
+  bCardTop: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 14 },
+  bName: { fontWeight: '600', fontSize: 15, color: colors.text, fontFamily: fonts.body },
+  bSub: { fontSize: 12, color: colors.text2, marginTop: 2, fontFamily: fonts.body },
+  bDate: { fontSize: 12, color: colors.text2, marginTop: 2, fontFamily: fonts.body },
+  bActions: { flexDirection: 'row', gap: 8 },
+  emptyWrap: { flexGrow: 1, justifyContent: 'center', padding: spacing.xl },
+  empty: { alignItems: 'center' },
+  emptyIcon: { fontSize: 44, marginBottom: 12, opacity: 0.4 },
+  emptyTitle: { fontWeight: '600', color: colors.text2, fontSize: 14, fontFamily: fonts.body },
+  emptySub: { color: colors.text3, fontSize: 14, marginTop: 4, fontFamily: fonts.body },
 });

@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, radius } from '../constants/theme';
+import { colors, fonts, radius } from '../constants/theme';
 
 export function initials(name: string) {
   return name
@@ -10,8 +10,32 @@ export function initials(name: string) {
     .toUpperCase();
 }
 
-export default function Avatar({ name, size = 48 }: { name: string; size?: number }) {
-  const hue = (name.charCodeAt(0) * 17) % 360;
+type Variant = 'violet' | 'teal' | 'amber';
+
+function variantFor(name: string): Variant {
+  const n = name.charCodeAt(0) % 3;
+  return n === 0 ? 'violet' : n === 1 ? 'teal' : 'amber';
+}
+
+const variantBg: Record<Variant, string> = {
+  violet: colors.violet,
+  teal: colors.jade,
+  amber: colors.amber,
+};
+
+export default function Avatar({
+  name,
+  size = 48,
+  variant,
+  square,
+}: {
+  name: string;
+  size?: number;
+  variant?: Variant;
+  square?: boolean;
+}) {
+  const v = variant ?? variantFor(name);
+  const br = square ? radius.md : size / 2;
   return (
     <View
       style={[
@@ -19,17 +43,17 @@ export default function Avatar({ name, size = 48 }: { name: string; size?: numbe
         {
           width: size,
           height: size,
-          borderRadius: size / 2,
-          backgroundColor: `hsl(${hue}, 45%, 35%)`,
+          borderRadius: br,
+          backgroundColor: variantBg[v],
         },
       ]}
     >
-      <Text style={[styles.text, { fontSize: size * 0.35 }]}>{initials(name)}</Text>
+      <Text style={[styles.text, { fontSize: size * 0.32 }]}>{initials(name)}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   circle: { alignItems: 'center', justifyContent: 'center' },
-  text: { color: colors.text, fontWeight: '800' },
+  text: { color: colors.text, fontWeight: '700', fontFamily: fonts.display },
 });

@@ -3,10 +3,12 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, Link } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { colors, radius, spacing } from '../constants/theme';
+import { colors, fonts, radius, spacing } from '../constants/theme';
 import { useBookingStore } from '../lib/store';
 import Avatar from '../components/Avatar';
 import ScoreBar from '../components/ScoreBar';
+import Badge from '../components/ui/Badge';
+import Button from '../components/ui/Button';
 import type { ProviderScore } from '../api/client';
 import { confirmBooking } from '../api/client';
 
@@ -16,8 +18,9 @@ function ProviderCard({
   distanceKm,
   price,
   verified,
-  muted,
+  top,
   breakdown,
+  badge,
   onPress,
 }: {
   name: string;
@@ -25,28 +28,28 @@ function ProviderCard({
   distanceKm: number;
   price: string;
   verified?: boolean;
-  muted?: boolean;
+  top?: boolean;
+  badge?: string;
   breakdown?: { distance_score?: number; rating_score?: number; availability_score?: number };
   onPress?: () => void;
 }) {
-  const dist = breakdown?.distance_score ?? 0.4;
-  const rat = breakdown?.rating_score ?? 0.35;
-  const avail = breakdown?.availability_score ?? 0.25;
+  const dist = breakdown?.distance_score ?? 0.32;
+  const rat = breakdown?.rating_score ?? 0.25;
+  const avail = breakdown?.availability_score ?? 0.43;
   return (
-    <Pressable
-      style={[styles.card, muted && styles.cardMuted]}
-      onPress={onPress}
-      disabled={!onPress}
-    >
-      <View style={styles.cardRow}>
-        <Avatar name={name} size={muted ? 40 : 56} />
-        <View style={styles.cardBody}>
-          <Text style={[styles.name, muted && { fontSize: 16 }]}>{name}</Text>
-          <Text style={styles.meta}>
-            ⭐ {rating.toFixed(1)} · 📍 {distanceKm.toFixed(1)} km · 💰 {price}
+    <Pressable style={[styles.pcard, top && styles.pcardTop]} onPress={onPress} disabled={!onPress}>
+      {top ? <View style={styles.topTag}><Text style={styles.topTagText}>⭐ Top Match</Text></View> : null}
+      <View style={styles.pcardTopRow}>
+        <Avatar name={name} size={top ? 52 : 48} square />
+        <View style={styles.pinfo}>
+          <Text style={styles.pname}>{name}</Text>
+          <Text style={styles.pmeta}>
+            <Text style={styles.star}>★ </Text>
+            <Text style={styles.pmetaBold}>{rating.toFixed(1)}</Text>
+            {' · '}{distanceKm.toFixed(1)} km · {price}
           </Text>
-          {verified ? <Text style={styles.verified}>✓ Verified</Text> : null}
         </View>
+        {verified ? <Badge label="✓ Verified" variant="jade" /> : badge ? <Badge label={badge} variant="amber" /> : null}
       </View>
       <ScoreBar distance={dist} rating={rat} availability={avail} />
     </Pressable>
@@ -64,12 +67,7 @@ export default function ResultsScreen() {
   if (!result) {
     return (
       <SafeAreaView style={styles.safe}>
-        <View style={styles.skeletons}>
-          {[1, 2, 3].map((i) => (
-            <View key={i} style={styles.skel} />
-          ))}
-          <ActivityIndicator color={colors.primary} style={{ marginTop: spacing.lg }} />
-        </View>
+        <ActivityIndicator color={colors.violet} style={{ marginTop: spacing.xl }} />
       </SafeAreaView>
     );
   }
@@ -81,21 +79,21 @@ export default function ResultsScreen() {
         name: p.name,
         provider_id: p.id,
         score: p.score ?? 0,
-        distance_score: p.score_breakdown?.distance_40pct ?? 0.4,
-        rating_score: p.score_breakdown?.rating_35pct ?? 0.35,
-        availability_score: p.score_breakdown?.availability_25pct ?? 0.25,
+        distance_score: p.score_breakdown?.distance_40pct ?? 0.28,
+        rating_score: p.score_breakdown?.rating_35pct ?? 0.31,
+        availability_score: p.score_breakdown?.availability_25pct ?? 0.35,
         total_score: p.score ?? 0,
       })) ?? []);
 
   const price =
     top.price_min_pkr && top.price_max_pkr
-      ? `${top.price_min_pkr}–${top.price_max_pkr} PKR`
+      ? `PKR ${top.price_min_pkr.toLocaleString()}`
       : 'Quote on visit';
 
   const topBreakdown = {
-    distance_score: top.score_breakdown?.distance_40pct ?? 0.4,
-    rating_score: top.score_breakdown?.rating_35pct ?? 0.35,
-    availability_score: top.score_breakdown?.availability_25pct ?? 0.25,
+    distance_score: top.score_breakdown?.distance_40pct ?? 0.32,
+    rating_score: top.score_breakdown?.rating_35pct ?? 0.25,
+    availability_score: top.score_breakdown?.availability_25pct ?? 0.43,
   };
 
   const bookNow = async () => {
@@ -103,63 +101,73 @@ export default function ResultsScreen() {
     setBooking(true);
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-      if (result.booking?.booking_id) {
-        await confirmBooking(result.booking.booking_id);
-      }
+      if (result.booking?.booking_id) await confirmBooking(result.booking.booking_id);
       router.push('/booking-confirm');
     } finally {
       setBooking(false);
     }
   };
 
+  const serviceTitle = `${result.intent.service_label} · ${result.intent.location}`;
+
   return (
     <SafeAreaView style={styles.safe} edges={['bottom']}>
       <ScrollView contentContainerStyle={styles.scroll}>
-        <Text style={styles.heading}>Top match</Text>
-        <ProviderCard
-          name={top.name}
-          rating={top.rating}
-          distanceKm={top.distance_km}
-          price={price}
-          verified={top.verified !== false}
-          breakdown={topBreakdown}
-        />
-
-        {alts.length > 0 ? (
-          <>
-            <Text style={[styles.heading, { marginTop: spacing.lg }]}>Alternatives</Text>
-            {alts.map((a) => (
-              <ProviderCard
-                key={a.provider_id}
-                name={a.name}
-                rating={top.rating}
-                distanceKm={top.distance_km}
-                price={price}
-                muted
-                breakdown={{
-                  distance_score: a.distance_score,
-                  rating_score: a.rating_score,
-                  availability_score: a.availability_score,
-                }}
-                onPress={() => router.push(`/provider/${a.provider_id}`)}
-              />
-            ))}
-          </>
-        ) : null}
-
-        <Pressable
-          style={[styles.cta, booking && { opacity: 0.5 }]}
-          onPress={bookNow}
-          disabled={booking}
-        >
-          <Text style={styles.ctaText}>{booking ? 'Booking…' : 'Book Now'}</Text>
-        </Pressable>
-
-        <Link href="/(tabs)/trace" asChild>
-          <Pressable style={styles.traceBtn}>
-            <Text style={styles.traceText}>View Agent Reasoning</Text>
+        <View style={styles.pageHeader}>
+          <Pressable style={styles.backBtn} onPress={() => router.back()}>
+            <Text style={styles.backArrow}>←</Text>
           </Pressable>
-        </Link>
+          <Text style={styles.pageTitle} numberOfLines={1}>
+            {serviceTitle}
+          </Text>
+          <Badge label={`${1 + alts.length} Found`} variant="violet" />
+        </View>
+        <Text style={styles.sub}>AI matched by location, rating & availability</Text>
+
+        <View style={styles.topWrap}>
+          <ProviderCard
+            name={top.name}
+            rating={top.rating}
+            distanceKm={top.distance_km}
+            price={price}
+            verified={top.verified !== false}
+            top
+            breakdown={topBreakdown}
+            onPress={() => router.push(`/provider/${top.id}`)}
+          />
+        </View>
+
+        {alts.map((a, i) => (
+          <View key={a.provider_id} style={styles.altWrap}>
+            <ProviderCard
+              name={a.name}
+              rating={top.rating}
+              distanceKm={top.distance_km}
+              price={price}
+              badge={i === 0 ? 'Popular' : 'Budget'}
+              breakdown={{
+                distance_score: a.distance_score,
+                rating_score: a.rating_score,
+                availability_score: a.availability_score,
+              }}
+              onPress={() => router.push(`/provider/${a.provider_id}`)}
+            />
+          </View>
+        ))}
+
+        <View style={styles.footer}>
+          <Button
+            label={`Book ${top.name} →`}
+            onPress={bookNow}
+            loading={booking}
+            style={{ width: '100%' }}
+          />
+          <Link href="/(tabs)/trace" asChild>
+            <Pressable style={styles.traceLink}>
+              <Text style={styles.traceText}>🧠 View Agent Reasoning</Text>
+            </Pressable>
+          </Link>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -167,36 +175,71 @@ export default function ResultsScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
-  scroll: { padding: spacing.md, paddingBottom: spacing.xl },
-  heading: { color: colors.muted, fontSize: 13, fontWeight: '600', marginBottom: spacing.sm },
-  card: {
-    backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.primary,
-  },
-  cardMuted: { borderColor: colors.border, opacity: 0.92, marginTop: spacing.sm },
-  cardRow: { flexDirection: 'row', gap: spacing.md },
-  cardBody: { flex: 1 },
-  name: { color: colors.text, fontSize: 20, fontWeight: '800' },
-  meta: { color: colors.muted, marginTop: 4, fontSize: 13 },
-  verified: { color: colors.success, marginTop: 4, fontSize: 12, fontWeight: '600' },
-  cta: {
-    marginTop: spacing.lg,
-    backgroundColor: colors.primary,
-    padding: spacing.md,
-    borderRadius: radius.xl,
+  scroll: { paddingBottom: spacing.xl },
+  pageHeader: {
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: 12,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
   },
-  ctaText: { color: colors.text, fontWeight: '800', fontSize: 17 },
-  traceBtn: { marginTop: spacing.md, alignItems: 'center', padding: spacing.sm },
-  traceText: { color: colors.accent, fontWeight: '600' },
-  skeletons: { padding: spacing.md, gap: spacing.md },
-  skel: {
-    height: 120,
+  backBtn: {
+    width: 38,
+    height: 38,
     backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    opacity: 0.6,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
+  backArrow: { color: colors.text, fontSize: 18 },
+  pageTitle: {
+    flex: 1,
+    fontFamily: fonts.display,
+    fontSize: 17,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  sub: {
+    fontSize: 12,
+    color: colors.text3,
+    paddingHorizontal: spacing.lg,
+    paddingTop: 8,
+    fontFamily: fonts.body,
+  },
+  topWrap: { marginHorizontal: spacing.lg, marginTop: 14, marginBottom: 12 },
+  altWrap: { marginHorizontal: spacing.lg, marginBottom: 12 },
+  pcard: {
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    padding: 16,
+  },
+  pcardTop: {
+    borderColor: 'rgba(123,94,167,0.35)',
+    backgroundColor: 'rgba(123,94,167,0.08)',
+    marginTop: 10,
+  },
+  topTag: {
+    position: 'absolute',
+    top: -10,
+    left: 14,
+    zIndex: 2,
+    backgroundColor: colors.violet,
+    paddingHorizontal: 12,
+    paddingVertical: 3,
+    borderRadius: 20,
+  },
+  topTagText: { color: '#fff', fontSize: 11, fontWeight: '700', fontFamily: fonts.body },
+  pcardTopRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 14 },
+  pinfo: { flex: 1 },
+  pname: { fontWeight: '600', fontSize: 15, color: colors.text, fontFamily: fonts.body },
+  pmeta: { fontSize: 12, color: colors.text2, marginTop: 3, fontFamily: fonts.body },
+  star: { color: colors.amber },
+  pmetaBold: { color: colors.text, fontWeight: '600' },
+  footer: { paddingHorizontal: spacing.lg, marginTop: 8 },
+  traceLink: { marginTop: 10, alignItems: 'center', padding: spacing.sm },
+  traceText: { color: colors.text2, fontWeight: '600', fontFamily: fonts.body },
 });

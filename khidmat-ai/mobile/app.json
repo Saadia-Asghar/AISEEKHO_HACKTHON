@@ -6,8 +6,13 @@
     "scheme": "khidmatai",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "backgroundColor": "#0A0A0F"
+    },
     "splash": {
-      "backgroundColor": "#09090B"
+      "backgroundColor": "#0A0A0F"
     },
     "ios": {
       "bundleIdentifier": "com.khidmatai.app"

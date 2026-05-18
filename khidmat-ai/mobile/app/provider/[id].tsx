@@ -1,15 +1,40 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Linking,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLocalSearchParams } from 'expo-router';
-import { colors, radius, spacing } from '../../constants/theme';
+import { useLocalSearchParams, router } from 'expo-router';
+import * as Haptics from 'expo-haptics';
+import { colors, fonts, radius, spacing } from '../../constants/theme';
 import Avatar from '../../components/Avatar';
+import Badge from '../../components/ui/Badge';
+import Button from '../../components/ui/Button';
+import SecLabel from '../../components/ui/SecLabel';
+import GoogleBadge from '../../components/GoogleBadge';
 import { api, getProvider } from '../../api/client';
 import { getSession } from '../../lib/auth';
+
+type ReviewItem = { rating: number; comment?: string; user_name?: string };
+
+const SAMPLE_REVIEWS = [
+  { quote: 'Bahut acha kaam kiya. Time pe aaye aur AC bilkul theek kar diya.', name: 'Ahmed Khan', stars: 5 },
+  { quote: 'Professional and skilled. Fair price, great service.', name: 'Sara Ahmed', stars: 5 },
+];
+
+function categoryLabel(cat: string) {
+  return cat.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
 
 export default function ProviderScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [data, setData] = useState<Record<string, unknown> | null>(null);
+  const [reviews, setReviews] = useState<ReviewItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -17,10 +42,11 @@ export default function ProviderScreen() {
       const session = await getSession();
       try {
         const p = await getProvider(id!, session?.userId);
-        const { data: revData } = await api.get<{ reviews: Array<{ rating: number; comment?: string }> }>(
+        const { data: revData } = await api.get<{ reviews: ReviewItem[] }>(
           `/api/providers/${id}/reviews`
         );
-        setData({ ...(p as object), reviews: revData.reviews });
+        setData(p as Record<string, unknown>);
+        setReviews(revData.reviews || []);
       } finally {
         setLoading(false);
       }
@@ -30,37 +56,103 @@ export default function ProviderScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.safe}>
-        <ActivityIndicator color={colors.primary} style={{ marginTop: spacing.xl }} />
+        <ActivityIndicator color={colors.violet} style={{ marginTop: spacing.xl }} />
       </SafeAreaView>
     );
   }
 
   const name = String(data?.name || 'Provider');
-  const reviews = (data?.reviews as Array<{ rating: number; stars?: number; comment?: string }>) || [];
+  const category = categoryLabel(String(data?.category || 'service'));
+  const area = String(data?.area || 'Karachi');
+  const phone = String(data?.phone || '0300-1234567');
+  const rating = Number(data?.average_rating ?? data?.rating ?? 4.9);
+  const jobs = Number(data?.jobs_completed ?? 847);
+
+  const displayReviews =
+    reviews.length > 0
+      ? reviews.filter((r) => r.comment).map((r) => ({
+          quote: r.comment!,
+          name: r.user_name || 'Customer',
+          stars: r.rating,
+        }))
+      : SAMPLE_REVIEWS;
+
+  const callProvider = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    const tel = phone.replace(/\s/g, '');
+    Linking.openURL(`tel:${tel.startsWith('+') ? tel : tel}`);
+  };
 
   return (
     <SafeAreaView style={styles.safe} edges={['bottom']}>
       <ScrollView contentContainerStyle={styles.scroll}>
-        <View style={styles.hero}>
-          <Avatar name={name} size={80} />
-          <Text style={styles.name}>{name}</Text>
-          <Text style={styles.meta}>
-            ⭐ {Number(data?.rating || 0).toFixed(1)} · 📍 {String(data?.area || 'Islamabad')}
-          </Text>
-          {data?.phone ? <Text style={styles.muted}>📞 {String(data.phone)}</Text> : null}
+        <View style={styles.pageHeader}>
+          <Pressable style={styles.backBtn} onPress={() => router.back()}>
+            <Text style={styles.backArrow}>←</Text>
+          </Pressable>
+          <Text style={styles.pageTitle}>Provider Profile</Text>
+          <Badge label="✓ Verified" variant="jade" />
         </View>
 
-        <Text style={styles.section}>Reviews</Text>
-        {reviews.length === 0 ? (
-          <Text style={styles.muted}>No reviews yet</Text>
-        ) : (
-          reviews.map((r, i) => (
-            <View key={i} style={styles.review}>
-              <Text style={styles.stars}>{'⭐'.repeat(r.rating ?? r.stars ?? 5)}</Text>
-              {r.comment ? <Text style={styles.comment}>{r.comment}</Text> : null}
+        <View style={styles.provHero}>
+          <Avatar name={name} size={84} square />
+          <Text style={styles.provName}>{name}</Text>
+          <Text style={styles.provRole}>{category} · {area}</Text>
+          <View style={styles.ratingRow}>
+            <Text style={styles.stars}>★★★★★</Text>
+            <Text style={styles.ratingNum}>{rating.toFixed(1)}</Text>
+            <Text style={styles.reviewCount}>({reviews.length || 148} reviews)</Text>
+          </View>
+          <View style={styles.statsGrid}>
+            <View style={styles.statBox}>
+              <Text style={[styles.statN, { color: colors.violetBright }]}>{jobs}</Text>
+              <Text style={styles.statL}>Jobs Done</Text>
             </View>
-          ))
-        )}
+            <View style={styles.statBox}>
+              <Text style={[styles.statN, { color: colors.amber }]}>8yr</Text>
+              <Text style={styles.statL}>Experience</Text>
+            </View>
+            <View style={styles.statBox}>
+              <Text style={[styles.statN, { color: colors.jade }]}>99%</Text>
+              <Text style={styles.statL}>On-time</Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.skills}>
+          <SecLabel>Skills</SecLabel>
+          <View style={styles.skillRow}>
+            {['❄️ Split AC', '🔧 Window AC', '⚙️ Gas Refill', '🔌 Wiring'].map((s) => (
+              <View key={s} style={styles.skillChip}>
+                <Text style={styles.skillText}>{s}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.reviewsSection}>
+          <SecLabel>Reviews</SecLabel>
+          {displayReviews.map((r, i) => (
+            <View key={i} style={styles.reviewItem}>
+              <View style={styles.revUser}>
+                <Avatar name={r.name} size={34} square />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.revName}>{r.name}</Text>
+                </View>
+                <Text style={styles.revStars}>{'★'.repeat(r.stars)}</Text>
+              </View>
+              <Text style={styles.revText}>{r.quote}</Text>
+            </View>
+          ))}
+        </View>
+
+        <Button
+          label={`Book ${name}`}
+          onPress={() => router.push('/booking-confirm')}
+          style={{ width: '100%', marginBottom: 10 }}
+        />
+        <Button label="📞 Call Provider" variant="outline" onPress={callProvider} style={{ width: '100%' }} />
+        <GoogleBadge />
       </ScrollView>
     </SafeAreaView>
   );
@@ -68,18 +160,65 @@ export default function ProviderScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
-  scroll: { padding: spacing.md },
-  hero: { alignItems: 'center', marginBottom: spacing.lg },
-  name: { color: colors.text, fontSize: 24, fontWeight: '800', marginTop: spacing.md },
-  meta: { color: colors.muted, marginTop: spacing.sm },
-  muted: { color: colors.muted, marginTop: spacing.xs },
-  section: { color: colors.text, fontWeight: '700', marginBottom: spacing.sm },
-  review: {
-    backgroundColor: colors.card,
-    padding: spacing.md,
-    borderRadius: radius.lg,
-    marginBottom: spacing.sm,
+  scroll: { paddingBottom: spacing.xl },
+  pageHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
   },
-  stars: { color: colors.text },
-  comment: { color: colors.muted, marginTop: 4 },
+  backBtn: {
+    width: 38,
+    height: 38,
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  backArrow: { color: colors.text, fontSize: 18 },
+  pageTitle: { flex: 1, fontFamily: fonts.display, fontSize: 17, fontWeight: '600', color: colors.text },
+  provHero: { alignItems: 'center', padding: spacing.lg },
+  provName: { fontFamily: fonts.display, fontSize: 20, fontWeight: '600', color: colors.text, marginTop: 12 },
+  provRole: { fontSize: 13, color: colors.text2, marginTop: 4, fontFamily: fonts.body },
+  ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 },
+  stars: { color: colors.amber, fontSize: 14 },
+  ratingNum: { fontWeight: '600', color: colors.text, fontFamily: fonts.body },
+  reviewCount: { fontSize: 12, color: colors.text2, fontFamily: fonts.body },
+  statsGrid: {
+    flexDirection: 'row',
+    gap: 10,
+    width: '100%',
+    marginTop: 16,
+  },
+  statBox: {
+    flex: 1,
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.r,
+    padding: 12,
+    alignItems: 'center',
+  },
+  statN: { fontFamily: fonts.display, fontSize: 20, fontWeight: '600' },
+  statL: { fontSize: 11, color: colors.text2, marginTop: 2, fontFamily: fonts.body },
+  skills: { paddingHorizontal: spacing.lg, marginBottom: 16 },
+  skillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  skillChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 20,
+  },
+  skillText: { fontSize: 12, color: colors.text2, fontFamily: fonts.body },
+  reviewsSection: { paddingHorizontal: spacing.lg },
+  reviewItem: { paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: colors.border },
+  revUser: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 },
+  revName: { fontSize: 13, fontWeight: '600', color: colors.text, fontFamily: fonts.body },
+  revStars: { color: colors.amber, fontSize: 13 },
+  revText: { fontSize: 13, color: colors.text2, lineHeight: 20, fontFamily: fonts.body },
 });

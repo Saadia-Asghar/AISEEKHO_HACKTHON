@@ -1,5 +1,9 @@
 # KhidmatAI — Framer Wireframer prompts
 
+**Project:** [Splendid Gibbon](https://framer.com/projects/Splendid-Gibbon--yocSa4NGRmxD5JPlxxnD-7tsI7)  
+**Published:** https://splendid-gibbon-403400.framer.app · [Provider detail](https://splendid-gibbon-403400.framer.app/provider-detail)  
+**Code:** `khidmat-ai/mobile` · **Link doc:** `docs/FRAMER_LINK.md`
+
 Framer Wireframer builds **websites only**. Use these as **390px mobile-first web** prototypes (not native app export). Match the real app in `khidmat-ai/mobile`.
 
 ## Design tokens

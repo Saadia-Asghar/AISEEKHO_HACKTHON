@@ -22,8 +22,11 @@ api.interceptors.response.use(
   (r) => r,
   async (error: AxiosError) => {
     if (error.response?.status === 401) {
-      await clearSession();
-      router.replace('/auth');
+      const session = await getSession();
+      if (session?.token && session.token !== 'mock') {
+        await clearSession();
+        router.replace('/auth');
+      }
     }
     return Promise.reject(error);
   }

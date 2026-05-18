@@ -3,33 +3,42 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
-import { colors, radius, spacing } from '../../constants/theme';
+import { colors, fonts, radius, spacing } from '../../constants/theme';
 import { useBookingStore } from '../../lib/store';
 import { getSessionTrace } from '../../api/client';
 import type { OrchestrateResult } from '../../api/client';
+import Badge from '../../components/ui/Badge';
+import GoogleBadge from '../../components/GoogleBadge';
+
+const ICONS: Record<string, { icon: string; tone: 'jade' | 'violet' | 'amber' | 'gray' }> = {
+  intent: { icon: '🎤', tone: 'jade' },
+  discovery: { icon: '📍', tone: 'amber' },
+  ranking: { icon: '🧮', tone: 'violet' },
+  booking: { icon: '🔔', tone: 'jade' },
+  follow: { icon: '🔔', tone: 'jade' },
+  summary: { icon: '✅', tone: 'jade' },
+};
 
 const STEPS = [
-  { key: 'intent', icon: '🧠', title: 'Intent', match: /intent/i },
-  { key: 'discovery', icon: '🔍', title: 'Discovery', match: /discovery|provider/i },
-  { key: 'ranking', icon: '⚖️', title: 'Ranking', match: /ranking/i },
-  { key: 'booking', icon: '📅', title: 'Booking', match: /booking/i },
-  { key: 'follow', icon: '🔔', title: 'Follow-up', match: /follow/i },
-  { key: 'summary', icon: '📋', title: 'Summary', match: /trace|summary/i },
+  { key: 'intent', match: /intent/i },
+  { key: 'discovery', match: /discovery|provider/i },
+  { key: 'ranking', match: /ranking/i },
+  { key: 'booking', match: /booking/i },
+  { key: 'follow', match: /follow/i },
+  { key: 'summary', match: /trace|summary/i },
 ];
 
 function matchStep(agent: string) {
-  return STEPS.find((s) => s.match.test(agent));
+  return STEPS.find((s) => s.match.test(agent))?.key ?? 'intent';
 }
 
 export default function TraceScreen() {
   const { result } = useBookingStore();
   const [trace, setTrace] = useState<OrchestrateResult['trace']>([]);
   const [loading, setLoading] = useState(false);
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    const local = result?.trace ?? [];
-    setTrace(local);
+    setTrace(result?.trace ?? []);
     if (!result?.session_id) return;
     setLoading(true);
     getSessionTrace(result.session_id)
@@ -41,20 +50,17 @@ export default function TraceScreen() {
   }, [result?.session_id, result?.trace]);
 
   const timeline = useMemo(() => {
-    let activeSet = false;
-    return STEPS.map((step) => {
-      const entry = trace.find((t) => matchStep(t.agent)?.key === step.key);
-      let status: 'completed' | 'active' | 'pending' = 'pending';
-      if (entry) status = 'completed';
-      else if (!activeSet && trace.length) {
-        status = 'active';
-        activeSet = true;
-      }
+    return trace.map((entry, i) => {
+      const key = matchStep(entry.agent);
+      const meta = ICONS[key] ?? ICONS.intent;
       return {
-        ...step,
-        reasoning: entry?.reasoning || 'Run a search from Home to see agent steps.',
-        timestamp: entry?.timestamp?.slice(11, 19) || '—',
-        status,
+        key: `${key}-${i}`,
+        icon: meta.icon,
+        tone: meta.tone,
+        title: entry.agent.replace(/_/g, ' '),
+        body: entry.reasoning,
+        time: entry.timestamp?.slice(11, 19) || `Step ${i + 1}`,
+        done: true,
       };
     });
   }, [trace]);
@@ -64,47 +70,62 @@ export default function TraceScreen() {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   };
 
+  const displaySteps =
+    timeline.length > 0
+      ? timeline
+      : [
+          {
+            key: 'empty',
+            icon: '🧠',
+            tone: 'gray' as const,
+            title: 'No trace yet',
+            body: 'Run a search from Home to see agent steps.',
+            time: '—',
+            done: false,
+          },
+        ];
+
   return (
-    <SafeAreaView style={styles.safe} edges={['bottom']}>
+    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <ScrollView contentContainerStyle={styles.scroll}>
-        <View style={styles.topRow}>
-          <Text style={styles.badge}>🤖 Gemini intent · Google Maps discovery</Text>
+        <View style={styles.pageHeader}>
+          <Text style={styles.pageTitle}>Agent Trace</Text>
+          <View style={styles.gBadge}>
+            <Text style={styles.gLetter}>G</Text>
+            <Text style={styles.gText}>Google AI</Text>
+          </View>
+        </View>
+
+        <View style={styles.badgesRow}>
+          <Badge label={`✓ ${displaySteps.length} Steps`} variant="jade" />
           <Pressable style={styles.copyBtn} onPress={copyTrace}>
-            <Text style={styles.copyText}>Copy Trace</Text>
+            <Text style={styles.copyText}>📋 Copy</Text>
           </Pressable>
         </View>
-        {loading ? <ActivityIndicator color={colors.primary} style={{ marginBottom: spacing.md }} /> : null}
 
-        {timeline.map((step) => {
-          const isOpen = expanded[step.key];
-          const circleStyle =
-            step.status === 'completed'
-              ? styles.circleDone
-              : step.status === 'active'
-                ? styles.circleActive
-                : styles.circlePending;
-          return (
-            <View key={step.key} style={styles.step}>
-              <View style={styles.stepHead}>
-                <View style={[styles.circle, circleStyle]}>
+        {loading ? <ActivityIndicator color={colors.violet} style={{ marginBottom: spacing.md }} /> : null}
+
+        <View style={styles.timeline}>
+          {displaySteps.map((step, idx) => (
+            <View key={step.key} style={styles.tlItem}>
+              <View style={styles.tlLeft}>
+                <View style={[styles.tlIcon, styles[`icon_${step.tone}`]]}>
                   <Text>{step.icon}</Text>
                 </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.stepTitle}>{step.title}</Text>
-                  <Text style={styles.time}>{step.timestamp}</Text>
+                {idx < displaySteps.length - 1 ? <View style={styles.tlLine} /> : null}
+              </View>
+              <View style={styles.tlBody}>
+                <Text style={styles.tlStepLabel}>{step.time}</Text>
+                <View style={[styles.tlCard, step.done && styles.tlCardDone]}>
+                  <Text style={styles.tlCardTitle}>{step.title}</Text>
+                  <Text style={styles.tlCardBody}>{step.body}</Text>
                 </View>
               </View>
-              <Pressable
-                onPress={() => setExpanded((e) => ({ ...e, [step.key]: !e[step.key] }))}
-                style={styles.reasonBox}
-              >
-                <Text style={styles.reason} numberOfLines={isOpen ? undefined : 2}>
-                  {step.reasoning}
-                </Text>
-              </Pressable>
             </View>
-          );
-        })}
+          ))}
+        </View>
+
+        <GoogleBadge />
       </ScrollView>
     </SafeAreaView>
   );
@@ -112,36 +133,71 @@ export default function TraceScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
-  scroll: { padding: spacing.md, paddingBottom: spacing.xl },
-  topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md },
-  badge: { color: colors.muted, fontSize: 11, flex: 1 },
-  copyBtn: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.md,
-    backgroundColor: colors.surface,
+  scroll: { padding: spacing.lg, paddingBottom: 100 },
+  pageHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.md,
   },
-  copyText: { color: colors.primary, fontWeight: '600' },
-  step: { marginBottom: spacing.lg },
-  stepHead: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  circle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+  pageTitle: { fontFamily: fonts.display, fontSize: 17, fontWeight: '600', color: colors.text },
+  gBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.border2,
+    borderRadius: 20,
+  },
+  gLetter: { fontSize: 13, fontWeight: '800', color: '#4285F4' },
+  gText: { fontSize: 11, fontWeight: '600', color: colors.text2, fontFamily: fonts.body },
+  badgesRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: spacing.md },
+  copyBtn: {
+    marginLeft: 'auto',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderWidth: 1,
+    borderColor: colors.border2,
+    borderRadius: radius.md,
+  },
+  copyText: { color: colors.text2, fontSize: 12, fontFamily: fonts.body },
+  timeline: { paddingTop: 8 },
+  tlItem: { flexDirection: 'row', gap: 14, marginBottom: 4 },
+  tlLeft: { alignItems: 'center' },
+  tlIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 13,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
   },
-  circleDone: { backgroundColor: colors.success + '33', borderWidth: 2, borderColor: colors.success },
-  circleActive: { backgroundColor: colors.primary + '33', borderWidth: 2, borderColor: colors.primary },
-  circlePending: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
-  stepTitle: { color: colors.text, fontWeight: '700', fontSize: 16 },
-  time: { color: colors.muted, fontSize: 11 },
-  reasonBox: {
-    marginLeft: 56,
-    marginTop: spacing.sm,
+  icon_jade: { backgroundColor: colors.jadeSoft, borderColor: 'rgba(46,196,169,0.2)' },
+  icon_violet: { backgroundColor: colors.violetSoft, borderColor: 'rgba(123,94,167,0.2)' },
+  icon_amber: { backgroundColor: colors.amberSoft, borderColor: 'rgba(232,168,56,0.2)' },
+  icon_gray: { backgroundColor: 'rgba(160,155,192,0.08)', borderColor: colors.border },
+  tlLine: { width: 1, flex: 1, minHeight: 16, backgroundColor: colors.border, marginVertical: 4 },
+  tlBody: { flex: 1, paddingBottom: 20 },
+  tlStepLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+    color: colors.text3,
+    marginBottom: 5,
+    fontFamily: fonts.body,
+  },
+  tlCard: {
     backgroundColor: colors.card,
-    padding: spacing.md,
-    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.r,
+    padding: 12,
   },
-  reason: { color: colors.muted, fontSize: 13, lineHeight: 20 },
+  tlCardDone: { borderColor: 'rgba(46,196,169,0.25)', backgroundColor: 'rgba(46,196,169,0.05)' },
+  tlCardTitle: { fontWeight: '600', fontSize: 14, color: colors.text, marginBottom: 4, fontFamily: fonts.body },
+  tlCardBody: { fontSize: 12, color: colors.text2, lineHeight: 18, fontFamily: fonts.body },
 });

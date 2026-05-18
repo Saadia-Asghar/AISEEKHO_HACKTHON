@@ -1,5 +1,5 @@
 import { Audio } from 'expo-av';
-import * as FileSystem from 'expo-file-system';
+import { readAsStringAsync } from 'expo-file-system/legacy';
 
 let recording: Audio.Recording | null = null;
 
@@ -28,9 +28,7 @@ export async function stopRecordingBase64(): Promise<{ base64: string; mimeType:
   if (!uri) {
     throw new Error('No recording URI');
   }
-  const base64 = await FileSystem.readAsStringAsync(uri, {
-    encoding: FileSystem.EncodingType.Base64,
-  });
+  const base64 = await readAsStringAsync(uri, { encoding: 'base64' });
   const mimeType = uri.endsWith('.m4a') ? 'audio/mp4' : 'audio/webm';
   return { base64, mimeType };
 }

@@ -13,19 +13,22 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, Link } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { colors, radius, spacing } from '../../constants/theme';
+import { colors, fonts, radius, spacing } from '../../constants/theme';
 import { getSession } from '../../lib/auth';
 import { orchestrate, getSuggestions, transcribeSpeech } from '../../api/client';
 import { useBookingStore } from '../../lib/store';
 import { addRecentSearch, getRecentSearches } from '../../lib/searchHistory';
 import ShimmerOverlay from '../../components/ShimmerOverlay';
+import SecLabel from '../../components/ui/SecLabel';
+import Button from '../../components/ui/Button';
 import { isRecording, startRecording, stopRecordingBase64 } from '../../lib/voice';
 
 const DEMO = 'Mujhe kal subah G-13 mein AC technician chahiye';
+
 const CHIPS = [
-  { label: 'AC Tech', emoji: '⚡', phrase: 'AC technician' },
+  { label: 'AC Repair', emoji: '❄️', phrase: 'AC technician' },
   { label: 'Plumber', emoji: '🔧', phrase: 'plumber' },
-  { label: 'Electrician', emoji: '💡', phrase: 'electrician' },
+  { label: 'Electrician', emoji: '⚡', phrase: 'electrician' },
   { label: 'Cleaner', emoji: '🧹', phrase: 'cleaner' },
   { label: 'Painter', emoji: '🎨', phrase: 'painter' },
   { label: 'Tutor', emoji: '📚', phrase: 'tutor' },
@@ -35,6 +38,7 @@ export default function HomeScreen() {
   const [name, setName] = useState('Guest');
   const [input, setInput] = useState('');
   const [recent, setRecent] = useState<string[]>([]);
+  const [activeChip, setActiveChip] = useState(0);
   const [highlight, setHighlight] = useState<Set<string>>(new Set());
   const pulse = useRef(new Animated.Value(1)).current;
   const { loading, setLoading, setResult, setError, error } = useBookingStore();
@@ -49,8 +53,8 @@ export default function HomeScreen() {
     );
     Animated.loop(
       Animated.sequence([
-        Animated.timing(pulse, { toValue: 1.08, duration: 900, useNativeDriver: true }),
-        Animated.timing(pulse, { toValue: 1, duration: 900, useNativeDriver: true }),
+        Animated.timing(pulse, { toValue: 1.05, duration: 1400, useNativeDriver: true }),
+        Animated.timing(pulse, { toValue: 1, duration: 1400, useNativeDriver: true }),
       ])
     ).start();
   }, []);
@@ -86,6 +90,10 @@ export default function HomeScreen() {
 
   const onMicPress = async () => {
     if (loading) return;
+    if (Platform.OS === 'web') {
+      setError('Voice works on phone — type or use Try Demo');
+      return;
+    }
     try {
       if (!recording && !isRecording()) {
         await startRecording();
@@ -98,12 +106,10 @@ export default function HomeScreen() {
       const { base64, mimeType } = await stopRecordingBase64();
       const { text } = await transcribeSpeech(base64, mimeType);
       setInput(text);
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       await submit(text);
     } catch (e) {
       setRecording(false);
-      setError(e instanceof Error ? e.message : 'Voice failed — type or try again');
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      setError(e instanceof Error ? e.message : 'Voice failed');
       setLoading(false);
     }
   };
@@ -111,102 +117,104 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <View style={styles.header}>
-          <Text style={styles.greet}>
-            Assalamu Alaikum 👋 {name}
-          </Text>
+        <View style={styles.homeTop}>
+          <View>
+            <Text style={styles.greeting}>Assalamu Alaikum 👋</Text>
+            <View style={styles.greetingSub}>
+              <View style={styles.locDot} />
+              <Text style={styles.greetingSubText}>
+                {name} · Karachi
+              </Text>
+            </View>
+          </View>
           <Link href="/(tabs)/profile" asChild>
-            <Pressable onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}>
-              <Text style={styles.settings}>⚙️</Text>
+            <Pressable style={styles.gearBtn}>
+              <Text style={styles.gearIcon}>⚙️</Text>
             </Pressable>
           </Link>
         </View>
 
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-          <Pressable onPress={onMicPress} disabled={loading}>
-            <Animated.View
-              style={[
-                styles.mic,
-                {
-                  transform: [{ scale: recording ? 1.12 : pulse }],
-                  borderColor: recording ? colors.accent : colors.primary,
-                  shadowColor: recording ? colors.accent : colors.primary,
-                },
-              ]}
-            >
-              <Text style={styles.micIcon}>{recording ? '⏹' : '🎤'}</Text>
-            </Animated.View>
-          </Pressable>
-          <Text style={styles.micHint}>
-            {recording ? 'Recording… tap to stop & search (Gemini)' : 'Tap mic — Google speech-to-text'}
-          </Text>
-
-          <TextInput
-            style={styles.input}
-            placeholder="What service do you need?"
-            placeholderTextColor={colors.muted}
-            value={input}
-            onChangeText={setInput}
-            multiline
-            editable={!loading}
-          />
-
-          <Pressable
-            style={[styles.demoBtn, loading && { opacity: 0.5 }]}
-            disabled={loading}
-            onPress={() => {
-              setInput(DEMO);
-              submit(DEMO);
-            }}
-          >
-            <Text style={styles.demoText}>Try Demo</Text>
-          </Pressable>
-
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll}>
-            {CHIPS.map((c) => (
-              <Pressable
-                key={c.label}
-                style={[
-                  styles.chip,
-                  (highlight.has(c.phrase) ||
-                    highlight.has(c.phrase.replace(' ', '_')) ||
-                    [...highlight].some((h) => c.phrase.includes(h) || h.includes(c.phrase.split(' ')[0]))) &&
-                    styles.chipHot,
-                ]}
-                disabled={loading}
-                onPress={() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  const t = `I need a ${c.phrase} in G-13`;
-                  setInput(t);
-                }}
-              >
-                <Text style={styles.chipText}>
-                  {c.emoji}
-                  {c.label}
-                </Text>
+          <View style={styles.micSection}>
+            <View style={styles.micFrame}>
+              <Animated.View style={[styles.pulseRing, styles.ring1, { transform: [{ scale: pulse }] }]} />
+              <Animated.View style={[styles.pulseRing, styles.ring2]} />
+              <Pressable onPress={onMicPress} disabled={loading}>
+                <Animated.View style={[styles.micBtn, recording && styles.micBtnRec]}>
+                  <Text style={styles.micSvg}>{recording ? '⏹' : '🎤'}</Text>
+                </Animated.View>
               </Pressable>
-            ))}
-          </ScrollView>
+            </View>
+            <Text style={styles.micHint}>
+              Tap mic — <Text style={styles.micHintAccent}>Google speech-to-text</Text>
+            </Text>
+          </View>
+
+          <View style={styles.searchBlock}>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. Mujhe AC repair karwana hai ghar mein…"
+              placeholderTextColor={colors.text3}
+              value={input}
+              onChangeText={setInput}
+              multiline
+              editable={!loading}
+            />
+            <View style={styles.btnRow}>
+              <Button
+                label="⚡ Try Demo"
+                variant="ghost"
+                onPress={() => {
+                  setInput(DEMO);
+                  setTimeout(() => submit(DEMO), 400);
+                }}
+                disabled={loading}
+                style={{ flex: 1 }}
+              />
+              <Button label="📍 Book Now" onPress={() => submit(input)} disabled={loading} style={{ flex: 1 }} />
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <SecLabel>Services</SecLabel>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsRow}>
+              {CHIPS.map((c, i) => {
+                const hot =
+                  highlight.has(c.phrase) ||
+                  [...highlight].some((h) => c.phrase.includes(h) || h.includes(c.phrase.split(' ')[0]));
+                return (
+                  <Pressable
+                    key={c.label}
+                    style={[styles.chip, (activeChip === i || hot) && styles.chipOn]}
+                    onPress={() => {
+                      setActiveChip(i);
+                      setInput(`I need a ${c.phrase} in G-13`);
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    }}
+                  >
+                    <Text style={[styles.chipText, (activeChip === i || hot) && styles.chipTextOn]}>
+                      {c.emoji} {c.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+          </View>
 
           {recent.length > 0 ? (
-            <View style={styles.recentRow}>
-              {recent.map((r) => (
-                <Pressable key={r} style={styles.recentChip} onPress={() => setInput(r)} disabled={loading}>
-                  <Text style={styles.recentText} numberOfLines={1}>
-                    {r}
-                  </Text>
-                </Pressable>
-              ))}
+            <View style={styles.section}>
+              <SecLabel>Recent Searches</SecLabel>
+              <View style={styles.pillsRow}>
+                {recent.map((r) => (
+                  <Pressable key={r} style={styles.pill} onPress={() => setInput(r)}>
+                    <Text style={styles.pillText} numberOfLines={1}>
+                      {r}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
             </View>
           ) : null}
-
-          <Pressable
-            style={[styles.cta, loading && { opacity: 0.5 }]}
-            disabled={loading}
-            onPress={() => submit(input)}
-          >
-            <Text style={styles.ctaText}>Book Now</Text>
-          </Pressable>
 
           {error ? (
             <Pressable onPress={() => submit(input)}>
@@ -222,80 +230,89 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
-  header: {
+  homeTop: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.sm,
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
   },
-  greet: { color: colors.text, fontSize: 20, fontWeight: '700', flex: 1 },
-  settings: { fontSize: 22 },
-  scroll: { padding: spacing.md, paddingBottom: spacing.xl },
-  mic: {
-    alignSelf: 'center',
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    borderWidth: 3,
+  greeting: { fontFamily: fonts.display, fontSize: 20, fontWeight: '600', color: colors.text },
+  greetingSub: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
+  locDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.jade },
+  greetingSubText: { fontSize: 12, color: colors.text2, fontFamily: fonts.body },
+  gearBtn: {
+    width: 40,
+    height: 40,
     backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.md,
-    shadowOpacity: 0.45,
-    shadowRadius: 12,
-    elevation: 8,
   },
-  micIcon: { fontSize: 36 },
-  micHint: { color: colors.muted, textAlign: 'center', fontSize: 12, marginBottom: spacing.sm },
+  gearIcon: { fontSize: 18 },
+  scroll: { paddingBottom: 100 },
+  micSection: { alignItems: 'center', paddingVertical: spacing.lg, paddingHorizontal: spacing.lg },
+  micFrame: { width: 128, height: 128, alignItems: 'center', justifyContent: 'center' },
+  pulseRing: {
+    position: 'absolute',
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(123,94,167,0.25)',
+  },
+  ring1: { width: 128, height: 128 },
+  ring2: { width: 148, height: 148, borderColor: 'rgba(123,94,167,0.14)' },
+  micBtn: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: '#8B6FBD',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 2,
+  },
+  micBtnRec: { backgroundColor: colors.rose },
+  micSvg: { fontSize: 32 },
+  micHint: { fontSize: 12, color: colors.text3, marginTop: 10, fontFamily: fonts.body },
+  micHintAccent: { color: colors.violetBright },
+  searchBlock: { paddingHorizontal: spacing.lg },
   input: {
-    backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    padding: spacing.md,
-    color: colors.text,
-    minHeight: 88,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-    fontSize: 16,
+    borderRadius: radius.r,
+    color: colors.text,
+    fontSize: 15,
+    padding: 14,
+    minHeight: 72,
+    fontFamily: fonts.body,
+    textAlignVertical: 'top',
   },
-  demoBtn: {
-    marginTop: spacing.sm,
-    alignSelf: 'center',
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.accent,
-  },
-  demoText: { color: colors.accent, fontWeight: '600' },
-  chipScroll: { marginTop: spacing.md },
+  btnRow: { flexDirection: 'row', gap: 10, marginTop: 10 },
+  section: { paddingHorizontal: spacing.lg, marginTop: spacing.lg },
+  chipsRow: { marginHorizontal: -spacing.lg, paddingHorizontal: spacing.lg },
   chip: {
     paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: radius.lg,
-    backgroundColor: colors.surface,
-    marginRight: spacing.sm,
+    paddingVertical: 8,
+    backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.border,
+    borderRadius: 20,
+    marginRight: 8,
   },
-  chipHot: { borderColor: colors.primary, backgroundColor: colors.card },
-  chipText: { color: colors.text, fontSize: 13 },
-  recentRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.md },
-  recentChip: {
+  chipOn: { backgroundColor: colors.violetSoft, borderColor: 'rgba(123,94,167,0.35)' },
+  chipText: { fontSize: 13, color: colors.text2, fontFamily: fonts.body },
+  chipTextOn: { color: colors.violetBright },
+  pillsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  pill: {
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: radius.lg,
-    backgroundColor: colors.surface,
-    maxWidth: '100%',
+    paddingVertical: 5,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 20,
   },
-  recentText: { color: colors.muted, fontSize: 12 },
-  cta: {
-    marginTop: spacing.lg,
-    backgroundColor: colors.primary,
-    padding: spacing.md,
-    borderRadius: radius.xl,
-    alignItems: 'center',
-  },
-  ctaText: { color: colors.text, fontWeight: '800', fontSize: 17 },
-  error: { color: colors.error, marginTop: spacing.md, textAlign: 'center' },
+  pillText: { fontSize: 12, color: colors.text3, fontFamily: fonts.body, maxWidth: 200 },
+  error: { color: colors.rose, textAlign: 'center', margin: spacing.lg, fontFamily: fonts.body },
 });

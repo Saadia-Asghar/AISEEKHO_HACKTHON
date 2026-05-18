@@ -4,6 +4,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -12,9 +13,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { colors, radius, spacing } from '../constants/theme';
-import { persistSession } from '../lib/auth';
+import { colors, fonts, radius, spacing } from '../constants/theme';
+import { persistSession, saveSession } from '../lib/auth';
 import { sendOtp, verifyAuth } from '../api/client';
+import Button from '../components/ui/Button';
+import GoogleBadge from '../components/GoogleBadge';
 
 export default function AuthScreen() {
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
@@ -68,6 +71,28 @@ export default function AuthScreen() {
     }
   };
 
+  const guestContinue = async () => {
+    const guestPhone = '+923000000000';
+    setLoading(true);
+    setError(null);
+    try {
+      await sendOtp(guestPhone);
+      const data = await verifyAuth(guestPhone, '1234', 'Guest');
+      await persistSession({
+        token: data.token,
+        userId: data.user_id,
+        name: data.name || 'Guest',
+        phone: guestPhone,
+      });
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      router.replace('/');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not continue as guest — is the backend running?');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const onOtpChange = (i: number, v: string) => {
     const d = v.replace(/\D/g, '').slice(-1);
     const arr = digits.padEnd(4, ' ').split('');
@@ -79,51 +104,88 @@ export default function AuthScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <KeyboardAvoidingView style={styles.inner} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <Text style={styles.title}>KhidmatAI</Text>
-        <Text style={styles.sub}>Sign in with phone · Powered by Google</Text>
+      <View style={styles.glow} />
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+          <View style={styles.logoWrap}>
+            <View style={styles.authIcon}>
+              <Text style={styles.authIconText}>⚡</Text>
+            </View>
+            <Text style={styles.brand}>KhidmatAI</Text>
+            <Text style={styles.tagline}>Bolein, Hum Karein</Text>
+          </View>
 
-        {step === 'phone' ? (
-          <>
-            <View style={styles.phoneRow}>
-              <Text style={styles.flag}>🇵🇰 +92</Text>
-              <TextInput
-                style={styles.phoneInput}
-                keyboardType="number-pad"
-                maxLength={10}
-                value={phoneDigits}
-                onChangeText={(t) => setPhoneDigits(t.replace(/\D/g, '').slice(0, 10))}
-                placeholder="3XX XXXXXXX"
-                placeholderTextColor={colors.muted}
-                editable={!loading}
+          <View style={styles.stepDots}>
+            <View style={[styles.sd, step === 'phone' && styles.sdOn]} />
+            <View style={[styles.sd, step === 'otp' && styles.sdOn]} />
+          </View>
+
+          {step === 'phone' ? (
+            <View style={styles.body}>
+              <View style={styles.authCard}>
+                <Text style={styles.fieldLabel}>📱 Mobile Number</Text>
+                <View style={styles.phoneRow}>
+                  <View style={styles.phoneCc}>
+                    <Text style={styles.phoneCcText}>🇵🇰 +92</Text>
+                  </View>
+                  <TextInput
+                    style={styles.phoneInput}
+                    keyboardType="number-pad"
+                    maxLength={10}
+                    value={phoneDigits}
+                    onChangeText={(t) => setPhoneDigits(t.replace(/\D/g, '').slice(0, 10))}
+                    placeholder="3XX XXXXXXX"
+                    placeholderTextColor={colors.text3}
+                    editable={!loading}
+                  />
+                </View>
+              </View>
+              <Button label="Send OTP →" onPress={requestOtp} loading={loading} style={{ width: '100%' }} />
+              <View style={styles.divider}>
+                <View style={styles.divLine} />
+                <Text style={styles.divText}>or</Text>
+                <View style={styles.divLine} />
+              </View>
+              <Button
+                label="Continue as Guest"
+                variant="outline"
+                onPress={guestContinue}
+                loading={loading}
+                disabled={loading}
+                style={{ width: '100%' }}
               />
             </View>
-            <Pressable style={[styles.btn, loading && { opacity: 0.5 }]} onPress={requestOtp} disabled={loading}>
-              {loading ? <ActivityIndicator color={colors.text} /> : <Text style={styles.btnText}>Send OTP</Text>}
-            </Pressable>
-          </>
-        ) : (
-          <>
-            <Text style={styles.hint}>Demo OTP: 1234</Text>
-            <View style={styles.otpRow}>
-              {[0, 1, 2, 3].map((i) => (
-                <TextInput
-                  key={i}
-                  ref={otpRefs[i]}
-                  style={styles.otpBox}
-                  keyboardType="number-pad"
-                  maxLength={1}
-                  onChangeText={(v) => onOtpChange(i, v)}
-                  editable={!loading}
-                />
-              ))}
+          ) : (
+            <View style={styles.body}>
+              <Text style={styles.otpSent}>
+                OTP sent to <Text style={styles.otpPhone}>+92 {phoneDigits}</Text>
+              </Text>
+              <View style={styles.otpRow}>
+                {[0, 1, 2, 3].map((i) => (
+                  <TextInput
+                    key={i}
+                    ref={otpRefs[i]}
+                    style={styles.otpBox}
+                    keyboardType="number-pad"
+                    maxLength={1}
+                    onChangeText={(v) => onOtpChange(i, v)}
+                    editable={!loading}
+                  />
+                ))}
+              </View>
+              <Text style={styles.demoOtp}>
+                Demo OTP: <Text style={styles.demoOtpCode}>1234</Text>
+              </Text>
+              <Button label="✓ Verify & Continue" variant="jade" onPress={verify} loading={loading} style={{ width: '100%' }} />
+              <Pressable onPress={() => setStep('phone')} style={styles.resend}>
+                <Text style={styles.resendText}>← Resend OTP</Text>
+              </Pressable>
             </View>
-            <Pressable style={[styles.btn, loading && { opacity: 0.5 }]} onPress={verify} disabled={loading}>
-              {loading ? <ActivityIndicator color={colors.text} /> : <Text style={styles.btnText}>Verify</Text>}
-            </Pressable>
-          </>
-        )}
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+          )}
+
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+          <GoogleBadge />
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -131,41 +193,91 @@ export default function AuthScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
-  inner: { flex: 1, justifyContent: 'center', padding: spacing.lg },
-  title: { color: colors.text, fontSize: 28, fontWeight: '800', textAlign: 'center' },
-  sub: { color: colors.muted, textAlign: 'center', marginBottom: spacing.lg },
-  phoneRow: {
-    flexDirection: 'row',
+  glow: {
+    position: 'absolute',
+    top: -80,
+    alignSelf: 'center',
+    width: 320,
+    height: 320,
+    borderRadius: 160,
+    backgroundColor: colors.violetGlow,
+    opacity: 0.5,
+  },
+  scroll: { flexGrow: 1, paddingBottom: spacing.xl },
+  logoWrap: { paddingTop: 40, paddingHorizontal: 28, alignItems: 'center' },
+  authIcon: {
+    width: 76,
+    height: 76,
+    backgroundColor: colors.violet,
+    borderRadius: 22,
     alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 18,
+  },
+  authIconText: { fontSize: 34 },
+  brand: {
+    fontFamily: fonts.display,
+    fontSize: 32,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: 6,
+  },
+  tagline: { color: colors.text2, fontSize: 14, fontStyle: 'italic', fontFamily: fonts.body },
+  stepDots: { flexDirection: 'row', gap: 6, justifyContent: 'center', marginVertical: 20 },
+  sd: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.border2 },
+  sdOn: { width: 20, backgroundColor: colors.violet },
+  body: { paddingHorizontal: spacing.lg },
+  authCard: {
     backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    paddingHorizontal: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border2,
+    borderRadius: radius.xl,
+    padding: 20,
+    marginBottom: 12,
+  },
+  fieldLabel: { fontSize: 12, fontWeight: '600', color: colors.text2, marginBottom: 10, fontFamily: fonts.body },
+  phoneRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  phoneCc: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border2,
+    borderRadius: radius.r,
+    paddingHorizontal: 14,
+    paddingVertical: 13,
+  },
+  phoneCcText: { fontSize: 15, fontWeight: '600', color: colors.text, fontFamily: fonts.body },
+  phoneInput: {
+    flex: 1,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-  },
-  flag: { fontSize: 16, marginRight: spacing.sm },
-  phoneInput: { flex: 1, color: colors.text, fontSize: 18, paddingVertical: spacing.md },
-  btn: {
-    marginTop: spacing.lg,
-    backgroundColor: colors.primary,
-    padding: spacing.md,
-    borderRadius: radius.xl,
-    alignItems: 'center',
-  },
-  btnText: { color: colors.text, fontWeight: '700' },
-  hint: { color: colors.muted, marginBottom: spacing.sm },
-  otpRow: { flexDirection: 'row', justifyContent: 'center', gap: spacing.sm },
-  otpBox: {
-    width: 52,
-    height: 52,
-    borderRadius: radius.md,
-    borderWidth: 2,
-    borderColor: colors.primary,
-    backgroundColor: colors.card,
+    borderRadius: radius.r,
     color: colors.text,
-    fontSize: 22,
-    textAlign: 'center',
-    fontWeight: '700',
+    fontSize: 15,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontFamily: fonts.body,
   },
-  error: { color: colors.error, textAlign: 'center', marginTop: spacing.md },
-});
+  divider: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: 16 },
+  divLine: { flex: 1, height: 1, backgroundColor: colors.border },
+  divText: { fontSize: 12, color: colors.text3, fontFamily: fonts.body },
+  otpSent: { fontSize: 14, color: colors.text2, textAlign: 'center', marginBottom: 18, fontFamily: fonts.body },
+  otpPhone: { color: colors.text, fontWeight: '600' },
+  otpRow: { flexDirection: 'row', gap: 10, justifyContent: 'center', marginBottom: 10 },
+  otpBox: {
+    width: 64,
+    height: 64,
+    backgroundColor: colors.surface,
+    borderWidth: 1.5,
+    borderColor: colors.border2,
+    borderRadius: radius.r,
+    color: colors.text,
+    fontSize: 26,
+    fontWeight: '700',
+    textAlign: 'center',
+    fontFamily: fonts.display,
+  },
+  demoOtp: { textAlign: 'center', fontSize: 12, color: colors.text3, marginBottom: 8, fontFamily: fonts.body },
+  demoOtpCode: { color: colors.violetBright, fontWeight: '700', letterSpacing: 4, fontFamily: fonts.display },
+  resend: { marginTop: 8, alignItems: 'center', padding: spacing.sm },
+  resendText: { color: colors.t
