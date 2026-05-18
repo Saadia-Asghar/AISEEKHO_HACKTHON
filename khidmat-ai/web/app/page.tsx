@@ -1,188 +1,172 @@
 "use client";
 
-import React, { useState } from 'react';
-import axios from 'axios';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import React, { useState } from "react";
+import axios from "axios";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
-interface AgentTraceStep {
-  step_number: number;
-  agent_name: string;
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
+interface TraceEntry {
+  agent: string;
+  phase: string;
   action: string;
-  output: string | object;
-  duration_ms: number;
+  reasoning: string;
 }
 
-interface Provider {
-  name: string;
-  [key: string]: unknown;
+interface OrchestrationResult {
+  session_id: string;
+  intent: {
+    service_label: string;
+    location: string;
+    time_expression: string;
+  };
+  recommended: { name: string; distance_km: number; rating: number };
+  booking: {
+    booking_id: string;
+    slot: string;
+    status: string;
+    confirmation_message: string;
+  };
+  trace: TraceEntry[];
+  trace_summary?: { outcome: string; steps: number };
 }
 
-interface Booking {
-  booking_id: string;
-  provider: Provider;
-  service_type: string;
-  appointment_time: string;
-  estimated_cost_pkr: number;
-}
-
-interface PipelineResult {
-  booking?: Booking;
-  agent_trace?: AgentTraceStep[];
-  total_duration_ms?: number;
-}
-
-// Color palette mapping based on AgentTraceScreen colors
-const getAgentColor = (agentName: string) => {
-  switch (agentName) {
-    case 'IntentAgent': return '#1A73E8'; // brandPrimary
-    case 'DiscoveryAgent': return '#9c27b0';
-    case 'RankingAgent': return '#FBBC04'; // brandWarning
-    case 'DecisionAgent': return '#34A853'; // brandSecondary
-    case 'BookingAgent': return '#009688';
-    case 'FollowUpAgent': return '#5F6368'; // textSecondary
-    default: return '#1A73E8';
-  }
+const getAgentColor = (agent: string) => {
+  if (agent.includes("Intent")) return "#38bdf8";
+  if (agent.includes("Discovery")) return "#a78bfa";
+  if (agent.includes("Ranking")) return "#fbbf24";
+  if (agent.includes("Booking")) return "#4ade80";
+  if (agent.includes("Follow")) return "#94a3b8";
+  if (agent.includes("Trace")) return "#f472b6";
+  return "#38bdf8";
 };
 
 export default function EvaluatorDashboard() {
   const [input, setInput] = useState("Mujhe kal subah G-13 mein AC technician chahiye");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<PipelineResult | null>(null);
+  const [result, setResult] = useState<OrchestrationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const runPipeline = async () => {
     setLoading(true);
     setError(null);
     setResult(null);
-    
     try {
-      const response = await axios.post("http://localhost:8000/api/v1/request", {
-        user_input: input,
-        user_lat: 33.6844,
-        user_lng: 73.0479,
-        user_id: "demo-user-001"
+      const response = await axios.post(`${API_BASE}/api/orchestrate`, {
+        message: input,
+        customer_name: "Demo Customer",
       });
       setResult(response.data);
     } catch (err: unknown) {
-      if (axios.isAxiosError(err) && err.response) {
-        setError(JSON.stringify(err.response.data, null, 2));
+      if (axios.isAxiosError(err) && err.response?.data?.detail) {
+        setError(String(err.response.data.detail));
       } else {
-        setError("Cannot connect to backend. Make sure the server is running on port 8000.");
+        setError("Cannot connect to backend. Start it with: cd backend && python run.py");
       }
     } finally {
       setLoading(false);
     }
   };
 
-  const chartData = result?.agent_trace?.map((step: AgentTraceStep) => ({
-    name: step.agent_name,
-    duration: step.duration_ms,
-  })) || [];
+  const chartData =
+    result?.trace.map((t, i) => ({
+      name: t.agent.replace("Agent", "").slice(0, 12),
+      step: i + 1,
+    })) || [];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8 text-gray-900 font-sans">
+    <div className="min-h-screen bg-slate-950 p-8 text-slate-100 font-sans">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-blue-600">KhidmatAI Evaluator Dashboard</h1>
-        
+        <h1 className="text-3xl font-bold mb-2 text-sky-400">KhidmatAI Evaluator Dashboard</h1>
+        <p className="text-slate-400 mb-8">6-agent pipeline trace · POST /api/orchestrate</p>
+
         {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded shadow-sm">
-            <h3 className="text-red-800 font-bold">Error</h3>
-            <pre className="text-sm text-red-700 whitespace-pre-wrap mt-2">{error}</pre>
+          <div className="bg-red-950/50 border-l-4 border-red-500 p-4 mb-6 rounded">
+            <p className="text-red-300">{error}</p>
           </div>
         )}
 
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* LEFT COLUMN */}
           <div className="w-full lg:w-2/5 flex flex-col gap-6">
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
               <h2 className="text-xl font-semibold mb-4">Test a Request</h2>
-              <textarea 
-                className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none mb-4 min-h-[100px]"
+              <textarea
+                className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg mb-4 min-h-[100px] text-slate-100"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Type request..."
               />
-              <button 
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded transition-colors flex justify-center items-center"
+              <button
+                className="w-full bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold py-3 rounded-lg disabled:opacity-50"
                 onClick={runPipeline}
                 disabled={loading}
               >
-                {loading ? "Processing Pipeline..." : "Run Agent Pipeline"}
+                {loading ? "Running pipeline…" : "Run Agent Pipeline"}
               </button>
             </div>
 
             {result?.booking && (
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-green-200 bg-green-50/30">
-                <h3 className="text-lg font-bold text-green-800 mb-2">Booking Confirmed</h3>
-                <div className="space-y-2 text-sm">
-                  <p><span className="font-semibold text-gray-600">ID:</span> <span className="font-mono">{result.booking.booking_id}</span></p>
-                  <p><span className="font-semibold text-gray-600">Provider:</span> {result.booking.provider.name}</p>
-                  <p><span className="font-semibold text-gray-600">Service:</span> {result.booking.service_type}</p>
-                  <p><span className="font-semibold text-gray-600">Time:</span> {new Date(result.booking.appointment_time).toLocaleString()}</p>
-                  <p><span className="font-semibold text-gray-600">Cost:</span> PKR {result.booking.estimated_cost_pkr}</p>
-                </div>
+              <div className="bg-slate-900 p-6 rounded-xl border border-emerald-800/50">
+                <h3 className="text-lg font-bold text-emerald-400 mb-2">Booking Confirmed</h3>
+                <p className="text-sm">
+                  <span className="text-slate-400">ID:</span> {result.booking.booking_id}
+                </p>
+                <p className="text-sm">
+                  <span className="text-slate-400">Provider:</span> {result.recommended.name}
+                </p>
+                <p className="text-sm">
+                  <span className="text-slate-400">Service:</span> {result.intent.service_label}
+                </p>
+                <p className="text-sm">
+                  <span className="text-slate-400">Slot:</span> {result.booking.slot}
+                </p>
+                <p className="text-sm mt-2 text-slate-300">{result.booking.confirmation_message}</p>
               </div>
             )}
           </div>
 
-          {/* RIGHT COLUMN */}
-          <div className="w-full lg:w-3/5 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+          <div className="w-full lg:w-3/5 bg-slate-900 p-6 rounded-xl border border-slate-800">
             <h2 className="text-xl font-semibold mb-6">Agent Reasoning Trace</h2>
-            
-            {result?.agent_trace ? (
+
+            {result?.trace ? (
               <>
-                <div className="h-64 mb-8">
+                {result.trace_summary?.outcome && (
+                  <p className="text-sky-300 mb-6">{result.trace_summary.outcome}</p>
+                )}
+                <div className="h-48 mb-8">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
-                      <XAxis dataKey="name" angle={-15} textAnchor="end" height={60} fontSize={12} />
-                      <YAxis label={{ value: 'ms', angle: -90, position: 'insideLeft' }} fontSize={12} />
-                      <Tooltip formatter={(val) => [`${val} ms`, 'Duration']} />
-                      <Bar dataKey="duration" radius={[4, 4, 0, 0]}>
-                        {chartData.map((entry: {name: string; duration: number}, index: number) => (
-                          <Cell key={`cell-${index}`} fill={getAgentColor(entry.name)} />
+                    <BarChart data={chartData}>
+                      <XAxis dataKey="name" tick={{ fill: "#94a3b8", fontSize: 10 }} />
+                      <YAxis tick={{ fill: "#94a3b8" }} />
+                      <Tooltip />
+                      <Bar dataKey="step" radius={[4, 4, 0, 0]}>
+                        {chartData.map((entry, index) => (
+                          <Cell key={index} fill={getAgentColor(result.trace[index]?.agent || "")} />
                         ))}
                       </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
 
-                <div className="overflow-x-auto rounded border border-gray-200">
-                  <table className="min-w-full divide-y divide-gray-200 text-sm">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-4 py-3 text-left font-medium text-gray-500">Step</th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-500">Agent</th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-500">Action</th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-500">Output Summary</th>
-                        <th className="px-4 py-3 text-right font-medium text-gray-500">Duration</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {result.agent_trace.map((step: AgentTraceStep, idx: number) => (
-                        <tr key={idx} className="hover:bg-gray-50">
-                          <td className="px-4 py-3 whitespace-nowrap">{step.step_number}</td>
-                          <td className="px-4 py-3 whitespace-nowrap font-medium" style={{ color: getAgentColor(step.agent_name) }}>
-                            {step.agent_name}
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap">{step.action}</td>
-                          <td className="px-4 py-3 truncate max-w-xs" title={JSON.stringify(step.output)}>
-                            {typeof step.output === 'object' ? JSON.stringify(step.output).substring(0, 50) + '...' : step.output}
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-right font-mono">{step.duration_ms}ms</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="mt-6 text-right">
-                  <p className="text-2xl font-bold text-gray-800">
-                    Total Pipeline: <span className="text-blue-600">{result.total_duration_ms}ms</span>
-                  </p>
+                <div className="space-y-3">
+                  {result.trace.map((step, idx) => (
+                    <div
+                      key={idx}
+                      className="border-l-4 pl-4 py-2"
+                      style={{ borderColor: getAgentColor(step.agent) }}
+                    >
+                      <p className="font-bold text-sky-300">
+                        {idx + 1}. {step.agent}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        {step.phase} · {step.action}
+                      </p>
+                      <p className="text-sm text-slate-300 mt-1">{step.reasoning}</p>
+                    </div>
+                  ))}
                 </div>
               </>
             ) : (
-              <div className="h-64 flex items-center justify-center border-2 border-dashed border-gray-200 rounded text-gray-400">
+              <div className="h-64 flex items-center justify-center border-2 border-dashed border-slate-700 rounded text-slate-500">
                 Run the pipeline to see the trace.
               </div>
             )}

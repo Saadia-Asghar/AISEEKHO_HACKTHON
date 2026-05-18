@@ -71,6 +71,19 @@ class ProviderDiscoveryAgent(BaseAgent):
             widened = True
 
         if not matches:
+            area_matches = [
+                p
+                for p in all_providers
+                if intent.service_type in p.get("categories", [p["category"]])
+                and intent.location.upper() in p.get("area", "").upper()
+            ]
+            if area_matches:
+                user_lat, user_lng = resolve_user_coords(intent.location)
+                matches = self._filter(area_matches, intent, user_lat, user_lng, WIDEN_RADIUS_KM + 5)
+                widened = True
+                radius = WIDEN_RADIUS_KM + 5
+
+        if not matches:
             raise ValueError(
                 f"No providers found for '{intent.service_label}' within {radius} km of {intent.location}. "
                 "Try a nearby sector or different service."

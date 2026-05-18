@@ -32,6 +32,7 @@ class KhidmatOrchestrator:
         session_id: str | None = None,
         customer_name: str = "Demo Customer",
     ) -> OrchestrationResponse:
+        database.init_db()
         sid = session_id or str(uuid4())
         context: dict = {
             "message": message,

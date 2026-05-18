@@ -15,7 +15,7 @@ SERVICE_PATTERNS: list[tuple[str, str, str]] = [
 
 LOCATION_PATTERN = re.compile(
     r"\b([A-Z]-\d{1,2}|G-\d{1,2}|F-\d{1,2}|I-\d{1,2}|"
-    r"Islamabad|Rawalpindi|Bahria|DHA|Blue\s*Area)\b",
+    r"DHA\s*Phase\s*\d+|Islamabad|Rawalpindi|Bahria|DHA|Blue\s*Area)\b",
     re.IGNORECASE,
 )
 
@@ -53,10 +53,15 @@ def _extract_service(text: str) -> tuple[str, str]:
 def _extract_location(text: str) -> str:
     match = LOCATION_PATTERN.search(text)
     if match:
-        val = match.group(1).upper()
-        if len(val) <= 3 and "-" in val:
-            return val
-        return val.title() if val.lower() == "blue area" else val
+        val = match.group(1)
+        if re.search(r"dha", val, re.I):
+            return "DHA"
+        val_upper = val.upper()
+        if len(val_upper) <= 4 and "-" in val_upper:
+            return val_upper
+        return val.title() if val.lower() == "blue area" else val_upper
+    if re.search(r"اٹھویں|ایٹھویں|i-?\s*8\b|آئی.?8", text, re.I):
+        return "I-8"
     if "islamabad" in text.lower():
         return "Islamabad"
     return "G-13"

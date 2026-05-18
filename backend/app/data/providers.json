@@ -13,6 +13,7 @@
     "rating": 4.8,
     "reviews": 124,
     "available_slots": [
+      "10:00",
       "11:00",
       "15:00"
     ],
@@ -986,5 +987,44 @@
       "16:00"
     ],
     "phone": "+92-300-0000050"
+  },
+  {
+    "id": "p51",
+    "name": "Volt Experts DHA",
+    "category": "electrician",
+    "categories": ["electrician"],
+    "area": "DHA",
+    "lat": 33.5185,
+    "lng": 73.1520,
+    "rating": 4.7,
+    "reviews": 142,
+    "available_slots": ["09:00", "10:00", "14:00", "16:00"],
+    "phone": "+92-300-0000051"
+  },
+  {
+    "id": "p52",
+    "name": "Bright Spark DHA Phase 2",
+    "category": "electrician",
+    "categories": ["electrician"],
+    "area": "DHA",
+    "lat": 33.5220,
+    "lng": 73.1485,
+    "rating": 4.5,
+    "reviews": 88,
+    "available_slots": ["11:00", "15:00", "17:00"],
+    "phone": "+92-300-0000052"
+  },
+  {
+    "id": "p53",
+    "name": "Math Masters I-8",
+    "category": "tutor",
+    "categories": ["tutor"],
+    "area": "I-8",
+    "lat": 33.6610,
+    "lng": 73.0395,
+    "rating": 4.9,
+    "reviews": 76,
+    "available_slots": ["16:00", "17:00", "18:00"],
+    "phone": "+92-300-0000053"
   }
 ]
