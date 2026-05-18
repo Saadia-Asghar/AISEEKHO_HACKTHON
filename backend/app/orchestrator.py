@@ -21,7 +21,7 @@ from app.services.payments import create_payment
 
 class KhidmatOrchestrator:
     """
-    KhidmatAI 6-agent pipeline (PRD §4.2), orchestrated for Google Antigravity:
+    HazirAI 5-agent pipeline (+ trace logging):
     Intent → Discovery → Ranking → Booking → Follow-Up → Trace
     """
 

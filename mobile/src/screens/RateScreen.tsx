@@ -2,10 +2,13 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { submitRating, saveProvider } from '../api/client';
+import * as Haptics from 'expo-haptics';
+import { submitReview, saveProvider } from '../api/client';
 import { useAppStore } from '../store/useAppStore';
 import { useUserStore } from '../store/useUserStore';
-import { colors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
+import { useThemedStyles } from '../hooks/useThemedStyles';
+import type { ThemeColors } from '../constants/theme';
 import type { HomeStackParamList } from '../navigation/HomeStackNavigator';
 
 type Nav = NativeStackNavigationProp<HomeStackParamList, 'Rate'>;
@@ -14,6 +17,8 @@ const STAR_LABELS = ['Poor', 'Fair', 'Good', 'Great', 'Excellent'];
 
 export default function RateScreen() {
   const navigation = useNavigation<Nav>();
+  const { colors } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const result = useAppStore((s) => s.result);
   const userId = useUserStore((s) => s.userId)!;
   const [stars, setStars] = useState(5);
@@ -37,7 +42,14 @@ export default function RateScreen() {
     setLoading(true);
     setError(null);
     try {
-      await submitRating(userId, providerId, result.booking.booking_id, stars, comment || undefined);
+      await submitReview({
+        user_id: userId,
+        provider_id: providerId,
+        booking_id: result.booking.booking_id,
+        rating: stars,
+        comment: comment || undefined,
+      });
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       if (saveAfter) {
         await saveProvider(userId, providerId);
       }
@@ -105,39 +117,40 @@ export default function RateScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.bg, padding: 20 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24, backgroundColor: colors.bg },
-  provider: { color: colors.text, fontSize: 22, fontWeight: '700' },
-  muted: { color: colors.muted, marginTop: 6, marginBottom: 24 },
-  label: { color: colors.dim, marginBottom: 12 },
-  stars: { flexDirection: 'row', justifyContent: 'center', gap: 8, marginBottom: 8 },
-  starBtn: { padding: 8 },
-  star: { fontSize: 36, color: colors.border },
-  starActive: { color: colors.warning },
-  starLabel: { textAlign: 'center', color: colors.primary, fontWeight: '600', marginBottom: 20 },
-  input: {
-    backgroundColor: colors.card,
-    borderRadius: 12,
-    padding: 14,
-    color: colors.text,
-    minHeight: 80,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginBottom: 16,
-  },
-  checkRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
-  check: { color: colors.primary, fontSize: 18, marginRight: 10 },
-  checkLabel: { color: colors.text, flex: 1 },
-  button: {
-    backgroundColor: colors.primary,
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-  },
-  buttonDisabled: { opacity: 0.7 },
-  buttonText: { color: colors.bg, fontWeight: '700' },
-  skip: { color: colors.dim, textAlign: 'center', marginTop: 16 },
-  error: { color: colors.error, marginTop: 12 },
-  doneTitle: { color: colors.success, fontSize: 24, fontWeight: '700', marginBottom: 8 },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    root: { flex: 1, backgroundColor: colors.bg, padding: 20 },
+    center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24, backgroundColor: colors.bg },
+    provider: { color: colors.text, fontSize: 22, fontWeight: '700' },
+    muted: { color: colors.muted, marginTop: 6, marginBottom: 24 },
+    label: { color: colors.dim, marginBottom: 12 },
+    stars: { flexDirection: 'row', justifyContent: 'center', gap: 8, marginBottom: 8 },
+    starBtn: { padding: 8 },
+    star: { fontSize: 36, color: colors.border },
+    starActive: { color: colors.warning },
+    starLabel: { textAlign: 'center', color: colors.primary, fontWeight: '600', marginBottom: 20 },
+    input: {
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      padding: 14,
+      color: colors.text,
+      minHeight: 80,
+      borderWidth: 1,
+      borderColor: colors.border,
+      marginBottom: 16,
+    },
+    checkRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
+    check: { color: colors.primary, fontSize: 18, marginRight: 10 },
+    checkLabel: { color: colors.text, flex: 1 },
+    button: {
+      backgroundColor: colors.primary,
+      borderRadius: 12,
+      padding: 16,
+      alignItems: 'center',
+    },
+    buttonDisabled: { opacity: 0.7 },
+    buttonText: { color: '#FFFFFF', fontWeight: '700' },
+    skip: { color: colors.dim, textAlign: 'center', marginTop: 16 },
+    error: { color: colors.error, marginTop: 12 },
+    doneTitle: { color: colors.success, fontSize: 24, fontWeight: '700', marginBottom: 8 },
+  });

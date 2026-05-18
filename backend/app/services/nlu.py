@@ -5,6 +5,7 @@ from typing import Any
 
 SERVICE_PATTERNS: list[tuple[str, str, str]] = [
     (r"ac\s*tech|ac\s*technician|a\.?c\.?|air\s*condition", "ac_technician", "AC Technician"),
+    (r"clean|cleaner|safai|صفائی", "cleaner", "Cleaner"),
     (r"plumb|pipe|leak|paani|pani", "plumber", "Plumber"),
     (r"electric|bijli|wiring|wire", "electrician", "Electrician"),
     (r"tutor|tuition|padhai|teacher|math|ٹیوٹر|ٹیوٹر", "tutor", "Home Tutor"),

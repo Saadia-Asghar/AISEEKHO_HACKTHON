@@ -1,7 +1,14 @@
 from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 
-from app.db import user_data
+from app.db import auth_db, user_data
 from app.models.schemas import CreateUserRequest, SubmitRatingRequest
+
+
+class UpdateUserBody(BaseModel):
+    name: str | None = None
+    language_pref: str | None = None
+    location: str | None = None
 
 router = APIRouter(prefix="/api/users", tags=["users"])
 
@@ -19,6 +26,21 @@ def get_user(user_id: str):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+
+@router.patch("/{user_id}")
+def patch_user(user_id: str, body: UpdateUserBody):
+    try:
+        fields = {}
+        if body.name is not None:
+            fields["name"] = body.name
+        if body.language_pref is not None:
+            fields["language_pref"] = body.language_pref
+        if body.location is not None:
+            fields["location"] = body.location
+        return auth_db.update_user_profile(user_id, **fields)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e
 
 
 @router.get("/{user_id}/saved")

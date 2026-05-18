@@ -1,6 +1,5 @@
 import { useCallback, useState } from 'react';
 import {
-  ActivityIndicator,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -15,7 +14,10 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { fetchSaved, SavedProvider, unsaveProvider } from '../api/client';
 import { useUserStore } from '../store/useUserStore';
 import { useAppStore } from '../store/useAppStore';
-import { colors } from '../constants/theme';
+import type { ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
+import { useThemedStyles } from '../hooks/useThemedStyles';
+import { SkeletonList } from '../components/Skeleton';
 import type { MainTabParamList } from '../navigation/MainTabNavigator';
 import type { HomeStackParamList } from '../navigation/HomeStackNavigator';
 
@@ -39,25 +41,32 @@ export default function SavedScreen() {
   const userId = useUserStore((s) => s.userId)!;
   const navigation = useNavigation<Nav>();
   const setPendingMessage = useAppStore((s) => s.setPendingMessage);
+  const { colors } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const [saved, setSaved] = useState<SavedProvider[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
-    setLoading(true);
     try {
       setSaved(await fetchSaved(userId));
     } catch {
       setSaved([]);
-    } finally {
-      setLoading(false);
     }
   }, [userId]);
 
   useFocusEffect(
     useCallback(() => {
-      load();
+      setLoading(true);
+      load().finally(() => setLoading(false));
     }, [load])
   );
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await load();
+    setRefreshing(false);
+  };
 
   const onRebook = (p: SavedProvider) => {
     const service = SERVICE_PHRASES[p.category] || p.category;
@@ -68,13 +77,13 @@ export default function SavedScreen() {
 
   const onRemove = async (providerId: string) => {
     await unsaveProvider(userId, providerId);
-    load();
+    await load();
   };
 
   if (loading && saved.length === 0) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator color={colors.primary} />
+      <View style={styles.root}>
+        <SkeletonList count={4} />
       </View>
     );
   }
@@ -83,7 +92,7 @@ export default function SavedScreen() {
     <ScrollView
       style={styles.root}
       contentContainerStyle={styles.content}
-      refreshControl={<RefreshControl refreshing={loading} onRefresh={load} tintColor={colors.primary} />}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
     >
       <Text style={styles.hint}>Workers you saved get a boost in future AI recommendations.</Text>
 
@@ -112,37 +121,37 @@ export default function SavedScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: 16, paddingBottom: 32 },
-  center: { flex: 1, justifyContent: 'center', backgroundColor: colors.bg },
-  hint: { color: colors.muted, marginBottom: 16, lineHeight: 20 },
-  empty: { color: colors.dim, textAlign: 'center', marginTop: 40 },
-  card: {
-    backgroundColor: colors.card,
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  name: { color: colors.text, fontSize: 18, fontWeight: '700' },
-  meta: { color: colors.muted, marginTop: 6 },
-  your: { color: colors.primary, marginTop: 6, fontSize: 13 },
-  row: { flexDirection: 'row', gap: 10, marginTop: 14 },
-  primaryBtn: {
-    flex: 1,
-    backgroundColor: colors.primary,
-    padding: 12,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  primaryText: { color: colors.bg, fontWeight: '700' },
-  ghostBtn: {
-    padding: 12,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  ghostText: { color: colors.muted },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    root: { flex: 1, backgroundColor: colors.bg, padding: 16 },
+    content: { paddingBottom: 32 },
+    hint: { color: colors.muted, marginBottom: 16, lineHeight: 20 },
+    empty: { color: colors.dim, textAlign: 'center', marginTop: 40 },
+    card: {
+      backgroundColor: colors.card,
+      borderRadius: 14,
+      padding: 16,
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    name: { color: colors.text, fontSize: 18, fontWeight: '700' },
+    meta: { color: colors.muted, marginTop: 6 },
+    your: { color: colors.primary, marginTop: 6, fontSize: 13 },
+    row: { flexDirection: 'row', gap: 10, marginTop: 14 },
+    primaryBtn: {
+      flex: 1,
+      backgroundColor: colors.primary,
+      padding: 12,
+      borderRadius: 10,
+      alignItems: 'center',
+    },
+    primaryText: { color: '#FFFFFF', fontWeight: '700' },
+    ghostBtn: {
+      padding: 12,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    ghostText: { color: colors.muted },
+  });

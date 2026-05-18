@@ -70,7 +70,7 @@ def create_payment(
 
 def _wallet_instructions(method: str, amount: int, payment_id: str) -> str:
     if method == "jazzcash":
-        return f"JazzCash: Send PKR {amount} to KhidmatAI Merchant. Ref: {payment_id}"
+        return f"JazzCash: Send PKR {amount} to HazirAI Merchant. Ref: {payment_id}"
     if method == "easypaisa":
         return f"Easypaisa: Send PKR {amount}. Ref: {payment_id}"
     return f"Demo payment PKR {amount}. Ref: {payment_id}"

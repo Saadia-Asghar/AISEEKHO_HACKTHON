@@ -1,75 +1,55 @@
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useEffect, useState } from 'react';
 import { Text } from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeStackNavigator from './HomeStackNavigator';
-import SavedScreen from '../screens/SavedScreen';
-import HistoryScreen from '../screens/HistoryScreen';
+import BookingsScreen from '../screens/BookingsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
-import { colors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
+import { useUserStore } from '../store/useUserStore';
+import { upcomingCount } from '../api/api';
 
 export type MainTabParamList = {
   BookTab: undefined;
-  SavedTab: undefined;
-  HistoryTab: undefined;
+  BookingsTab: undefined;
   ProfileTab: undefined;
 };
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
-function TabIcon({ label, focused }: { label: string; focused: boolean }) {
-  const icons: Record<string, string> = {
-    Book: '🏠',
-    Saved: '⭐',
-    History: '📋',
-    Profile: '👤',
-  };
-  return (
-    <Text style={{ fontSize: 18, opacity: focused ? 1 : 0.5 }}>
-      {icons[label] || '•'}
-    </Text>
-  );
-}
-
 export default function MainTabNavigator() {
+  const { colors } = useTheme();
+  const userId = useUserStore((s) => s.userId);
+  const [badge, setBadge] = useState(0);
+
+  useEffect(() => {
+    if (!userId) return;
+    const refresh = () => upcomingCount(userId).then((r) => setBadge(r.count)).catch(() => setBadge(0));
+    refresh();
+    const id = setInterval(refresh, 30000);
+    return () => clearInterval(id);
+  }, [userId]);
+
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarStyle: {
-          backgroundColor: colors.card,
-          borderTopColor: colors.border,
-        },
+        tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border },
         tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.dim,
+        tabBarInactiveTintColor: colors.muted,
       }}
     >
+      <Tab.Screen name="BookTab" component={HomeStackNavigator} options={{ title: 'Home', tabBarIcon: () => <Text>🏠</Text> }} />
       <Tab.Screen
-        name="BookTab"
-        component={HomeStackNavigator}
+        name="BookingsTab"
+        component={BookingsScreen}
         options={{
-          title: 'Book',
-          tabBarIcon: ({ focused }) => <TabIcon label="Book" focused={focused} />,
-        }}
-      />
-      <Tab.Screen
-        name="SavedTab"
-        component={SavedScreen}
-        options={{
-          title: 'Saved',
+          title: 'Bookings',
+          tabBarIcon: () => <Text>📋</Text>,
+          tabBarBadge: badge > 0 ? badge : undefined,
           headerShown: true,
           headerStyle: { backgroundColor: colors.bg },
           headerTintColor: colors.text,
-          tabBarIcon: ({ focused }) => <TabIcon label="Saved" focused={focused} />,
-        }}
-      />
-      <Tab.Screen
-        name="HistoryTab"
-        component={HistoryScreen}
-        options={{
-          title: 'History',
-          headerShown: true,
-          headerStyle: { backgroundColor: colors.bg },
-          headerTintColor: colors.text,
-          tabBarIcon: ({ focused }) => <TabIcon label="History" focused={focused} />,
+          headerTitle: 'My bookings',
         }}
       />
       <Tab.Screen
@@ -77,10 +57,10 @@ export default function MainTabNavigator() {
         component={ProfileScreen}
         options={{
           title: 'Profile',
+          tabBarIcon: () => <Text>👤</Text>,
           headerShown: true,
           headerStyle: { backgroundColor: colors.bg },
           headerTintColor: colors.text,
-          tabBarIcon: ({ focused }) => <TabIcon label="Profile" focused={focused} />,
         }}
       />
     </Tab.Navigator>

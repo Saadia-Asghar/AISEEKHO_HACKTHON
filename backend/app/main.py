@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.db.database import get_trace, init_db
 from app.models.schemas import OrchestrationResponse, ServiceRequest
 from app.orchestrator import KhidmatOrchestrator
-from app.routers import auth, payments, users
+from app.routers import auth, bookings_router, otp_auth, payments, providers_router, reviews, suggestions, users
 
 load_dotenv()
 
@@ -20,9 +20,9 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(
-    title="KhidmatAI",
-    description="AI Service Orchestrator for the Informal Economy — Google Antigravity Hackathon 2026",
-    version="1.0.0",
+    title="HazirAI",
+    description="Bolein, Hum Karein — AI Service Orchestrator for Pakistan",
+    version="3.0.0",
     lifespan=lifespan,
 )
 
@@ -38,16 +38,24 @@ orchestrator = KhidmatOrchestrator()
 
 app.include_router(users.router)
 app.include_router(auth.router)
+app.include_router(otp_auth.router)
+app.include_router(otp_auth.legacy_router)
 app.include_router(payments.router)
+app.include_router(reviews.router)
+app.include_router(providers_router.router)
+app.include_router(bookings_router.router)
+app.include_router(suggestions.router)
 
 
 @app.get("/health")
 def health():
     return {
         "status": "ok",
-        "product": "KhidmatAI",
-        "platform": "Google Antigravity + ADK-ready orchestrator",
-        "agents": 6,
+        "product": "HazirAI",
+        "tagline": "Bolein, Hum Karein",
+        "platform": "FastAPI + 5-agent orchestrator",
+        "agents": 5,
+        "providers": 30,
         "gemini_configured": bool(os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")),
         "clerk_configured": bool(os.getenv("CLERK_SECRET_KEY")),
         "stripe_configured": bool(os.getenv("STRIPE_SECRET_KEY")),

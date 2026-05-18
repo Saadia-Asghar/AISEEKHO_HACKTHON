@@ -1,1030 +1,722 @@
 [
   {
-    "id": "p1",
-    "name": "Ali AC Services",
-    "category": "ac_technician",
+    "id": "h1",
+    "name": "احمد الیکٹریشن",
+    "category": "electrician",
     "categories": [
-      "ac_technician",
-      "hvac"
-    ],
-    "area": "G-13",
-    "lat": 33.6865,
-    "lng": 72.9805,
-    "rating": 4.8,
-    "reviews": 124,
-    "available_slots": [
-      "10:00",
-      "11:00",
-      "15:00"
-    ],
-    "phone": "+92-300-0000001"
-  },
-  {
-    "id": "p2",
-    "name": "CoolAir Islamabad G-13",
-    "category": "ac_technician",
-    "categories": [
-      "ac_technician",
-      "hvac"
-    ],
-    "area": "G-13",
-    "lat": 33.6778,
-    "lng": 72.9823,
-    "rating": 4.5,
-    "reviews": 181,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000002"
-  },
-  {
-    "id": "p3",
-    "name": "Ali AC Services",
-    "category": "ac_technician",
-    "categories": [
-      "ac_technician",
-      "hvac"
-    ],
-    "area": "G-11",
-    "lat": 33.6715,
-    "lng": 72.9655,
-    "rating": 4.5,
-    "reviews": 36,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000003"
-  },
-  {
-    "id": "p4",
-    "name": "CoolAir Islamabad G-11",
-    "category": "ac_technician",
-    "categories": [
-      "ac_technician",
-      "hvac"
-    ],
-    "area": "G-11",
-    "lat": 33.6825,
-    "lng": 72.9732,
-    "rating": 4.4,
-    "reviews": 144,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000004"
-  },
-  {
-    "id": "p5",
-    "name": "Ali AC Services",
-    "category": "ac_technician",
-    "categories": [
-      "ac_technician",
-      "hvac"
-    ],
-    "area": "G-10",
-    "lat": 33.68,
-    "lng": 72.9571,
-    "rating": 4.8,
-    "reviews": 138,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000005"
-  },
-  {
-    "id": "p6",
-    "name": "CoolAir Islamabad G-10",
-    "category": "ac_technician",
-    "categories": [
-      "ac_technician",
-      "hvac"
-    ],
-    "area": "G-10",
-    "lat": 33.6695,
-    "lng": 72.9723,
-    "rating": 4.3,
-    "reviews": 53,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000006"
-  },
-  {
-    "id": "p7",
-    "name": "Ali AC Services",
-    "category": "ac_technician",
-    "categories": [
-      "ac_technician",
-      "hvac"
-    ],
-    "area": "F-7",
-    "lat": 33.7192,
-    "lng": 73.0407,
-    "rating": 4.3,
-    "reviews": 41,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000007"
-  },
-  {
-    "id": "p8",
-    "name": "CoolAir Islamabad F-7",
-    "category": "ac_technician",
-    "categories": [
-      "ac_technician",
-      "hvac"
-    ],
-    "area": "F-7",
-    "lat": 33.7221,
-    "lng": 73.0508,
-    "rating": 4.4,
-    "reviews": 171,
-    "available_slots": [
-      "11:00",
-      "15:00"
-    ],
-    "phone": "+92-300-0000008"
-  },
-  {
-    "id": "p9",
-    "name": "Ali AC Services",
-    "category": "ac_technician",
-    "categories": [
-      "ac_technician",
-      "hvac"
-    ],
-    "area": "F-8",
-    "lat": 33.7171,
-    "lng": 73.0442,
-    "rating": 4.3,
-    "reviews": 79,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000009"
-  },
-  {
-    "id": "p10",
-    "name": "CoolAir Islamabad F-8",
-    "category": "ac_technician",
-    "categories": [
-      "ac_technician",
-      "hvac"
-    ],
-    "area": "F-8",
-    "lat": 33.7077,
-    "lng": 73.0336,
-    "rating": 4.3,
-    "reviews": 50,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000010"
-  },
-  {
-    "id": "p11",
-    "name": "Ali AC Services",
-    "category": "ac_technician",
-    "categories": [
-      "ac_technician",
-      "hvac"
-    ],
-    "area": "I-8",
-    "lat": 33.6657,
-    "lng": 73.0393,
-    "rating": 4.4,
-    "reviews": 123,
-    "available_slots": [
-      "11:00",
-      "15:00"
-    ],
-    "phone": "+92-300-0000011"
-  },
-  {
-    "id": "p12",
-    "name": "CoolAir Islamabad I-8",
-    "category": "ac_technician",
-    "categories": [
-      "ac_technician",
-      "hvac"
-    ],
-    "area": "I-8",
-    "lat": 33.6575,
-    "lng": 73.0439,
-    "rating": 4.7,
-    "reviews": 195,
-    "available_slots": [
-      "11:00",
-      "15:00"
-    ],
-    "phone": "+92-300-0000012"
-  },
-  {
-    "id": "p13",
-    "name": "Ali AC Services",
-    "category": "ac_technician",
-    "categories": [
-      "ac_technician",
-      "hvac"
-    ],
-    "area": "I-9",
-    "lat": 33.6542,
-    "lng": 73.0355,
-    "rating": 4.2,
-    "reviews": 148,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000013"
-  },
-  {
-    "id": "p14",
-    "name": "CoolAir Islamabad I-9",
-    "category": "ac_technician",
-    "categories": [
-      "ac_technician",
-      "hvac"
-    ],
-    "area": "I-9",
-    "lat": 33.6598,
-    "lng": 73.0372,
-    "rating": 4.5,
-    "reviews": 113,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000014"
-  },
-  {
-    "id": "p15",
-    "name": "Ali AC Services",
-    "category": "ac_technician",
-    "categories": [
-      "ac_technician",
-      "hvac"
-    ],
-    "area": "Bahria",
-    "lat": 33.5444,
-    "lng": 73.1157,
-    "rating": 4.0,
-    "reviews": 110,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000015"
-  },
-  {
-    "id": "p16",
-    "name": "CoolAir Islamabad Bahria",
-    "category": "ac_technician",
-    "categories": [
-      "ac_technician",
-      "hvac"
-    ],
-    "area": "Bahria",
-    "lat": 33.5331,
-    "lng": 73.1266,
-    "rating": 4.5,
-    "reviews": 110,
-    "available_slots": [
-      "11:00",
-      "15:00"
-    ],
-    "phone": "+92-300-0000016"
-  },
-  {
-    "id": "p17",
-    "name": "Ali AC Services",
-    "category": "ac_technician",
-    "categories": [
-      "ac_technician",
-      "hvac"
-    ],
-    "area": "DHA",
-    "lat": 33.52,
-    "lng": 73.1562,
-    "rating": 4.6,
-    "reviews": 66,
-    "available_slots": [
-      "11:00",
-      "15:00"
-    ],
-    "phone": "+92-300-0000017"
-  },
-  {
-    "id": "p18",
-    "name": "CoolAir Islamabad DHA",
-    "category": "ac_technician",
-    "categories": [
-      "ac_technician",
-      "hvac"
-    ],
-    "area": "DHA",
-    "lat": 33.5159,
-    "lng": 73.151,
-    "rating": 4.2,
-    "reviews": 179,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000018"
-  },
-  {
-    "id": "p19",
-    "name": "Ali AC Services",
-    "category": "ac_technician",
-    "categories": [
-      "ac_technician",
-      "hvac"
-    ],
-    "area": "Blue Area",
-    "lat": 33.7113,
-    "lng": 73.0578,
-    "rating": 4.9,
-    "reviews": 65,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000019"
-  },
-  {
-    "id": "p20",
-    "name": "CoolAir Islamabad Blue Area",
-    "category": "ac_technician",
-    "categories": [
-      "ac_technician",
-      "hvac"
-    ],
-    "area": "Blue Area",
-    "lat": 33.7035,
-    "lng": 73.0528,
-    "rating": 4.1,
-    "reviews": 190,
-    "available_slots": [
-      "11:00",
-      "15:00"
-    ],
-    "phone": "+92-300-0000020"
-  },
-  {
-    "id": "p21",
-    "name": "Hassan Plumbing",
-    "category": "plumber",
-    "categories": [
-      "plumber"
-    ],
-    "area": "G-13",
-    "lat": 33.6871,
-    "lng": 72.9799,
-    "rating": 4.4,
-    "reviews": 182,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000021"
-  },
-  {
-    "id": "p22",
-    "name": "PipePro G-13",
-    "category": "plumber",
-    "categories": [
-      "plumber"
-    ],
-    "area": "G-13",
-    "lat": 33.6847,
-    "lng": 72.9859,
-    "rating": 4.8,
-    "reviews": 32,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000022"
-  },
-  {
-    "id": "p23",
-    "name": "Hassan Plumbing",
-    "category": "plumber",
-    "categories": [
-      "plumber"
-    ],
-    "area": "G-11",
-    "lat": 33.6728,
-    "lng": 72.9762,
-    "rating": 4.7,
-    "reviews": 194,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000023"
-  },
-  {
-    "id": "p24",
-    "name": "PipePro G-11",
-    "category": "plumber",
-    "categories": [
-      "plumber"
-    ],
-    "area": "G-11",
-    "lat": 33.6757,
-    "lng": 72.9645,
-    "rating": 4.0,
-    "reviews": 97,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000024"
-  },
-  {
-    "id": "p25",
-    "name": "Hassan Plumbing",
-    "category": "plumber",
-    "categories": [
-      "plumber"
-    ],
-    "area": "G-10",
-    "lat": 33.6792,
-    "lng": 72.9651,
-    "rating": 4.1,
-    "reviews": 190,
-    "available_slots": [
-      "11:00",
-      "15:00"
-    ],
-    "phone": "+92-300-0000025"
-  },
-  {
-    "id": "p26",
-    "name": "PipePro G-10",
-    "category": "plumber",
-    "categories": [
-      "plumber"
-    ],
-    "area": "G-10",
-    "lat": 33.6772,
-    "lng": 72.9667,
-    "rating": 4.1,
-    "reviews": 71,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000026"
-  },
-  {
-    "id": "p27",
-    "name": "Hassan Plumbing",
-    "category": "plumber",
-    "categories": [
-      "plumber"
-    ],
-    "area": "F-7",
-    "lat": 33.726,
-    "lng": 73.0437,
-    "rating": 4.0,
-    "reviews": 112,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000027"
-  },
-  {
-    "id": "p28",
-    "name": "PipePro F-7",
-    "category": "plumber",
-    "categories": [
-      "plumber"
-    ],
-    "area": "F-7",
-    "lat": 33.7153,
-    "lng": 73.041,
-    "rating": 4.9,
-    "reviews": 108,
-    "available_slots": [
-      "11:00",
-      "15:00"
-    ],
-    "phone": "+92-300-0000028"
-  },
-  {
-    "id": "p29",
-    "name": "Hassan Plumbing",
-    "category": "plumber",
-    "categories": [
-      "plumber"
-    ],
-    "area": "F-8",
-    "lat": 33.7109,
-    "lng": 73.0391,
-    "rating": 4.1,
-    "reviews": 154,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000029"
-  },
-  {
-    "id": "p30",
-    "name": "PipePro F-8",
-    "category": "plumber",
-    "categories": [
-      "plumber"
-    ],
-    "area": "F-8",
-    "lat": 33.7226,
-    "lng": 73.0385,
-    "rating": 4.1,
-    "reviews": 198,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000030"
-  },
-  {
-    "id": "p31",
-    "name": "Hassan Plumbing",
-    "category": "plumber",
-    "categories": [
-      "plumber"
-    ],
-    "area": "I-8",
-    "lat": 33.6606,
-    "lng": 73.0374,
-    "rating": 4.8,
-    "reviews": 138,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000031"
-  },
-  {
-    "id": "p32",
-    "name": "PipePro I-8",
-    "category": "plumber",
-    "categories": [
-      "plumber"
-    ],
-    "area": "I-8",
-    "lat": 33.6667,
-    "lng": 73.0453,
-    "rating": 4.7,
-    "reviews": 109,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000032"
-  },
-  {
-    "id": "p33",
-    "name": "Hassan Plumbing",
-    "category": "plumber",
-    "categories": [
-      "plumber"
-    ],
-    "area": "I-9",
-    "lat": 33.6547,
-    "lng": 73.033,
-    "rating": 4.9,
-    "reviews": 145,
-    "available_slots": [
-      "11:00",
-      "15:00"
-    ],
-    "phone": "+92-300-0000033"
-  },
-  {
-    "id": "p34",
-    "name": "PipePro I-9",
-    "category": "plumber",
-    "categories": [
-      "plumber"
-    ],
-    "area": "I-9",
-    "lat": 33.6476,
-    "lng": 73.0324,
-    "rating": 4.6,
-    "reviews": 88,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000034"
-  },
-  {
-    "id": "p35",
-    "name": "Hassan Plumbing",
-    "category": "plumber",
-    "categories": [
-      "plumber"
-    ],
-    "area": "Bahria",
-    "lat": 33.5321,
-    "lng": 73.1233,
-    "rating": 4.1,
+      "electrician"
+    ],
+    "area": "G-9",
+    "lat": 33.6862,
+    "lng": 72.9804,
+    "rating": 3.9,
     "reviews": 47,
+    "verified": false,
+    "price_min_pkr": 1800,
+    "price_max_pkr": 3057,
+    "bio": "Trusted electrician in G-9, Islamabad",
     "available_slots": [
       "09:00",
-      "10:00",
+      "11:00",
       "14:00",
       "16:00"
     ],
-    "phone": "+92-300-0000035"
+    "phone": "+92-323-2458591"
   },
   {
-    "id": "p36",
-    "name": "PipePro Bahria",
+    "id": "h2",
+    "name": "علی پلمبنگ",
     "category": "plumber",
     "categories": [
       "plumber"
-    ],
-    "area": "Bahria",
-    "lat": 33.5458,
-    "lng": 73.1131,
-    "rating": 4.2,
-    "reviews": 154,
-    "available_slots": [
-      "11:00",
-      "15:00"
-    ],
-    "phone": "+92-300-0000036"
-  },
-  {
-    "id": "p37",
-    "name": "Hassan Plumbing",
-    "category": "plumber",
-    "categories": [
-      "plumber"
-    ],
-    "area": "DHA",
-    "lat": 33.5141,
-    "lng": 73.157,
-    "rating": 4.5,
-    "reviews": 151,
-    "available_slots": [
-      "11:00",
-      "15:00"
-    ],
-    "phone": "+92-300-0000037"
-  },
-  {
-    "id": "p38",
-    "name": "PipePro DHA",
-    "category": "plumber",
-    "categories": [
-      "plumber"
-    ],
-    "area": "DHA",
-    "lat": 33.5196,
-    "lng": 73.1485,
-    "rating": 4.1,
-    "reviews": 198,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000038"
-  },
-  {
-    "id": "p39",
-    "name": "Hassan Plumbing",
-    "category": "plumber",
-    "categories": [
-      "plumber"
-    ],
-    "area": "Blue Area",
-    "lat": 33.7088,
-    "lng": 73.0595,
-    "rating": 4.7,
-    "reviews": 197,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000039"
-  },
-  {
-    "id": "p40",
-    "name": "PipePro Blue Area",
-    "category": "plumber",
-    "categories": [
-      "plumber"
-    ],
-    "area": "Blue Area",
-    "lat": 33.7036,
-    "lng": 73.0584,
-    "rating": 4.3,
-    "reviews": 57,
-    "available_slots": [
-      "11:00",
-      "15:00"
-    ],
-    "phone": "+92-300-0000040"
-  },
-  {
-    "id": "p41",
-    "name": "Bright Spark",
-    "category": "electrician",
-    "categories": [
-      "electrician"
     ],
     "area": "G-13",
-    "lat": 33.6792,
-    "lng": 72.9776,
-    "rating": 4.4,
-    "reviews": 101,
+    "lat": 33.6884,
+    "lng": 72.9735,
+    "rating": 3.6,
+    "reviews": 141,
+    "verified": false,
+    "price_min_pkr": 1500,
+    "price_max_pkr": 2776,
+    "bio": "Trusted plumber in G-13, Islamabad",
     "available_slots": [
       "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000041"
-  },
-  {
-    "id": "p42",
-    "name": "Volt Experts G-13",
-    "category": "electrician",
-    "categories": [
-      "electrician"
-    ],
-    "area": "G-13",
-    "lat": 33.6902,
-    "lng": 72.9716,
-    "rating": 4.8,
-    "reviews": 170,
-    "available_slots": [
       "11:00",
-      "15:00"
-    ],
-    "phone": "+92-300-0000042"
-  },
-  {
-    "id": "p43",
-    "name": "Bright Spark",
-    "category": "electrician",
-    "categories": [
-      "electrician"
-    ],
-    "area": "G-11",
-    "lat": 33.6814,
-    "lng": 72.9706,
-    "rating": 4.0,
-    "reviews": 53,
-    "available_slots": [
-      "09:00",
-      "10:00",
       "14:00",
       "16:00"
     ],
-    "phone": "+92-300-0000043"
+    "phone": "+92-387-1445199"
   },
   {
-    "id": "p44",
-    "name": "Volt Experts G-11",
-    "category": "electrician",
+    "id": "h3",
+    "name": "حسن AC سروسز",
+    "category": "ac_technician",
     "categories": [
-      "electrician"
-    ],
-    "area": "G-11",
-    "lat": 33.6846,
-    "lng": 72.9647,
-    "rating": 4.5,
-    "reviews": 84,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000044"
-  },
-  {
-    "id": "p45",
-    "name": "Bright Spark",
-    "category": "electrician",
-    "categories": [
-      "electrician"
-    ],
-    "area": "G-10",
-    "lat": 33.6814,
-    "lng": 72.9596,
-    "rating": 4.0,
-    "reviews": 129,
-    "available_slots": [
-      "11:00",
-      "15:00"
-    ],
-    "phone": "+92-300-0000045"
-  },
-  {
-    "id": "p46",
-    "name": "Volt Experts G-10",
-    "category": "electrician",
-    "categories": [
-      "electrician"
-    ],
-    "area": "G-10",
-    "lat": 33.6795,
-    "lng": 72.9643,
-    "rating": 4.4,
-    "reviews": 172,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000046"
-  },
-  {
-    "id": "p47",
-    "name": "Bright Spark",
-    "category": "electrician",
-    "categories": [
-      "electrician"
+      "ac_technician"
     ],
     "area": "F-7",
-    "lat": 33.7213,
-    "lng": 73.0382,
-    "rating": 4.2,
-    "reviews": 44,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000047"
-  },
-  {
-    "id": "p48",
-    "name": "Volt Experts F-7",
-    "category": "electrician",
-    "categories": [
-      "electrician"
-    ],
-    "area": "F-7",
-    "lat": 33.7222,
-    "lng": 73.0472,
-    "rating": 4.1,
-    "reviews": 179,
-    "available_slots": [
-      "09:00",
-      "10:00",
-      "14:00",
-      "16:00"
-    ],
-    "phone": "+92-300-0000048"
-  },
-  {
-    "id": "p49",
-    "name": "Bright Spark",
-    "category": "electrician",
-    "categories": [
-      "electrician"
-    ],
-    "area": "F-8",
-    "lat": 33.7217,
-    "lng": 73.0385,
-    "rating": 4.1,
-    "reviews": 160,
-    "available_slots": [
-      "11:00",
-      "15:00"
-    ],
-    "phone": "+92-300-0000049"
-  },
-  {
-    "id": "p50",
-    "name": "Volt Experts F-8",
-    "category": "electrician",
-    "categories": [
-      "electrician"
-    ],
-    "area": "F-8",
-    "lat": 33.71,
-    "lng": 73.0395,
+    "lat": 33.722,
+    "lng": 73.0555,
     "rating": 4.6,
-    "reviews": 90,
+    "reviews": 68,
+    "verified": true,
+    "price_min_pkr": 2200,
+    "price_max_pkr": 3859,
+    "bio": "Trusted ac_technician in F-7, Islamabad",
     "available_slots": [
       "09:00",
-      "10:00",
+      "11:00",
       "14:00",
       "16:00"
     ],
-    "phone": "+92-300-0000050"
+    "phone": "+92-367-5667265"
   },
   {
-    "id": "p51",
-    "name": "Volt Experts DHA",
-    "category": "electrician",
-    "categories": ["electrician"],
-    "area": "DHA",
-    "lat": 33.5185,
-    "lng": 73.1520,
+    "id": "h4",
+    "name": "فاطمہ کلیننگ",
+    "category": "cleaner",
+    "categories": [
+      "cleaner"
+    ],
+    "area": "F-10",
+    "lat": 33.7,
+    "lng": 73.0101,
     "rating": 4.7,
-    "reviews": 142,
-    "available_slots": ["09:00", "10:00", "14:00", "16:00"],
-    "phone": "+92-300-0000051"
+    "reviews": 99,
+    "verified": true,
+    "price_min_pkr": 1200,
+    "price_max_pkr": 2865,
+    "bio": "Trusted cleaner in F-10, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-345-3608513"
   },
   {
-    "id": "p52",
-    "name": "Bright Spark DHA Phase 2",
-    "category": "electrician",
-    "categories": ["electrician"],
-    "area": "DHA",
-    "lat": 33.5220,
-    "lng": 73.1485,
-    "rating": 4.5,
-    "reviews": 88,
-    "available_slots": ["11:00", "15:00", "17:00"],
-    "phone": "+92-300-0000052"
-  },
-  {
-    "id": "p53",
-    "name": "Math Masters I-8",
-    "category": "tutor",
-    "categories": ["tutor"],
+    "id": "h5",
+    "name": "عمر بڑھئی",
+    "category": "carpenter",
+    "categories": [
+      "carpenter"
+    ],
     "area": "I-8",
-    "lat": 33.6610,
-    "lng": 73.0395,
+    "lat": 33.6634,
+    "lng": 73.0822,
+    "rating": 3.7,
+    "reviews": 36,
+    "verified": false,
+    "price_min_pkr": 1700,
+    "price_max_pkr": 3278,
+    "bio": "Trusted carpenter in I-8, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-355-6770619"
+  },
+  {
+    "id": "h6",
+    "name": "زین پینٹر",
+    "category": "painter",
+    "categories": [
+      "painter"
+    ],
+    "area": "G-9",
+    "lat": 33.6857,
+    "lng": 72.9929,
+    "rating": 4.6,
+    "reviews": 43,
+    "verified": true,
+    "price_min_pkr": 1900,
+    "price_max_pkr": 3798,
+    "bio": "Trusted painter in G-9, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-358-2322047"
+  },
+  {
+    "id": "h7",
+    "name": "بیلال الیکٹریشن",
+    "category": "electrician",
+    "categories": [
+      "electrician"
+    ],
+    "area": "G-13",
+    "lat": 33.6878,
+    "lng": 72.9863,
+    "rating": 4.4,
+    "reviews": 159,
+    "verified": true,
+    "price_min_pkr": 1800,
+    "price_max_pkr": 3340,
+    "bio": "Trusted electrician in G-13, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-334-2166941"
+  },
+  {
+    "id": "h8",
+    "name": "Usman Plumber",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "F-7",
+    "lat": 33.7137,
+    "lng": 73.0476,
+    "rating": 3.9,
+    "reviews": 71,
+    "verified": false,
+    "price_min_pkr": 1500,
+    "price_max_pkr": 2463,
+    "bio": "Trusted plumber in F-7, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-322-7377459"
+  },
+  {
+    "id": "h9",
+    "name": "کامران کولنگ",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician"
+    ],
+    "area": "F-10",
+    "lat": 33.6914,
+    "lng": 73.0202,
+    "rating": 4.0,
+    "reviews": 102,
+    "verified": false,
+    "price_min_pkr": 2200,
+    "price_max_pkr": 3758,
+    "bio": "Trusted ac_technician in F-10, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-336-5479144"
+  },
+  {
+    "id": "h10",
+    "name": "سارہ ہوم کلین",
+    "category": "cleaner",
+    "categories": [
+      "cleaner"
+    ],
+    "area": "I-8",
+    "lat": 33.6712,
+    "lng": 73.0809,
+    "rating": 3.6,
+    "reviews": 148,
+    "verified": false,
+    "price_min_pkr": 1200,
+    "price_max_pkr": 2350,
+    "bio": "Trusted cleaner in I-8, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-341-3741438"
+  },
+  {
+    "id": "h11",
+    "name": "جاوید کارپینٹر",
+    "category": "carpenter",
+    "categories": [
+      "carpenter"
+    ],
+    "area": "G-9",
+    "lat": 33.6834,
+    "lng": 72.9843,
     "rating": 4.9,
-    "reviews": 76,
-    "available_slots": ["16:00", "17:00", "18:00"],
-    "phone": "+92-300-0000053"
+    "reviews": 68,
+    "verified": true,
+    "price_min_pkr": 1700,
+    "price_max_pkr": 3640,
+    "bio": "Trusted carpenter in G-9, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-397-6440561"
+  },
+  {
+    "id": "h12",
+    "name": "نادیہ پینٹ",
+    "category": "painter",
+    "categories": [
+      "painter"
+    ],
+    "area": "G-13",
+    "lat": 33.6925,
+    "lng": 72.9854,
+    "rating": 3.8,
+    "reviews": 218,
+    "verified": false,
+    "price_min_pkr": 1900,
+    "price_max_pkr": 2765,
+    "bio": "Trusted painter in G-13, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-350-7730428"
+  },
+  {
+    "id": "h13",
+    "name": "طارق وائرنگ",
+    "category": "electrician",
+    "categories": [
+      "electrician"
+    ],
+    "area": "F-7",
+    "lat": 33.7173,
+    "lng": 73.0474,
+    "rating": 4.9,
+    "reviews": 66,
+    "verified": true,
+    "price_min_pkr": 1800,
+    "price_max_pkr": 3244,
+    "bio": "Trusted electrician in F-7, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-393-9375710"
+  },
+  {
+    "id": "h14",
+    "name": "راشد پائپ فٹنگ",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "F-10",
+    "lat": 33.6933,
+    "lng": 73.0246,
+    "rating": 4.2,
+    "reviews": 47,
+    "verified": true,
+    "price_min_pkr": 1500,
+    "price_max_pkr": 2842,
+    "bio": "Trusted plumber in F-10, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-341-5408072"
+  },
+  {
+    "id": "h15",
+    "name": "شہباز AC",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician"
+    ],
+    "area": "I-8",
+    "lat": 33.672,
+    "lng": 73.0769,
+    "rating": 4.4,
+    "reviews": 68,
+    "verified": true,
+    "price_min_pkr": 2200,
+    "price_max_pkr": 3741,
+    "bio": "Trusted ac_technician in I-8, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-327-9548432"
+  },
+  {
+    "id": "h16",
+    "name": "مریم صفائی",
+    "category": "cleaner",
+    "categories": [
+      "cleaner"
+    ],
+    "area": "G-9",
+    "lat": 33.6839,
+    "lng": 72.9921,
+    "rating": 4.8,
+    "reviews": 172,
+    "verified": true,
+    "price_min_pkr": 1200,
+    "price_max_pkr": 2313,
+    "bio": "Trusted cleaner in G-9, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-330-8082668"
+  },
+  {
+    "id": "h17",
+    "name": "اقبال لکڑی",
+    "category": "carpenter",
+    "categories": [
+      "carpenter"
+    ],
+    "area": "G-13",
+    "lat": 33.6885,
+    "lng": 72.9792,
+    "rating": 4.4,
+    "reviews": 147,
+    "verified": true,
+    "price_min_pkr": 1700,
+    "price_max_pkr": 3458,
+    "bio": "Trusted carpenter in G-13, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-342-1192619"
+  },
+  {
+    "id": "h18",
+    "name": "سمیع رنگ",
+    "category": "painter",
+    "categories": [
+      "painter"
+    ],
+    "area": "F-7",
+    "lat": 33.7239,
+    "lng": 73.0458,
+    "rating": 4.8,
+    "reviews": 208,
+    "verified": true,
+    "price_min_pkr": 1900,
+    "price_max_pkr": 3246,
+    "bio": "Trusted painter in F-7, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-392-6707197"
+  },
+  {
+    "id": "h19",
+    "name": "فرحان الیکٹریشن",
+    "category": "electrician",
+    "categories": [
+      "electrician"
+    ],
+    "area": "F-10",
+    "lat": 33.6888,
+    "lng": 73.017,
+    "rating": 4.2,
+    "reviews": 140,
+    "verified": true,
+    "price_min_pkr": 1800,
+    "price_max_pkr": 3139,
+    "bio": "Trusted electrician in F-10, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-332-9517485"
+  },
+  {
+    "id": "h20",
+    "name": "عمران پلمبنگ",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "I-8",
+    "lat": 33.6746,
+    "lng": 73.0839,
+    "rating": 3.9,
+    "reviews": 167,
+    "verified": false,
+    "price_min_pkr": 1500,
+    "price_max_pkr": 3339,
+    "bio": "Trusted plumber in I-8, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-335-3564217"
+  },
+  {
+    "id": "h21",
+    "name": "واقس HVAC",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician"
+    ],
+    "area": "G-9",
+    "lat": 33.682,
+    "lng": 72.9826,
+    "rating": 4.9,
+    "reviews": 12,
+    "verified": true,
+    "price_min_pkr": 2200,
+    "price_max_pkr": 4086,
+    "bio": "Trusted ac_technician in G-9, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-386-6438436"
+  },
+  {
+    "id": "h22",
+    "name": "عائشہ کلینر",
+    "category": "cleaner",
+    "categories": [
+      "cleaner"
+    ],
+    "area": "G-13",
+    "lat": 33.6868,
+    "lng": 72.9748,
+    "rating": 4.0,
+    "reviews": 73,
+    "verified": false,
+    "price_min_pkr": 1200,
+    "price_max_pkr": 2629,
+    "bio": "Trusted cleaner in G-13, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-317-5041154"
+  },
+  {
+    "id": "h23",
+    "name": "ناصر فرنیچر",
+    "category": "carpenter",
+    "categories": [
+      "carpenter"
+    ],
+    "area": "F-7",
+    "lat": 33.727,
+    "lng": 73.0592,
+    "rating": 3.6,
+    "reviews": 220,
+    "verified": false,
+    "price_min_pkr": 1700,
+    "price_max_pkr": 3495,
+    "bio": "Trusted carpenter in F-7, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-318-9937326"
+  },
+  {
+    "id": "h24",
+    "name": "حنا ڈیکور",
+    "category": "painter",
+    "categories": [
+      "painter"
+    ],
+    "area": "F-10",
+    "lat": 33.6993,
+    "lng": 73.0121,
+    "rating": 4.2,
+    "reviews": 54,
+    "verified": true,
+    "price_min_pkr": 1900,
+    "price_max_pkr": 3825,
+    "bio": "Trusted painter in F-10, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-343-9852897"
+  },
+  {
+    "id": "h25",
+    "name": "عثمان الیکٹریشن",
+    "category": "electrician",
+    "categories": [
+      "electrician"
+    ],
+    "area": "I-8",
+    "lat": 33.674,
+    "lng": 73.0768,
+    "rating": 3.8,
+    "reviews": 205,
+    "verified": false,
+    "price_min_pkr": 1800,
+    "price_max_pkr": 3704,
+    "bio": "Trusted electrician in I-8, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-398-4374754"
+  },
+  {
+    "id": "h26",
+    "name": "بلال پلمبنگ",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "G-9",
+    "lat": 33.6874,
+    "lng": 72.9864,
+    "rating": 4.5,
+    "reviews": 124,
+    "verified": true,
+    "price_min_pkr": 1500,
+    "price_max_pkr": 3064,
+    "bio": "Trusted plumber in G-9, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-376-8574680"
+  },
+  {
+    "id": "h27",
+    "name": "عادل AC ماسٹر",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician"
+    ],
+    "area": "G-13",
+    "lat": 33.6809,
+    "lng": 72.9766,
+    "rating": 4.0,
+    "reviews": 70,
+    "verified": false,
+    "price_min_pkr": 2200,
+    "price_max_pkr": 4134,
+    "bio": "Trusted ac_technician in G-13, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-385-4694634"
+  },
+  {
+    "id": "h28",
+    "name": "ریحانہ کلین",
+    "category": "cleaner",
+    "categories": [
+      "cleaner"
+    ],
+    "area": "F-7",
+    "lat": 33.7131,
+    "lng": 73.0553,
+    "rating": 3.6,
+    "reviews": 20,
+    "verified": false,
+    "price_min_pkr": 1200,
+    "price_max_pkr": 2138,
+    "bio": "Trusted cleaner in F-7, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-352-2188789"
+  },
+  {
+    "id": "h29",
+    "name": "سجاد کارپینٹر",
+    "category": "carpenter",
+    "categories": [
+      "carpenter"
+    ],
+    "area": "F-10",
+    "lat": 33.6952,
+    "lng": 73.0145,
+    "rating": 4.2,
+    "reviews": 45,
+    "verified": true,
+    "price_min_pkr": 1700,
+    "price_max_pkr": 3604,
+    "bio": "Trusted carpenter in F-10, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-383-8930103"
+  },
+  {
+    "id": "h30",
+    "name": "ماہین پینٹ ورک",
+    "category": "painter",
+    "categories": [
+      "painter"
+    ],
+    "area": "I-8",
+    "lat": 33.6639,
+    "lng": 73.0776,
+    "rating": 4.1,
+    "reviews": 36,
+    "verified": false,
+    "price_min_pkr": 1900,
+    "price_max_pkr": 2893,
+    "bio": "Trusted painter in I-8, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-394-8231838"
   }
 ]

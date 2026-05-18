@@ -15,9 +15,10 @@ def _connect() -> sqlite3.Connection:
 
 
 def init_db() -> None:
-    from app.db import user_data
+    from app.db import auth_db, user_data
 
     user_data.init_user_tables()
+    auth_db.init_auth_tables()
     with _connect() as conn:
         conn.executescript(
             """
@@ -52,8 +53,35 @@ def init_db() -> None:
                 summary_json TEXT,
                 created_at TEXT
             );
+            CREATE TABLE IF NOT EXISTS providers (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                category TEXT NOT NULL,
+                area TEXT NOT NULL,
+                lat REAL,
+                lng REAL,
+                rating REAL,
+                reviews INTEGER,
+                verified INTEGER DEFAULT 0,
+                price_min_pkr INTEGER,
+                price_max_pkr INTEGER,
+                phone TEXT,
+                bio TEXT,
+                data_json TEXT
+            );
+            CREATE TABLE IF NOT EXISTS reviews (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                provider_id TEXT NOT NULL,
+                user_id TEXT,
+                booking_id TEXT,
+                rating INTEGER NOT NULL,
+                comment TEXT,
+                user_name TEXT,
+                created_at TEXT
+            );
             """
         )
+        _seed_providers_if_empty(conn)
         cols = {r[1] for r in conn.execute("PRAGMA table_info(bookings)").fetchall()}
         if "customer_name" not in cols:
             conn.execute("ALTER TABLE bookings ADD COLUMN customer_name TEXT DEFAULT 'Demo Customer'")
@@ -69,9 +97,44 @@ def init_db() -> None:
             conn.execute("ALTER TABLE follow_ups ADD COLUMN completion_check_time TEXT")
 
 
+def _seed_providers_if_empty(conn: sqlite3.Connection) -> None:
+    row = conn.execute("SELECT COUNT(*) as c FROM providers").fetchone()
+    if row and row["c"] > 0:
+        return
+    path = Path(__file__).resolve().parent.parent / "data" / "providers.json"
+    if not path.exists():
+        return
+    data = json.loads(path.read_text(encoding="utf-8"))
+    for p in data:
+        conn.execute(
+            """
+            INSERT OR IGNORE INTO providers
+            (id, name, category, area, lat, lng, rating, reviews, verified,
+             price_min_pkr, price_max_pkr, phone, bio, data_json)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                p["id"],
+                p["name"],
+                p["category"],
+                p["area"],
+                p.get("lat"),
+                p.get("lng"),
+                p.get("rating"),
+                p.get("reviews", 0),
+                1 if p.get("verified") else 0,
+                p.get("price_min_pkr"),
+                p.get("price_max_pkr"),
+                p.get("phone"),
+                p.get("bio"),
+                json.dumps(p),
+            ),
+        )
+
+
 def next_booking_id() -> str:
     today = datetime.utcnow().strftime("%Y%m%d")
-    prefix = f"KHI-{today}-"
+    prefix = f"HZR-{today}-"
     with _connect() as conn:
         row = conn.execute(
             "SELECT COUNT(*) as c FROM bookings WHERE id LIKE ?",

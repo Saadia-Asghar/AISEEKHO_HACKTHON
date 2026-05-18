@@ -15,7 +15,7 @@ class TraceAgent(BaseAgent):
         intent = context.get("intent")
 
         lines = [
-            "KhidmatAI — Antigravity Workflow Trace",
+            "HazirAI — Agent Workflow Trace",
             f"Session: {context['session_id']}",
             "",
         ]

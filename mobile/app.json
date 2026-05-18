@@ -1,33 +1,34 @@
 {
   "expo": {
-    "name": "KhidmatAI",
-    "slug": "khidmatai",
-    "version": "1.0.0",
+    "name": "HazirAI",
+    "slug": "hazirai",
+    "version": "3.0.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "automatic",
     "splash": {
       "resizeMode": "contain",
-      "backgroundColor": "#0f172a"
+      "backgroundColor": "#09090B"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.aiseekho.serviceorchestrator"
+      "bundleIdentifier": "com.hazirai.app"
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#0f172a"
+        "backgroundColor": "#6C3FE8"
       },
-      "package": "com.aiseekho.serviceorchestrator"
+      "package": "com.hazirai.app"
     },
     "plugins": [
       "expo-asset",
-      "expo-secure-store",
+      "expo-font",
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "KhidmatAI uses your location to find nearby service providers."
+          "locationWhenInUsePermission": "HazirAI uses your location to find nearby service providers."
         }
-      ]
+      ],
+      "expo-notifications"
     ]
   }
 }

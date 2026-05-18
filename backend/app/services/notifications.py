@@ -99,12 +99,12 @@ def send_booking_notifications(
 ) -> list[dict[str, Any]]:
     channels = channels or ["sms", "whatsapp"]
     customer_msg = (
-        f"KhidmatAI: Booking {booking_id} confirmed with {provider_name} "
+        f"HazirAI: Booking {booking_id} confirmed with {provider_name} "
         f"at {location}, slot {slot}. Reply HELP for support."
     )
     provider_msg = (
-        f"KhidmatAI: New job {booking_id} — {location}, {slot}. "
-        f"Customer booking via KhidmatAI orchestrator."
+        f"HazirAI: New job {booking_id} — {location}, {slot}. "
+        f"Customer booking via HazirAI orchestrator."
     )
     results: list[dict[str, Any]] = []
 

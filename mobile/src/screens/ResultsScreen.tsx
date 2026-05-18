@@ -1,202 +1,169 @@
-import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { saveProvider, unsaveProvider } from '../api/client';
 import { useAppStore } from '../store/useAppStore';
 import { useUserStore } from '../store/useUserStore';
-import { colors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
+import { useThemedStyles } from '../hooks/useThemedStyles';
+import type { ThemeColors } from '../constants/theme';
+import { FONT_BOLD, FONT_REGULAR, RADIUS_XL } from '../constants/theme';
+import type { ProviderProfile } from '../api/api';
+import ProviderBottomSheet from '../components/ProviderBottomSheet';
+import HapticPressable from '../components/HapticPressable';
+import { SkeletonList } from '../components/Skeleton';
 import type { HomeStackParamList } from '../navigation/HomeStackNavigator';
 
-type Nav = NativeStackNavigationProp<HomeStackParamList>;
+type Nav = NativeStackNavigationProp<HomeStackParamList, 'Results'>;
 
-function Row({ label, value }: { label: string; value: string }) {
+function ProviderCard({
+  p,
+  styles,
+  onPress,
+}: {
+  p: ProviderProfile;
+  styles: ReturnType<typeof useThemedStyles<ReturnType<typeof createStyles>>>;
+  onPress: () => void;
+}) {
   return (
-    <View style={styles.row}>
-      <Text style={styles.rowLabel}>{label}</Text>
-      <Text style={styles.rowValue}>{value}</Text>
-    </View>
+    <HapticPressable style={styles.card} onPress={onPress}>
+      <View style={styles.cardTop}>
+        <Text style={styles.name}>{p.name}</Text>
+        {p.verified ? (
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>✓ Verified</Text>
+          </View>
+        ) : null}
+      </View>
+      <Text style={styles.meta}>
+        ★ {p.rating}
+        {p.distance_km != null ? ` · ${p.distance_km.toFixed(1)} km` : ''} · {p.area}
+      </Text>
+      <Text style={styles.price}>
+        PKR {p.price_min_pkr ?? '—'} – {p.price_max_pkr ?? '—'}
+      </Text>
+    </HapticPressable>
   );
 }
 
 export default function ResultsScreen() {
   const navigation = useNavigation<Nav>();
+  const { colors } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const result = useAppStore((s) => s.result);
-  const userId = useUserStore((s) => s.userId)!;
-  const [saved, setSaved] = useState(result?.recommended.is_saved ?? false);
+  const userId = useUserStore((s) => s.userId);
+  const [refreshing, setRefreshing] = useState(false);
+  const [sheetId, setSheetId] = useState<string | null>(null);
+
+  const providers: ProviderProfile[] = result
+    ? [...(result.top_three || []), result.recommended].filter(
+        (p, i, arr) => arr.findIndex((x) => x.id === p.id) === i
+      )
+    : [];
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await new Promise((r) => setTimeout(r, 400));
+    setRefreshing(false);
+  }, []);
 
   if (!result) {
     return (
       <View style={styles.empty}>
-        <Text style={styles.muted}>No result yet. Run a request from Home.</Text>
+        <Text style={styles.muted}>No results yet. Describe a service on Home.</Text>
+        <HapticPressable style={styles.retryBtn} onPress={() => navigation.navigate('Home')}>
+          <Text style={styles.retryText}>Go home</Text>
+        </HapticPressable>
       </View>
     );
   }
 
-  const providerId = result.recommended.id;
-
-  const toggleSave = async () => {
-    if (saved) {
-      await unsaveProvider(userId, providerId);
-      setSaved(false);
-    } else {
-      await saveProvider(userId, providerId);
-      setSaved(true);
-    }
-  };
-
   return (
-    <ScrollView style={styles.root} contentContainerStyle={styles.content}>
-      {result.personalization?.user_rating_influence ? (
-        <View style={styles.personalCard}>
-          <Text style={styles.personalTitle}>Personalized for you</Text>
-          <Text style={styles.personalText}>{result.personalization.user_rating_influence}</Text>
-        </View>
-      ) : null}
-
-      {result.trace_summary?.outcome ? (
-        <Text style={styles.summary}>{result.trace_summary.outcome}</Text>
-      ) : null}
-
-      <View style={styles.card}>
-        <Text style={styles.section}>Intent</Text>
-        <Row label="Service" value={result.intent.service_label} />
-        <Row label="Location" value={result.intent.location} />
-        <Row label="Time" value={result.intent.time_expression} />
-        <Row label="Language" value={result.intent.language} />
-        {result.intent.urgency ? <Text style={styles.urgent}>Urgent request</Text> : null}
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.section}>Top 3 providers</Text>
-        {result.top_three?.map((p, i) => (
-          <View key={(p.id || p.name) + i} style={styles.providerRow}>
-            <Text style={styles.providerName}>
-              {i + 1}. {p.name}
-              {p.is_saved ? ' ⭐' : ''}
-            </Text>
-            <Text style={styles.muted}>
-              {p.distance_km} km · ★{p.effective_rating ?? p.rating}
-              {p.score != null ? ` · score ${p.score}` : ''}
-              {p.your_rating ? ` · you: ${p.your_rating}★` : ''}
-            </Text>
-            {p.rank_reason ? (
-              <Text style={styles.breakdown} numberOfLines={3}>
-                {p.rank_reason}
-              </Text>
-            ) : null}
-          </View>
-        ))}
-      </View>
-
-      <View style={[styles.card, styles.selected]}>
-        <Text style={styles.section}>Selected provider</Text>
-        <Text style={styles.highlight}>{result.recommended.name}</Text>
-        <Text style={styles.muted}>
-          {result.recommended.distance_km} km · ★ {result.recommended.effective_rating ?? result.recommended.rating} ·{' '}
-          {result.recommended.phone}
-        </Text>
-        <Pressable style={styles.saveBtn} onPress={toggleSave}>
-          <Text style={styles.saveBtnText}>{saved ? '★ Saved to favorites' : '☆ Save worker'}</Text>
-        </Pressable>
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.section}>Booking</Text>
-        <Row label="ID" value={result.booking.booking_id} />
-        <Row label="Slot" value={result.booking.slot} />
-        <Row label="Status" value={result.booking.status} />
-        <Row label="Payment" value={result.booking.payment_status || 'pending'} />
-        {result.booking.amount_pkr ? <Row label="Amount" value={`PKR ${result.booking.amount_pkr}`} /> : null}
-        <Text style={styles.confirm}>{result.booking.confirmation_message}</Text>
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.section}>Follow-up</Text>
-        <Text style={styles.muted}>{result.follow_up.status_update}</Text>
-        <Row label="Reminder" value={result.follow_up.reminder_time} />
-      </View>
-
-      {result.notifications && result.notifications.length > 0 ? (
-        <View style={styles.card}>
-          <Text style={styles.section}>Notifications sent</Text>
-          {result.notifications.map((n, i) => (
-            <Text key={i} style={styles.muted}>
-              {n.channel}: {n.status} → {n.to}
-            </Text>
-          ))}
-        </View>
-      ) : null}
-
-      <View style={styles.actions}>
-        {result.booking.payment_status !== 'paid' && result.payment ? (
-          <Pressable style={styles.actionBtn} onPress={() => navigation.navigate('Payment')}>
-            <Text style={styles.actionText}>Complete payment</Text>
-          </Pressable>
-        ) : null}
-        <Pressable
-          style={styles.actionBtn}
-          onPress={() => navigation.navigate('Rate')}
-          disabled={!result.rate_booking && result.booking.payment_status !== 'paid'}
-        >
-          <Text style={styles.actionText}>Rate this worker</Text>
-        </Pressable>
-        <Pressable style={styles.actionBtn} onPress={() => navigation.navigate('Trace')}>
-          <Text style={styles.actionText}>View agent trace</Text>
-        </Pressable>
-        <Pressable style={[styles.actionBtn, styles.actionSecondary]} onPress={() => navigation.navigate('Receipt')}>
-          <Text style={styles.actionTextSecondary}>View receipt</Text>
-        </Pressable>
-      </View>
-    </ScrollView>
+    <View style={styles.root}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
+      >
+        {refreshing ? (
+          <SkeletonList count={3} />
+        ) : (
+          <>
+            <Text style={styles.summary}>{result.trace_summary?.outcome || result.intent.service_label}</Text>
+            <Text style={styles.section}>Providers for you</Text>
+            {providers.map((p) => (
+              <ProviderCard key={p.id} p={p} styles={styles} onPress={() => setSheetId(p.id)} />
+            ))}
+            <HapticPressable
+              haptic="success"
+              style={styles.primaryBtn}
+              onPress={() => navigation.navigate('BookingConfirm')}
+            >
+              <Text style={styles.primaryBtnText}>Confirm booking</Text>
+            </HapticPressable>
+            <HapticPressable style={styles.ghostBtn} onPress={() => navigation.navigate('AgentTrace')}>
+              <Text style={styles.ghostBtnText}>View agent trace</Text>
+            </HapticPressable>
+          </>
+        )}
+      </ScrollView>
+      <ProviderBottomSheet
+        providerId={sheetId}
+        userId={userId ?? undefined}
+        onClose={() => setSheetId(null)}
+        onBook={() => {
+          setSheetId(null);
+          navigation.navigate('BookingConfirm');
+        }}
+      />
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: 16, paddingBottom: 32 },
-  empty: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg },
-  personalCard: {
-    backgroundColor: '#0c4a6e',
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: colors.primary,
-  },
-  personalTitle: { color: colors.primary, fontWeight: '700', marginBottom: 4 },
-  personalText: { color: '#bae6fd', fontSize: 13, lineHeight: 18 },
-  summary: { color: colors.primary, marginBottom: 12, lineHeight: 22 },
-  card: {
-    backgroundColor: colors.card,
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  selected: { borderColor: colors.primary },
-  section: { color: colors.dim, fontSize: 12, fontWeight: '600', marginBottom: 10, textTransform: 'uppercase' },
-  row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
-  rowLabel: { color: colors.dim },
-  rowValue: { color: colors.text, fontWeight: '600', maxWidth: '58%', textAlign: 'right' },
-  highlight: { color: colors.text, fontSize: 22, fontWeight: '700' },
-  muted: { color: colors.muted, marginTop: 4, lineHeight: 20 },
-  confirm: { color: '#cbd5e1', marginTop: 10, lineHeight: 22 },
-  urgent: { color: colors.warning, marginTop: 8, fontWeight: '600' },
-  providerRow: { marginBottom: 12 },
-  providerName: { color: colors.text, fontWeight: '600' },
-  breakdown: { color: colors.dim, fontSize: 11, marginTop: 4 },
-  saveBtn: { marginTop: 12, padding: 10, borderRadius: 8, backgroundColor: '#0f172a' },
-  saveBtnText: { color: colors.warning, textAlign: 'center', fontWeight: '600' },
-  actions: { gap: 10, marginTop: 8 },
-  actionBtn: {
-    backgroundColor: colors.primary,
-    padding: 14,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  actionSecondary: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.primary },
-  actionText: { color: colors.bg, fontWeight: '700' },
-  actionTextSecondary: { color: colors.primary, fontWeight: '700' },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    root: { flex: 1, backgroundColor: colors.bg },
+    content: { padding: 16, paddingBottom: 40 },
+    empty: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24, backgroundColor: colors.bg },
+    muted: { color: colors.muted, textAlign: 'center', fontFamily: FONT_REGULAR },
+    summary: { color: colors.primary, marginBottom: 16, lineHeight: 22, fontFamily: FONT_REGULAR },
+    section: { color: colors.dim, fontSize: 12, fontWeight: '600', textTransform: 'uppercase', marginBottom: 10 },
+    card: {
+      backgroundColor: colors.card,
+      borderRadius: RADIUS_XL,
+      padding: 16,
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      shadowColor: colors.primary,
+      shadowOpacity: 0.12,
+      shadowRadius: 8,
+    },
+    cardTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+    name: { color: colors.text, fontSize: 17, fontWeight: '700', flex: 1, fontFamily: FONT_BOLD },
+    badge: { backgroundColor: colors.success, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, marginLeft: 8 },
+    badgeText: { color: '#FFF', fontSize: 10, fontWeight: '700' },
+    meta: { color: colors.muted, marginTop: 6, fontFamily: FONT_REGULAR },
+    price: { color: colors.accent, fontWeight: '700', marginTop: 8, fontFamily: FONT_BOLD },
+    primaryBtn: {
+      backgroundColor: colors.primary,
+      padding: 16,
+      borderRadius: RADIUS_XL,
+      alignItems: 'center',
+      marginTop: 8,
+      shadowColor: colors.primary,
+      shadowOpacity: 0.35,
+      shadowRadius: 10,
+    },
+    primaryBtnText: { color: '#FFF', fontWeight: '700', fontFamily: FONT_BOLD },
+    ghostBtn: {
+      marginTop: 10,
+      padding: 14,
+      borderRadius: RADIUS_XL,
+      borderWidth: 1,
+      borderColor: colors.primary,
+      alignItems: 'center',
+    },
+    ghostBtnText: { color: colors.primary, fontWeight: '600' },
+    retryBtn: { marginTop: 16, padding: 12, backgroundColor: colors.primary, borderRadius: 12 },
+    retryText: { color: '#FFF', fontWeight: '700' },
+  });

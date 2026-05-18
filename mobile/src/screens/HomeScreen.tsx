@@ -3,7 +3,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,183 +12,261 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { fetchExamples, orchestrate } from '../api/client';
+import { orchestrate, getSuggestions } from '../api/api';
 import { useLocation } from '../hooks/useLocation';
-import { useAppStore } from '../store/useAppStore';
+import { useTheme } from '../hooks/useTheme';
+import { BRAND, TAGLINE, TAGLINE_UR, FONT_BOLD, FONT_REGULAR, RADIUS_XL } from '../constants/theme';
 import { useUserStore } from '../store/useUserStore';
-import { colors } from '../constants/theme';
+import { useAppStore } from '../store/useAppStore';
+import { addSearch, getSearchHistory } from '../storage/searchHistory';
+import ProviderBottomSheet from '../components/ProviderBottomSheet';
+import MicButton from '../components/MicButton';
+import HapticPressable from '../components/HapticPressable';
+import { SkeletonList } from '../components/Skeleton';
 import type { HomeStackParamList } from '../navigation/HomeStackNavigator';
-
-const DEMO = 'Mujhe kal subah G-13 mein AC technician chahiye';
 
 type Nav = NativeStackNavigationProp<HomeStackParamList, 'Home'>;
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<Nav>();
-  const { userId, displayName, phone } = useUserStore();
-  const { coords, loading: gpsLoading, error: gpsError, refresh: refreshGps } = useLocation();
-  const { isProcessing, setProcessing, setResult, setError, pendingMessage, setPendingMessage } =
-    useAppStore();
-  const [message, setMessage] = useState(DEMO);
-  const [examples, setExamples] = useState<string[]>([DEMO]);
+  const { colors } = useTheme();
+  const { userId, displayName, phone, language } = useUserStore();
+  const { setProcessing, setResult, setError, isProcessing } = useAppStore();
+  const { coords, refresh: refreshGps } = useLocation();
+  const [message, setMessage] = useState('');
+  const [history, setHistory] = useState<string[]>([]);
+  const [chips, setChips] = useState<Array<{ service_type: string; label: string; label_ur: string }>>([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loadingChips, setLoadingChips] = useState(true);
+  const [sheetId, setSheetId] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchExamples().then(setExamples).catch(() => {});
+  const tagline = language === 'ur' ? TAGLINE_UR : TAGLINE;
+
+  const loadMeta = useCallback(async () => {
+    setLoadingChips(true);
+    setLoadError(null);
+    try {
+      const hour = new Date().getHours();
+      const [sug, hist] = await Promise.all([getSuggestions(hour), getSearchHistory()]);
+      setChips(sug.suggestions || []);
+      setHistory(hist);
+    } catch (e) {
+      setLoadError(e instanceof Error ? e.message : 'Could not load suggestions');
+    } finally {
+      setLoadingChips(false);
+    }
   }, []);
 
-  useFocusEffect(
-    useCallback(() => {
-      if (pendingMessage) {
-        setMessage(pendingMessage);
-        setPendingMessage(null);
-      }
-    }, [pendingMessage, setPendingMessage])
-  );
+  useEffect(() => {
+    loadMeta();
+  }, [loadMeta]);
 
-  const onSubmit = useCallback(async () => {
-    if (!message.trim() || isProcessing || !userId) return;
+  const pending = useAppStore((s) => s.pendingMessage);
+  useEffect(() => {
+    if (pending) {
+      setMessage(pending);
+      useAppStore.getState().setPendingMessage(null);
+    }
+  }, [pending]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refreshGps();
+    await loadMeta();
+    setRefreshing(false);
+  };
+
+  const onSubmit = async () => {
+    if (!message.trim() || !userId) return;
     setProcessing(true);
     setError(null);
     try {
-      const data = await orchestrate(
-        message.trim(),
-        userId,
-        displayName ?? undefined,
-        undefined,
-        coords,
-        phone
-      );
+      await addSearch(message.trim());
+      const data = await orchestrate(message.trim(), userId, displayName ?? undefined, coords, phone);
       setResult(data);
-      navigation.navigate('Payment');
+      navigation.navigate('Results');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Request failed');
     } finally {
       setProcessing(false);
     }
-  }, [message, isProcessing, userId, displayName, phone, coords, navigation, setProcessing, setResult, setError]);
+  };
 
   const error = useAppStore((s) => s.error);
 
   return (
-    <KeyboardAvoidingView
-      style={[styles.root, { paddingTop: insets.top }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <StatusBar style="light" />
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-        <Text style={styles.badge}>KhidmatAI · Antigravity Hackathon 2026</Text>
-        <Text style={styles.title}>Hi, {displayName}</Text>
-        <Text style={styles.subtitle}>Speak your need. KhidmatAI handles the rest.</Text>
-
-        <Pressable style={styles.gpsBar} onPress={refreshGps}>
-          <Text style={styles.gpsText}>
-            {gpsLoading
-              ? '📍 Getting GPS…'
-              : coords
-                ? `📍 Live GPS: ${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`
-                : `📍 ${gpsError || 'GPS off — using sector'}`}
-          </Text>
-        </Pressable>
-
-        <View style={styles.langRow}>
-          <Text style={styles.langChip}>اردو</Text>
-          <Text style={styles.langChip}>Roman Urdu</Text>
-          <Text style={styles.langChip}>English</Text>
-        </View>
-
-        <TextInput
-          style={styles.input}
-          multiline
-          value={message}
-          onChangeText={setMessage}
-          placeholder="Describe the service you need..."
-          placeholderTextColor={colors.dim}
-        />
-
-        <View style={styles.chips}>
-          {examples.map((ex) => (
-            <Pressable key={ex} style={styles.chip} onPress={() => setMessage(ex)}>
-              <Text style={styles.chipText} numberOfLines={2}>
-                {ex}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-
-        <Pressable
-          style={[styles.button, isProcessing && styles.buttonDisabled]}
-          onPress={onSubmit}
-          disabled={isProcessing}
+    <View style={{ flex: 1, backgroundColor: colors.bg, paddingTop: insets.top }}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <StatusBar style="light" />
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
+          keyboardShouldPersistTaps="handled"
         >
-          {isProcessing ? (
-            <ActivityIndicator color={colors.bg} />
-          ) : (
-            <Text style={styles.buttonText}>Run agent pipeline</Text>
-          )}
-        </Pressable>
+          <Text style={[styles.greet, { color: colors.text, fontFamily: FONT_BOLD }]}>
+            {language === 'ur' ? `سلام، ${displayName}` : `Hello, ${displayName}`}
+          </Text>
+          <Text style={[styles.brand, { color: colors.primary, fontFamily: FONT_BOLD }]}>{BRAND}</Text>
+          <Text style={[styles.tag, { color: colors.muted, fontFamily: FONT_REGULAR }]}>{tagline}</Text>
 
-        {error ? <Text style={styles.error}>{error}</Text> : null}
-      </ScrollView>
-    </KeyboardAvoidingView>
+          <HapticPressable
+            onPress={refreshGps}
+            style={[
+              styles.gps,
+              {
+                backgroundColor: colors.card,
+                borderColor: colors.border,
+                shadowColor: colors.primary,
+              },
+            ]}
+          >
+            <Text style={{ color: colors.primary, fontSize: 13, fontFamily: FONT_REGULAR }}>
+              {coords ? `📍 ${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}` : '📍 Tap for live GPS'}
+            </Text>
+          </HapticPressable>
+
+          <TextInput
+            style={[
+              styles.input,
+              {
+                backgroundColor: colors.card,
+                color: colors.text,
+                borderColor: colors.border,
+                fontFamily: FONT_REGULAR,
+              },
+            ]}
+            multiline
+            placeholder={language === 'ur' ? 'آپ کو کون سی خدمت چاہیے؟' : 'What service do you need?'}
+            placeholderTextColor={colors.muted}
+            value={message}
+            onChangeText={setMessage}
+          />
+
+          <MicButton onTranscript={setMessage} disabled={isProcessing} language={language} />
+
+          {history.length > 0 ? (
+            <>
+              <Text style={[styles.section, { color: colors.dim }]}>Recent searches</Text>
+              <View style={styles.chipRow}>
+                {history.map((h) => (
+                  <HapticPressable
+                    key={h}
+                    style={[styles.chip, { backgroundColor: colors.surface, borderColor: colors.border }]}
+                    onPress={() => setMessage(h)}
+                  >
+                    <Text style={{ color: colors.muted, fontSize: 12 }} numberOfLines={1}>
+                      {h}
+                    </Text>
+                  </HapticPressable>
+                ))}
+              </View>
+            </>
+          ) : null}
+
+          <Text style={[styles.section, { color: colors.dim }]}>Suggested now</Text>
+          {loadingChips ? (
+            <SkeletonList count={3} />
+          ) : loadError ? (
+            <HapticPressable onPress={loadMeta}>
+              <Text style={{ color: colors.error }}>{loadError} — Tap to retry</Text>
+            </HapticPressable>
+          ) : (
+            <View style={styles.chipRow}>
+              {chips.map((c) => (
+                <HapticPressable
+                  key={c.service_type}
+                  style={[
+                    styles.chip,
+                    {
+                      backgroundColor: colors.primary,
+                      shadowColor: colors.primary,
+                      shadowOpacity: 0.35,
+                      shadowRadius: 8,
+                    },
+                  ]}
+                  onPress={() =>
+                    setMessage(
+                      language === 'ur'
+                        ? `Mujhe ${c.label_ur || c.label} chahiye qareeb`
+                        : `I need a ${c.label} nearby`
+                    )
+                  }
+                >
+                  <Text style={{ color: '#FFF', fontSize: 12, fontFamily: FONT_SEMIBOLD }}>
+                    {language === 'ur' ? c.label_ur : c.label}
+                  </Text>
+                </HapticPressable>
+              ))}
+            </View>
+          )}
+
+          <HapticPressable
+            haptic="medium"
+            style={[
+              styles.bookBtn,
+              {
+                backgroundColor: colors.primary,
+                shadowColor: colors.primary,
+                opacity: isProcessing ? 0.7 : 1,
+              },
+            ]}
+            onPress={onSubmit}
+            disabled={isProcessing}
+          >
+            {isProcessing ? (
+              <ActivityIndicator color="#FFF" />
+            ) : (
+              <Text style={[styles.bookBtnText, { fontFamily: FONT_BOLD }]}>
+                {language === 'ur' ? 'ابھی بک کریں' : 'Book now'}
+              </Text>
+            )}
+          </HapticPressable>
+          {error ? <Text style={{ color: colors.error, marginTop: 8 }}>{error}</Text> : null}
+        </ScrollView>
+      </KeyboardAvoidingView>
+      <ProviderBottomSheet
+        providerId={sheetId}
+        userId={userId ?? undefined}
+        onClose={() => setSheetId(null)}
+        onBook={() => navigation.navigate('BookingConfirm')}
+      />
+    </View>
   );
 }
 
+const FONT_SEMIBOLD = 'Inter_600SemiBold';
+
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.bg },
-  scroll: { padding: 20, paddingBottom: 40 },
-  badge: { color: colors.primary, fontSize: 12, fontWeight: '600', marginBottom: 8 },
-  title: { color: colors.text, fontSize: 28, fontWeight: '700' },
-  subtitle: { color: colors.muted, marginTop: 6, marginBottom: 16, lineHeight: 22 },
-  gpsBar: {
-    backgroundColor: colors.card,
-    padding: 10,
-    borderRadius: 10,
+  scroll: { padding: 20, paddingBottom: 48 },
+  greet: { fontSize: 22, fontWeight: '700' },
+  brand: { fontSize: 14, fontWeight: '600', marginTop: 4 },
+  tag: { fontSize: 13, marginBottom: 16 },
+  gps: {
+    padding: 12,
+    borderRadius: RADIUS_XL,
+    borderWidth: 1,
     marginBottom: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
+    shadowOffset: { width: 0, height: 0 },
+    shadowRadius: 6,
+    elevation: 2,
   },
-  gpsText: { color: colors.primary, fontSize: 13 },
-  langRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
-  langChip: {
-    color: colors.muted,
-    fontSize: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  input: {
-    backgroundColor: colors.card,
-    borderRadius: 12,
-    padding: 14,
-    color: colors.text,
-    minHeight: 100,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  chips: { gap: 8, marginTop: 12 },
-  chip: {
-    backgroundColor: colors.card,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  chipText: { color: colors.muted, fontSize: 13, lineHeight: 18 },
-  button: {
-    backgroundColor: colors.primary,
-    borderRadius: 12,
+  input: { minHeight: 96, borderRadius: RADIUS_XL, padding: 14, borderWidth: 1, fontSize: 16, marginBottom: 4 },
+  section: { marginTop: 16, marginBottom: 8, fontSize: 12, fontWeight: '600', textTransform: 'uppercase' },
+  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  chip: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: RADIUS_XL, borderWidth: 1, maxWidth: '48%' },
+  bookBtn: {
+    marginTop: 24,
     padding: 16,
+    borderRadius: RADIUS_XL,
     alignItems: 'center',
-    marginTop: 16,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 4,
   },
-  buttonDisabled: { opacity: 0.7 },
-  buttonText: { color: colors.bg, fontWeight: '700', fontSize: 16 },
-  error: { color: colors.error, marginTop: 12, lineHeight: 20 },
+  bookBtnText: { color: '#FFF', fontSize: 17, fontWeight: '700' },
 });
