@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router, Link } from 'expo-router';
+import { router } from 'expo-router';
 import { colors, fonts, radius, spacing } from '../../constants/theme';
 import { getSession } from '../../lib/auth';
 import { cancelBooking, getBookings } from '../../api/client';
@@ -19,6 +19,7 @@ import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import ScreenGuide from '../../components/ScreenGuide';
 import TipCard from '../../components/TipCard';
+import EmptyState from '../../components/EmptyState';
 
 type Tab = 'upcoming' | 'past' | 'cancelled';
 
@@ -115,20 +116,17 @@ export default function BookingsScreen() {
           contentContainerStyle={rows.length ? styles.list : styles.emptyWrap}
         >
           {rows.length === 0 ? (
-            <View style={styles.empty}>
-              <Text style={styles.emptyIcon}>🎉</Text>
-              <Text style={styles.emptyTitle}>
-                {tab === 'cancelled' ? 'No cancelled bookings' : 'No bookings yet'}
-              </Text>
-              <Text style={styles.emptySub}>
-                {tab === 'cancelled' ? 'All your bookings are going great!' : 'Book a service from Home'}
-              </Text>
-              {tab !== 'cancelled' ? (
-                <Link href="/" asChild>
-                  <Button label="Find a Service" style={{ marginTop: spacing.lg }} />
-                </Link>
-              ) : null}
-            </View>
+            <EmptyState
+              icon={tab === 'cancelled' ? '🎉' : '📋'}
+              title={tab === 'cancelled' ? 'No cancelled bookings' : 'No bookings yet'}
+              message={
+                tab === 'cancelled'
+                  ? 'All your bookings are going great!'
+                  : 'Complete a booking from Home (Try Demo is fastest). Your jobs will show here.'
+              }
+              actionLabel={tab !== 'cancelled' ? 'Book from Home' : undefined}
+              onAction={tab !== 'cancelled' ? () => router.push('/') : undefined}
+            />
           ) : (
             rows.map((b) => (
               <View key={b.id} style={styles.bCard}>

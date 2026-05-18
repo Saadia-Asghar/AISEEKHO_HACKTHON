@@ -17,6 +17,8 @@ import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import SecLabel from '../../components/ui/SecLabel';
 import GoogleBadge from '../../components/GoogleBadge';
+import TipCard from '../../components/TipCard';
+import { showToast } from '../../lib/toastStore';
 import { api, getProvider } from '../../api/client';
 import { getSession } from '../../lib/auth';
 
@@ -119,6 +121,14 @@ export default function ProviderScreen() {
           </View>
         </View>
 
+        <View style={{ paddingHorizontal: spacing.lg }}>
+          <TipCard
+            tipId="provider_book"
+            title="Ready to book?"
+            message="Check reviews and stats below, then tap Book to confirm. You can call the provider anytime."
+          />
+        </View>
+
         <View style={styles.skills}>
           <SecLabel>Skills</SecLabel>
           <View style={styles.skillRow}>
@@ -148,7 +158,10 @@ export default function ProviderScreen() {
 
         <Button
           label={`Book ${name}`}
-          onPress={() => router.push('/booking-confirm')}
+          onPress={() => {
+            showToast('Opening booking…');
+            router.push('/booking-confirm');
+          }}
           style={{ width: '100%', marginBottom: 10 }}
         />
         <Button label="📞 Call Provider" variant="outline" onPress={callProvider} style={{ width: '100%' }} />

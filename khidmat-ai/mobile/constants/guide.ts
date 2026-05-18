@@ -27,7 +27,11 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
     icon: '⭐',
     title: 'Results & confirm',
     body: 'AI ranks providers by skill, speed & value. Tap a card for details, then Book to confirm.',
-    bullets: ['⭐ Top Match = best overall pick', 'Leave a review after your job'],
+    bullets: [
+      '⭐ Top Match = best overall pick',
+      'Score bars: 🟣 Skill · 🟠 Speed · 🟢 Value',
+      'Leave a review after your job',
+    ],
   },
   {
     icon: '🧭',
@@ -48,6 +52,49 @@ export const TAB_HINTS: Record<string, string> = {
   Trace: 'AI reasoning',
   Profile: 'Help & account',
 };
+
+export const EXAMPLE_PHRASES = [
+  {
+    id: 'ac',
+    emoji: '❄️',
+    label: 'AC repair G-13',
+    urdu: 'AC theek karwana hai',
+    text: 'Mujhe kal subah G-13 mein AC technician chahiye',
+  },
+  {
+    id: 'plumber',
+    emoji: '🔧',
+    label: 'Urgent plumber',
+    urdu: 'Plumber jaldi chahiye',
+    text: 'F-7 mein plumber urgent — pipe leak hai',
+  },
+  {
+    id: 'electric',
+    emoji: '💡',
+    label: 'Electrician today',
+    urdu: 'Bijli ka kaam',
+    text: 'DHA mein electrician chahiye aaj sham',
+  },
+  {
+    id: 'clean',
+    emoji: '🧹',
+    label: 'House cleaning',
+    urdu: 'Ghar ki safai',
+    text: 'Kal subah G-13 mein deep cleaning chahiye',
+  },
+] as const;
+
+export const NAV_SHORTCUTS = [
+  { icon: '📋', label: 'Bookings', route: '/(tabs)/bookings' },
+  { icon: '🧠', label: 'AI Trace', route: '/(tabs)/trace' },
+  { icon: '📖', label: 'Help', route: '/(tabs)/profile' },
+] as const;
+
+export const BOOKING_FLOW = [
+  { step: 'Request', hint: 'Describe your need — voice, text, or Try Demo' },
+  { step: 'Match', hint: 'AI ranks providers — pick ⭐ Top Match or view profile' },
+  { step: 'Book', hint: 'Confirm booking, rate provider, set reminder' },
+] as const;
 
 export const HOW_TO_SECTIONS = [
   {

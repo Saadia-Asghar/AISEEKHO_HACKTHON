@@ -18,6 +18,7 @@ import { persistSession, saveSession } from '../lib/auth';
 import { sendOtp, verifyAuth } from '../api/client';
 import Button from '../components/ui/Button';
 import GoogleBadge from '../components/GoogleBadge';
+import { showToast } from '../lib/toastStore';
 
 export default function AuthScreen() {
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
@@ -62,6 +63,7 @@ export default function AuthScreen() {
         name: data.name || 'Guest',
         phone,
       });
+      showToast(`Welcome, ${data.name || 'Guest'}!`);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       router.replace('/');
     } catch (e) {
@@ -84,6 +86,7 @@ export default function AuthScreen() {
         name: data.name || 'Guest',
         phone: guestPhone,
       });
+      showToast('Welcome, Guest! Tap ❓ on Home for a quick tour');
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       router.replace('/');
     } catch (e) {

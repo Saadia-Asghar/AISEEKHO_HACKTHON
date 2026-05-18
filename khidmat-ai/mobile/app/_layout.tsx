@@ -8,6 +8,7 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { colors } from '../constants/theme';
 import { getSession } from '../lib/auth';
+import AppToast from '../components/AppToast';
 
 export default function RootLayout() {
   const [ready, setReady] = useState(false);
@@ -51,6 +52,7 @@ export default function RootLayout() {
   return (
     <>
       <StatusBar style="light" />
+      <AppToast />
       <Stack
         screenOptions={{
           headerStyle: { backgroundColor: colors.bg },

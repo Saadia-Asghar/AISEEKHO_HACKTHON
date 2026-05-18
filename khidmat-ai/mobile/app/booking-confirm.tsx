@@ -18,6 +18,8 @@ import { getSession } from '../lib/auth';
 import { postReview } from '../api/client';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
+import BookingFlowBar from '../components/BookingFlowBar';
+import { showToast } from '../lib/toastStore';
 
 if (Platform.OS !== 'web') {
   const Notifications = require('expo-notifications');
@@ -56,6 +58,7 @@ export default function BookingConfirmScreen() {
 
   const setReminder = async () => {
     if (Platform.OS === 'web') {
+      showToast('🔔 Reminder set (demo on web)');
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       return;
     }
@@ -69,6 +72,7 @@ export default function BookingConfirmScreen() {
       },
       trigger: { seconds: 3600 },
     });
+    showToast('🔔 Reminder set for 1 hour before');
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   };
 
@@ -86,6 +90,7 @@ export default function BookingConfirmScreen() {
         comment: comment.trim() || undefined,
       });
       setReviewDone(true);
+      showToast('⭐ Shukriya! Review saved');
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } finally {
       setSubmitting(false);
@@ -94,6 +99,7 @@ export default function BookingConfirmScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
+      <BookingFlowBar step={2} />
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.hero}>
           <Animated.View style={[styles.checkAnim, { transform: [{ scale }] }]}>

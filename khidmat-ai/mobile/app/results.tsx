@@ -10,6 +10,8 @@ import ScoreBar from '../components/ScoreBar';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
 import TipCard from '../components/TipCard';
+import BookingFlowBar from '../components/BookingFlowBar';
+import { showToast } from '../lib/toastStore';
 import type { ProviderScore } from '../api/client';
 import { confirmBooking } from '../api/client';
 
@@ -103,6 +105,7 @@ export default function ResultsScreen() {
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
       if (result.booking?.booking_id) await confirmBooking(result.booking.booking_id);
+      showToast('✓ Booking confirmed!');
       router.push('/booking-confirm');
     } finally {
       setBooking(false);
@@ -113,6 +116,7 @@ export default function ResultsScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['bottom']}>
+      <BookingFlowBar step={1} />
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.pageHeader}>
           <Pressable style={styles.backBtn} onPress={() => router.back()}>

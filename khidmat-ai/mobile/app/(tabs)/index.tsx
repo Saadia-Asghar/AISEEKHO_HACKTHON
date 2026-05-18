@@ -25,6 +25,10 @@ import OnboardingModal from '../../components/OnboardingModal';
 import TipCard from '../../components/TipCard';
 import { isRecording, startRecording, stopRecordingBase64 } from '../../lib/voice';
 import { hasSeenOnboarding } from '../../lib/onboarding';
+import { showToast } from '../../lib/toastStore';
+import ExamplePhrases from '../../components/ExamplePhrases';
+import NavShortcuts from '../../components/NavShortcuts';
+import BookingFlowBar from '../../components/BookingFlowBar';
 
 const DEMO = 'Mujhe kal subah G-13 mein AC technician chahiye';
 
@@ -83,6 +87,7 @@ export default function HomeScreen() {
         const data = await orchestrate(text.trim(), session.userId, session.name, session.phone);
         setResult(data);
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+        showToast('✓ Providers found — pick your match');
         router.push('/results');
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Connection error — tap to retry');
@@ -146,10 +151,14 @@ export default function HomeScreen() {
           </View>
         </View>
 
+        <BookingFlowBar step={0} />
+
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <View style={styles.quickStart}>
-            <Text style={styles.quickTitle}>Quick start</Text>
-            <Text style={styles.quickStep}>① Type or tap 🎤 · ② Try Demo · ③ Book Now → pick a pro</Text>
+            <Text style={styles.quickTitle}>3 steps to book</Text>
+            <Text style={styles.quickStep}>
+              Describe → AI finds pros → Confirm & review
+            </Text>
           </View>
 
           <TipCard
@@ -174,11 +183,19 @@ export default function HomeScreen() {
               </Pressable>
             </View>
             <Text style={styles.micHint}>
-              Tap mic — <Text style={styles.micHintAccent}>Google speech-to-text</Text>
+              {recording ? (
+                <Text style={styles.recordingHint}>🔴 Listening… tap ⏹ when done</Text>
+              ) : (
+                <>
+                  Tap mic — <Text style={styles.micHintAccent}>Google speech-to-text</Text>
+                  {Platform.OS === 'web' ? ' (phone only)' : ''}
+                </>
+              )}
             </Text>
           </View>
 
           <View style={styles.searchBlock}>
+            <Text style={styles.inputLabel}>What do you need?</Text>
             <TextInput
               style={styles.input}
               placeholder="e.g. Mujhe AC repair karwana hai ghar mein…"
@@ -199,8 +216,25 @@ export default function HomeScreen() {
                 disabled={loading}
                 style={{ flex: 1 }}
               />
-              <Button label="📍 Book Now" onPress={() => submit(input)} disabled={loading} style={{ flex: 1 }} />
+              <Button
+                label="📍 Book Now"
+                onPress={() => {
+                  if (!input.trim()) {
+                    showToast('Type a request or tap Try Demo');
+                    return;
+                  }
+                  submit(input);
+                }}
+                disabled={loading}
+                style={{ flex: 1 }}
+              />
             </View>
+            <ExamplePhrases
+              onSelect={(text) => {
+                setInput(text);
+                showToast('Phrase added — tap Book Now');
+              }}
+            />
           </View>
 
           <View style={styles.section}>
@@ -245,10 +279,14 @@ export default function HomeScreen() {
           ) : null}
 
           {error ? (
-            <Pressable onPress={() => submit(input)}>
+            <Pressable onPress={() => submit(input)} style={styles.errorBox}>
+              <Text style={styles.errorTitle}>Could not connect</Text>
               <Text style={styles.error}>{error}</Text>
+              <Text style={styles.errorRetry}>Tap to retry</Text>
             </Pressable>
           ) : null}
+
+          <NavShortcuts />
         </ScrollView>
         <ShimmerOverlay visible={loading} />
       </KeyboardAvoidingView>
@@ -335,7 +373,15 @@ const styles = StyleSheet.create({
   micSvg: { fontSize: 32 },
   micHint: { fontSize: 12, color: colors.text3, marginTop: 10, fontFamily: fonts.body },
   micHintAccent: { color: colors.violetBright },
+  recordingHint: { color: colors.rose, fontWeight: '700' },
   searchBlock: { paddingHorizontal: spacing.lg },
+  inputLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.text2,
+    marginBottom: 8,
+    fontFamily: fonts.body,
+  },
   input: {
     backgroundColor: colors.surface,
     borderWidth: 1,
@@ -373,5 +419,16 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   pillText: { fontSize: 12, color: colors.text3, fontFamily: fonts.body, maxWidth: 200 },
-  error: { color: colors.rose, textAlign: 'center', margin: spacing.lg, fontFamily: fonts.body },
+  errorBox: {
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.md,
+    padding: spacing.md,
+    backgroundColor: colors.roseSoft,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(232,93,122,0.3)',
+  },
+  errorTitle: { color: colors.rose, fontWeight: '700', marginBottom: 4, fontFamily: fonts.body },
+  error: { color: colors.text2, fontSize: 13, fontFamily: fonts.body },
+  errorRetry: { color: colors.violetBright, fontSize: 12, marginTop: 8, fontWeight: '600', fontFamily: fonts.body },
 });

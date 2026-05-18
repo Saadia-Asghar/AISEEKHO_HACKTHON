@@ -66,9 +66,13 @@ export default function OnboardingModal({ visible, onClose }: Props) {
             ))}
           </ScrollView>
 
+          <Text style={styles.stepCounter}>
+            Step {step + 1} of {ONBOARDING_STEPS.length}
+          </Text>
+
           <View style={styles.actions}>
             <Button
-              label={isLast ? "Let's go!" : 'Next'}
+              label={isLast ? "Let's go!" : 'Next →'}
               onPress={next}
               style={{ flex: 1 }}
             />
@@ -123,6 +127,13 @@ const styles = StyleSheet.create({
   bulletRow: { flexDirection: 'row', gap: 8, marginBottom: 8, paddingHorizontal: 4 },
   bulletDot: { color: colors.violetBright, fontSize: 14 },
   bulletText: { flex: 1, color: colors.text2, fontSize: 13, lineHeight: 20, fontFamily: fonts.body },
+  stepCounter: {
+    textAlign: 'center',
+    fontSize: 11,
+    color: colors.text3,
+    marginTop: spacing.sm,
+    fontFamily: fonts.body,
+  },
   actions: { marginTop: spacing.md, gap: spacing.sm },
   skipBtn: { alignItems: 'center', paddingVertical: spacing.sm },
   skipText: { color: colors.text3, fontSize: 13, fontFamily: fonts.body },
