@@ -58,7 +58,19 @@ class ProviderDiscoveryAgent(BaseAgent):
 
     def run(self, context: dict[str, Any]) -> dict[str, Any]:
         intent = context["intent"]
-        user_lat, user_lng = resolve_user_coords(intent.location)
+        gps_lat = context.get("user_lat")
+        gps_lng = context.get("user_lng")
+        if gps_lat is not None and gps_lng is not None:
+            user_lat, user_lng = float(gps_lat), float(gps_lng)
+            location_source = "gps"
+        else:
+            user_lat, user_lng = resolve_user_coords(intent.location)
+            location_source = "sector_default"
+        context["user_location"] = {
+            "lat": user_lat,
+            "lng": user_lng,
+            "source": location_source,
+        }
         all_providers = self._load_providers()
 
         radius = DEFAULT_RADIUS_KM
@@ -98,16 +110,19 @@ class ProviderDiscoveryAgent(BaseAgent):
                 "location": intent.location,
                 "radius_km": radius,
                 "widened": widened,
+                "user_lat": user_lat,
+                "user_lng": user_lng,
+                "location_source": location_source,
             },
             {
                 "count": len(matches),
                 "within_radius": [m.name for m in matches[:5]],
-                "tool": "mock_places_api",
+                "tool": "gps" if location_source == "gps" else "mock_places_api",
             },
             (
-                f"Found {len(matches)} providers within {radius} km "
-                f"({'widened from 5 km' if widened else 'default 5 km'}). "
-                "Google Maps Places API registered as Antigravity tool (mock fallback active)."
+                f"Found {len(matches)} providers within {radius} km using {location_source} "
+                f"({user_lat:.4f}, {user_lng:.4f}). "
+                f"{'Radius widened.' if widened else 'Default 5 km.'}"
             ),
         )
         return context

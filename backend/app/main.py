@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.db.database import get_trace, init_db
 from app.models.schemas import OrchestrationResponse, ServiceRequest
 from app.orchestrator import KhidmatOrchestrator
+from app.routers import auth, payments, users
 
 load_dotenv()
 
@@ -35,6 +36,10 @@ app.add_middleware(
 
 orchestrator = KhidmatOrchestrator()
 
+app.include_router(users.router)
+app.include_router(auth.router)
+app.include_router(payments.router)
+
 
 @app.get("/health")
 def health():
@@ -44,6 +49,10 @@ def health():
         "platform": "Google Antigravity + ADK-ready orchestrator",
         "agents": 6,
         "gemini_configured": bool(os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")),
+        "clerk_configured": bool(os.getenv("CLERK_SECRET_KEY")),
+        "stripe_configured": bool(os.getenv("STRIPE_SECRET_KEY")),
+        "twilio_configured": bool(os.getenv("TWILIO_ACCOUNT_SID")),
+        "whatsapp_configured": bool(os.getenv("WHATSAPP_ACCESS_TOKEN")),
     }
 
 
@@ -54,6 +63,10 @@ def orchestrate(request: ServiceRequest):
             request.message,
             request.session_id,
             request.customer_name,
+            request.user_id,
+            request.user_lat,
+            request.user_lng,
+            request.customer_phone,
         )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e

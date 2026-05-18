@@ -15,8 +15,8 @@ class FollowUpAgent(BaseAgent):
         completion_time = database.completion_check_for_slot(booking.slot)
         message = (
             f"Reminder scheduled 1 hour before appointment ({booking.slot}) at {reminder_time}. "
-            f"Completion check prompt at {completion_time}. "
-            f"Provider {booking.provider_name} notified (FCM/WhatsApp simulated)."
+            f"Completion check at {completion_time}. "
+            f"SMS/WhatsApp to customer and {booking.provider_name} fire after payment is confirmed."
         )
         raw = database.save_follow_up(
             booking_id=booking.booking_id,

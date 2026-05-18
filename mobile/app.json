@@ -20,7 +20,14 @@
       "package": "com.aiseekho.serviceorchestrator"
     },
     "plugins": [
-      "expo-asset"
+      "expo-asset",
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "KhidmatAI uses your location to find nearby service providers."
+        }
+      ]
     ]
   }
 }

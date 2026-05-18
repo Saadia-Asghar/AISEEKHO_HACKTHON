@@ -15,6 +15,9 @@ def _connect() -> sqlite3.Connection:
 
 
 def init_db() -> None:
+    from app.db import user_data
+
+    user_data.init_user_tables()
     with _connect() as conn:
         conn.executescript(
             """
@@ -89,6 +92,9 @@ def save_booking(
     slot_datetime: str,
     confirmation_message: str,
     receipt: str,
+    user_id: str | None = None,
+    payment_status: str = "pending",
+    amount_pkr: int | None = None,
 ) -> dict[str, Any]:
     booking_id = next_booking_id()
     created = datetime.utcnow().isoformat() + "Z"
@@ -96,13 +102,15 @@ def save_booking(
         conn.execute(
             """
             INSERT INTO bookings
-            (id, session_id, customer_name, provider_id, provider_name, service_type,
-             location, slot, slot_datetime, status, confirmation_message, receipt, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (id, session_id, user_id, customer_name, provider_id, provider_name, service_type,
+             location, slot, slot_datetime, status, confirmation_message, receipt, created_at,
+             payment_status, amount_pkr)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 booking_id,
                 session_id,
+                user_id,
                 customer_name,
                 provider_id,
                 provider_name,
@@ -110,10 +118,12 @@ def save_booking(
                 location,
                 slot,
                 slot_datetime,
-                "CONFIRMED",
+                "PENDING_PAYMENT",
                 confirmation_message,
                 receipt,
                 created,
+                payment_status,
+                amount_pkr,
             ),
         )
     return {
@@ -125,7 +135,9 @@ def save_booking(
         "location": location,
         "slot": slot,
         "slot_datetime": slot_datetime,
-        "status": "CONFIRMED",
+        "status": "PENDING_PAYMENT",
+        "payment_status": payment_status,
+        "amount_pkr": amount_pkr,
         "confirmation_message": confirmation_message,
         "receipt": receipt,
     }

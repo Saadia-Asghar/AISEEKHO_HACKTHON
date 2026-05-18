@@ -85,11 +85,21 @@ adk web --port 8080
 | Gemini | Optional NLU via `GOOGLE_API_KEY` |
 | SQLite | Bookings, follow-ups, agent traces |
 
+## User features (ratings & saved workers)
+
+- **Profile** — local user id (`POST /api/users`)  
+- **Rate workers** after booking (`POST /api/users/ratings`) — updates community effective rating  
+- **Save favorites** — boosts future recommendations (+5% personalization score)  
+- **History & rebook** — see past bookings; book again from Saved tab  
+
+See [docs/USER_FLOW.md](docs/USER_FLOW.md) for market research and full flow diagram.
+
 ## Deliverables checklist
 
 - [x] Working mobile prototype (Expo)  
 - [x] Agent trace / logs (API + mobile tab)  
 - [x] README (architecture, Antigravity, APIs, assumptions)  
+- [x] User ratings + saved workers + personalized ranking  
 - [ ] Demo video (3–5 min) — record locally  
 
 ## Assumptions & limitations

@@ -47,6 +47,15 @@ class Provider(BaseModel):
     score: float | None = None
     rank_reason: str | None = None
     score_breakdown: dict[str, float] | None = None
+    effective_rating: float | None = None
+    is_saved: bool = False
+    your_rating: int | None = None
+
+
+class PersonalizationSummary(BaseModel):
+    saved_boost_applied: bool = False
+    repeat_provider_boost: bool = False
+    user_rating_influence: str | None = None
 
 
 class BookingResult(BaseModel):
@@ -59,8 +68,38 @@ class BookingResult(BaseModel):
     slot: str
     slot_datetime: str
     status: str
+    payment_status: str = "pending"
+    amount_pkr: int | None = None
     confirmation_message: str
     receipt: str
+
+
+class PaymentInfo(BaseModel):
+    payment_id: str
+    booking_id: str
+    amount_pkr: int
+    method: str = "card"
+    status: str
+    simulated: bool = False
+    instructions: str | None = None
+    stripe_client_secret: str | None = None
+    stripe_payment_intent_id: str | None = None
+
+
+class NotificationResult(BaseModel):
+    channel: str
+    to: str
+    status: str
+    provider: str = "mock"
+    preview: str | None = None
+
+    model_config = {"extra": "ignore"}
+
+
+class LocationInfo(BaseModel):
+    lat: float
+    lng: float
+    source: str = "sector_default"
 
 
 class FollowUpResult(BaseModel):
@@ -85,12 +124,49 @@ class OrchestrationResponse(BaseModel):
     top_three: list[Provider]
     recommended: Provider
     booking: BookingResult
+    payment: PaymentInfo
     follow_up: FollowUpResult
     trace: list[TraceEntry]
     trace_summary: TraceSummary
+    personalization: PersonalizationSummary | None = None
+    rate_booking: bool = False
+    user_location: LocationInfo | None = None
+    notifications: list[NotificationResult] = Field(default_factory=list)
 
 
 class ServiceRequest(BaseModel):
     message: str
     session_id: str | None = None
     customer_name: str = "Demo Customer"
+    user_id: str | None = None
+    user_lat: float | None = None
+    user_lng: float | None = None
+    customer_phone: str | None = None
+
+
+class SyncClerkRequest(BaseModel):
+    clerk_user_id: str
+    display_name: str
+    phone: str | None = None
+
+
+class ConfirmPaymentRequest(BaseModel):
+    payment_id: str
+    booking_id: str
+    method: str = "card"
+    user_id: str | None = None
+    customer_phone: str | None = None
+    stripe_payment_intent_id: str | None = None
+    notify_channels: list[str] = Field(default_factory=lambda: ["sms", "whatsapp"])
+
+
+class CreateUserRequest(BaseModel):
+    display_name: str
+
+
+class SubmitRatingRequest(BaseModel):
+    user_id: str
+    provider_id: str
+    booking_id: str
+    stars: int
+    comment: str | None = None

@@ -4,6 +4,7 @@ from typing import Any
 from app.agents.base import BaseAgent
 from app.db import database
 from app.models.schemas import AgentPhase, BookingResult, Provider
+from app.services.payments import estimate_cost_pkr
 from app.services.receipt import build_receipt
 
 
@@ -38,10 +39,11 @@ class BookingAgent(BaseAgent):
         slot = self._pick_slot(provider, intent.parsed_datetime_hint, intent.urgency)
         slot_datetime = self._slot_datetime(intent.parsed_datetime_hint, slot)
 
+        amount_pkr = estimate_cost_pkr(intent.service_type)
         confirmation = (
-            f"Booking confirmed with {provider.name} for {intent.service_label} "
+            f"Booking reserved with {provider.name} for {intent.service_label} "
             f"at {intent.location} on {intent.time_expression}. Slot: {slot}. "
-            f"SMS/WhatsApp confirmation sent to customer (simulated)."
+            f"Complete payment of PKR {amount_pkr} to confirm. SMS/WhatsApp sent after payment."
         )
 
         placeholder_receipt = build_receipt(
@@ -58,6 +60,7 @@ class BookingAgent(BaseAgent):
 
         raw = database.save_booking(
             session_id=session_id,
+            user_id=context.get("user_id"),
             customer_name=customer_name,
             provider_id=provider.id,
             provider_name=provider.name,
@@ -67,6 +70,8 @@ class BookingAgent(BaseAgent):
             slot_datetime=slot_datetime,
             confirmation_message=confirmation,
             receipt=placeholder_receipt,
+            payment_status="pending",
+            amount_pkr=amount_pkr,
         )
         raw["receipt"] = build_receipt(
             booking_id=raw["booking_id"],
@@ -87,8 +92,8 @@ class BookingAgent(BaseAgent):
             {"provider_id": provider.id, "slot": slot, "state": "PENDING→CONFIRMED"},
             {**booking.model_dump(), "artifact": "booking_receipt"},
             (
-                f"State transition PENDING→CONFIRMED. Booking {booking.booking_id} persisted. "
-                f"Receipt generated; provider assigned."
+                f"Booking {booking.booking_id} persisted (PENDING_PAYMENT, PKR {amount_pkr}). "
+                f"Receipt generated; awaiting payment confirmation."
             ),
         )
         return context

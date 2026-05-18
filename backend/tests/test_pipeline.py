@@ -16,6 +16,8 @@ def test_demo_ac_g13():
     assert "Ali" in r.recommended.name
     assert r.booking.booking_id.startswith("KHI-")
     assert r.booking.slot == "10:00"
+    assert r.payment.amount_pkr > 0
+    assert r.booking.payment_status == "pending"
     assert len(r.trace) >= 6
 
 
