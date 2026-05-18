@@ -1,13 +1,13 @@
 import { Tabs } from 'expo-router';
 import { Platform, StyleSheet, Text, View } from 'react-native';
-import { colors, fonts } from '../../constants/theme';
+import { colors, fonts, radius, shadows, spacing } from '../../constants/theme';
 import { TAB_HINTS } from '../../constants/guide';
 
 function TabIcon({ label, focused }: { label: string; focused: boolean }) {
   const icons: Record<string, string> = { Home: '🏠', Bookings: '📋', Trace: '🧠', Profile: '👤' };
   const hint = TAB_HINTS[label] || '';
   return (
-    <View style={styles.ni}>
+    <View style={[styles.ni, focused && styles.niActive]}>
       <Text style={[styles.icon, focused && styles.iconActive]}>{icons[label] || '•'}</Text>
       <Text style={[styles.label, focused && styles.labelActive]}>{label}</Text>
       {hint ? (
@@ -15,7 +15,6 @@ function TabIcon({ label, focused }: { label: string; focused: boolean }) {
           {hint}
         </Text>
       ) : null}
-      {focused ? <View style={styles.dot} /> : null}
     </View>
   );
 }
@@ -65,25 +64,35 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: 'rgba(10,10,15,0.97)',
-    borderTopColor: colors.border,
-    borderTopWidth: 1,
-    height: Platform.OS === 'ios' ? 96 : 80,
-    paddingBottom: Platform.OS === 'ios' ? 24 : 12,
-    paddingTop: 6,
+    position: 'absolute',
+    left: spacing.md,
+    right: spacing.md,
+    bottom: Platform.OS === 'ios' ? 20 : 12,
+    height: 72,
+    borderRadius: radius.xl,
+    backgroundColor: colors.card,
+    borderTopWidth: 0,
+    borderWidth: 1,
+    borderColor: colors.border2,
+    paddingBottom: 8,
+    paddingTop: 8,
+    ...shadows.card,
   },
-  ni: { alignItems: 'center', gap: 2, paddingVertical: 2, minWidth: 64 },
-  icon: { fontSize: 20, opacity: 0.5 },
+  ni: {
+    alignItems: 'center',
+    gap: 2,
+    paddingVertical: 4,
+    paddingHorizontal: 4,
+    borderRadius: radius.lg,
+    minWidth: 56,
+  },
+  niActive: {
+    backgroundColor: colors.violetSoft,
+  },
+  icon: { fontSize: 20, opacity: 0.45 },
   iconActive: { opacity: 1 },
-  label: { fontSize: 10, fontWeight: '600', color: colors.text3, fontFamily: fonts.body },
+  label: { fontSize: 10, fontWeight: '700', color: colors.text3, fontFamily: fonts.body },
   labelActive: { color: colors.violetBright },
   hint: { fontSize: 8, color: colors.text3, fontFamily: fonts.body },
   hintActive: { color: colors.text2 },
-  dot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: colors.violetBright,
-    marginTop: 2,
-  },
 });

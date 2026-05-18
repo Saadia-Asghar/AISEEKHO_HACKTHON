@@ -7,13 +7,13 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router, Link } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { colors, fonts, radius, spacing } from '../../constants/theme';
+import { colors, fonts, gradients, radius, shadows, spacing } from '../../constants/theme';
 import { getSession } from '../../lib/auth';
 import { orchestrate, getSuggestions, transcribeSpeech } from '../../api/client';
 import { useBookingStore } from '../../lib/store';
@@ -27,8 +27,11 @@ import { isRecording, startRecording, stopRecordingBase64 } from '../../lib/voic
 import { hasSeenOnboarding } from '../../lib/onboarding';
 import { showToast } from '../../lib/toastStore';
 import ExamplePhrases from '../../components/ExamplePhrases';
-import NavShortcuts from '../../components/NavShortcuts';
 import BookingFlowBar from '../../components/BookingFlowBar';
+import DashboardHeader from '../../components/DashboardHeader';
+import CurvedSheet from '../../components/ui/CurvedSheet';
+import ServiceGrid from '../../components/ServiceGrid';
+import InputField from '../../components/ui/InputField';
 
 const DEMO = 'Mujhe kal subah G-13 mein AC technician chahiye';
 
@@ -45,7 +48,6 @@ export default function HomeScreen() {
   const [name, setName] = useState('Guest');
   const [input, setInput] = useState('');
   const [recent, setRecent] = useState<string[]>([]);
-  const [activeChip, setActiveChip] = useState(0);
   const [highlight, setHighlight] = useState<Set<string>>(new Set());
   const pulse = useRef(new Animated.Value(1)).current;
   const { loading, setLoading, setResult, setError, error } = useBookingStore();
@@ -126,34 +128,29 @@ export default function HomeScreen() {
     }
   };
 
+  const gridItems = CHIPS.map((c) => ({
+    ...c,
+    hot:
+      highlight.has(c.phrase) ||
+      [...highlight].some((h) => c.phrase.includes(h) || h.includes(c.phrase.split(' ')[0])),
+  }));
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <View style={styles.homeTop}>
-          <View>
-            <Text style={styles.greeting}>Assalamu Alaikum 👋</Text>
-            <View style={styles.greetingSub}>
-              <View style={styles.locDot} />
-              <Text style={styles.greetingSubText}>
-                {name} · Karachi
-              </Text>
-            </View>
-          </View>
-          <View style={styles.headerActions}>
-            <Pressable style={styles.helpBtn} onPress={() => setShowGuide(true)}>
-              <Text style={styles.helpIcon}>❓</Text>
-            </Pressable>
-            <Link href="/(tabs)/profile" asChild>
-              <Pressable style={styles.gearBtn}>
-                <Text style={styles.gearIcon}>⚙️</Text>
-              </Pressable>
-            </Link>
-          </View>
-        </View>
+        <DashboardHeader
+          name={name}
+          onHelp={() => setShowGuide(true)}
+          onProfile={() => router.push('/(tabs)/profile')}
+          onStatPress={(key) => {
+            if (key === 'bookings') router.push('/(tabs)/bookings');
+            if (key === 'trace') router.push('/(tabs)/trace');
+          }}
+        />
 
-        <BookingFlowBar step={0} />
-
-        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        <CurvedSheet style={{ flex: 1 }}>
+          <BookingFlowBar step={0} />
+          <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           <View style={styles.quickStart}>
             <Text style={styles.quickTitle}>3 steps to book</Text>
             <Text style={styles.quickStep}>
@@ -177,9 +174,12 @@ export default function HomeScreen() {
               <Animated.View style={[styles.pulseRing, styles.ring1, { transform: [{ scale: pulse }] }]} />
               <Animated.View style={[styles.pulseRing, styles.ring2]} />
               <Pressable onPress={onMicPress} disabled={loading}>
-                <Animated.View style={[styles.micBtn, recording && styles.micBtnRec]}>
+                <LinearGradient
+                  colors={recording ? [colors.rose, '#C94A6A'] : [...gradients.mic]}
+                  style={[styles.micBtn, shadows.soft]}
+                >
                   <Text style={styles.micSvg}>{recording ? '⏹' : '🎤'}</Text>
-                </Animated.View>
+                </LinearGradient>
               </Pressable>
             </View>
             <Text style={styles.micHint}>
@@ -195,11 +195,10 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.searchBlock}>
-            <Text style={styles.inputLabel}>What do you need?</Text>
-            <TextInput
-              style={styles.input}
+            <InputField
+              label="What do you need?"
+              icon="✏️"
               placeholder="e.g. Mujhe AC repair karwana hai ghar mein…"
-              placeholderTextColor={colors.text3}
               value={input}
               onChangeText={setInput}
               multiline
@@ -238,29 +237,15 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.section}>
-            <SecLabel>Services</SecLabel>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsRow}>
-              {CHIPS.map((c, i) => {
-                const hot =
-                  highlight.has(c.phrase) ||
-                  [...highlight].some((h) => c.phrase.includes(h) || h.includes(c.phrase.split(' ')[0]));
-                return (
-                  <Pressable
-                    key={c.label}
-                    style={[styles.chip, (activeChip === i || hot) && styles.chipOn]}
-                    onPress={() => {
-                      setActiveChip(i);
-                      setInput(`I need a ${c.phrase} in G-13`);
-                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    }}
-                  >
-                    <Text style={[styles.chipText, (activeChip === i || hot) && styles.chipTextOn]}>
-                      {c.emoji} {c.label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
+            <SecLabel>Popular services</SecLabel>
+            <ServiceGrid
+              items={gridItems}
+              onSelect={(phrase) => {
+                setInput(`I need a ${phrase} in G-13`);
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                showToast('Service selected — tap Book Now');
+              }}
+            />
           </View>
 
           {recent.length > 0 ? (
@@ -286,51 +271,18 @@ export default function HomeScreen() {
             </Pressable>
           ) : null}
 
-          <NavShortcuts />
-        </ScrollView>
+          </ScrollView>
+        </CurvedSheet>
         <ShimmerOverlay visible={loading} />
+        <OnboardingModal visible={showGuide} onClose={() => setShowGuide(false)} />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bg },
-  homeTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-  },
-  greeting: { fontFamily: fonts.display, fontSize: 20, fontWeight: '600', color: colors.text },
-  greetingSub: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
-  locDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.jade },
-  greetingSubText: { fontSize: 12, color: colors.text2, fontFamily: fonts.body },
-  headerActions: { flexDirection: 'row', gap: 8 },
-  helpBtn: {
-    width: 40,
-    height: 40,
-    backgroundColor: colors.violetSoft,
-    borderWidth: 1,
-    borderColor: 'rgba(123,94,167,0.35)',
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  helpIcon: { fontSize: 18 },
-  gearBtn: {
-    width: 40,
-    height: 40,
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  gearIcon: { fontSize: 18 },
-  scroll: { paddingBottom: 100 },
+  safe: { flex: 1, backgroundColor: colors.violetDeep },
+  scroll: { paddingBottom: 110, paddingTop: spacing.sm },
   quickStart: {
     marginHorizontal: spacing.lg,
     marginBottom: spacing.sm,
@@ -361,54 +313,20 @@ const styles = StyleSheet.create({
   ring1: { width: 128, height: 128 },
   ring2: { width: 148, height: 148, borderColor: 'rgba(123,94,167,0.14)' },
   micBtn: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor: '#8B6FBD',
+    width: 92,
+    height: 92,
+    borderRadius: 46,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 2,
   },
-  micBtnRec: { backgroundColor: colors.rose },
-  micSvg: { fontSize: 32 },
+  micSvg: { fontSize: 34 },
   micHint: { fontSize: 12, color: colors.text3, marginTop: 10, fontFamily: fonts.body },
   micHintAccent: { color: colors.violetBright },
   recordingHint: { color: colors.rose, fontWeight: '700' },
-  searchBlock: { paddingHorizontal: spacing.lg },
-  inputLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: colors.text2,
-    marginBottom: 8,
-    fontFamily: fonts.body,
-  },
-  input: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.r,
-    color: colors.text,
-    fontSize: 15,
-    padding: 14,
-    minHeight: 72,
-    fontFamily: fonts.body,
-    textAlignVertical: 'top',
-  },
-  btnRow: { flexDirection: 'row', gap: 10, marginTop: 10 },
-  section: { paddingHorizontal: spacing.lg, marginTop: spacing.lg },
-  chipsRow: { marginHorizontal: -spacing.lg, paddingHorizontal: spacing.lg },
-  chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 20,
-    marginRight: 8,
-  },
-  chipOn: { backgroundColor: colors.violetSoft, borderColor: 'rgba(123,94,167,0.35)' },
-  chipText: { fontSize: 13, color: colors.text2, fontFamily: fonts.body },
-  chipTextOn: { color: colors.violetBright },
+  searchBlock: { paddingHorizontal: spacing.lg, marginTop: spacing.sm },
+  btnRow: { flexDirection: 'row', gap: 10, marginTop: 4 },
+  section: { marginTop: spacing.lg },
   pillsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   pill: {
     paddingHorizontal: 12,

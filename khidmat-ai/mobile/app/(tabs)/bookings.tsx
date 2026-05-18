@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -20,6 +19,8 @@ import Button from '../../components/ui/Button';
 import ScreenGuide from '../../components/ScreenGuide';
 import TipCard from '../../components/TipCard';
 import EmptyState from '../../components/EmptyState';
+import CurvedSheet from '../../components/ui/CurvedSheet';
+import SegmentedControl from '../../components/ui/SegmentedControl';
 
 type Tab = 'upcoming' | 'past' | 'cancelled';
 
@@ -77,34 +78,31 @@ export default function BookingsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.safe} edges={['top']}>
       <ScreenGuide
         title="My Bookings"
         subtitle="Upcoming jobs, past history, and cancellations. Pull down to refresh."
       />
-      <View style={{ paddingHorizontal: spacing.lg }}>
-        <TipCard
-          tipId="bookings_tabs"
-          title="Tabs explained"
-          message="Upcoming = active jobs · Past = completed · Cancelled = ended by you"
-        />
-      </View>
-      <View style={styles.tabsWrap}>
-        {(['upcoming', 'past', 'cancelled'] as Tab[]).map((t) => (
-          <Pressable
-            key={t}
-            style={[styles.tab, tab === t && styles.tabActive]}
-            onPress={() => {
+      <CurvedSheet style={styles.sheet}>
+        <View style={styles.sheetInner}>
+          <TipCard
+            tipId="bookings_tabs"
+            title="Tabs explained"
+            message="Upcoming = active jobs · Past = completed · Cancelled = ended by you"
+          />
+          <SegmentedControl
+            options={[
+              { key: 'upcoming' as Tab, label: 'Upcoming' },
+              { key: 'past' as Tab, label: 'Past' },
+              { key: 'cancelled' as Tab, label: 'Cancelled' },
+            ]}
+            value={tab}
+            onChange={(t) => {
               setTab(t);
               setLoading(true);
             }}
-          >
-            <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
-              {t === 'upcoming' ? 'Upcoming' : t === 'past' ? 'Past' : 'Cancelled'}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
+          />
+        </View>
 
       {loading ? (
         <ActivityIndicator color={colors.violet} style={{ marginTop: spacing.xl }} />
@@ -156,25 +154,16 @@ export default function BookingsScreen() {
           )}
         </ScrollView>
       )}
+      </CurvedSheet>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bg },
-  tabsWrap: {
-    flexDirection: 'row',
-    backgroundColor: colors.card,
-    borderRadius: 12,
-    padding: 4,
-    marginHorizontal: spacing.lg,
-    marginVertical: 14,
-  },
-  tab: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 9 },
-  tabActive: { backgroundColor: colors.card2 },
-  tabText: { fontSize: 12, fontWeight: '600', color: colors.text3, fontFamily: fonts.body },
-  tabTextActive: { color: colors.text },
-  list: { paddingHorizontal: spacing.lg, paddingBottom: 100 },
+  safe: { flex: 1, backgroundColor: colors.violetDeep },
+  sheet: { flex: 1, marginTop: -20 },
+  sheetInner: { paddingHorizontal: spacing.lg, paddingTop: spacing.md, gap: spacing.md },
+  list: { paddingHorizontal: spacing.lg, paddingBottom: 110, paddingTop: spacing.sm },
   bCard: {
     backgroundColor: colors.card,
     borderWidth: 1,

@@ -12,6 +12,7 @@ import Badge from '../../components/ui/Badge';
 import GoogleBadge from '../../components/GoogleBadge';
 import ScreenGuide from '../../components/ScreenGuide';
 import TipCard from '../../components/TipCard';
+import CurvedSheet from '../../components/ui/CurvedSheet';
 
 const ICONS: Record<string, { icon: string; tone: 'jade' | 'violet' | 'amber' | 'gray' }> = {
   intent: { icon: '🎤', tone: 'jade' },
@@ -89,12 +90,13 @@ export default function TraceScreen() {
         ];
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.safe} edges={['top']}>
       <ScreenGuide
         title="Agent Trace"
         subtitle="See how AI understood your request, found providers, and ranked them. Run a search from Home first."
       />
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <CurvedSheet style={styles.sheet}>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.tipPad}>
           <TipCard
             tipId="trace_empty"
@@ -143,13 +145,15 @@ export default function TraceScreen() {
 
         <GoogleBadge />
       </ScrollView>
+      </CurvedSheet>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bg },
-  scroll: { paddingHorizontal: spacing.lg, paddingBottom: 100 },
+  safe: { flex: 1, backgroundColor: colors.violetDeep },
+  sheet: { flex: 1, marginTop: -20 },
+  scroll: { paddingHorizontal: spacing.lg, paddingBottom: 110, paddingTop: spacing.md },
   tipPad: { marginBottom: spacing.sm },
   pageHeader: {
     flexDirection: 'row',

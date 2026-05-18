@@ -3,7 +3,7 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, Link } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { colors, fonts, radius, spacing } from '../constants/theme';
+import { colors, fonts, radius, shadows, spacing } from '../constants/theme';
 import { useBookingStore } from '../lib/store';
 import Avatar from '../components/Avatar';
 import ScoreBar from '../components/ScoreBar';
@@ -11,6 +11,8 @@ import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
 import TipCard from '../components/TipCard';
 import BookingFlowBar from '../components/BookingFlowBar';
+import PageHeader from '../components/PageHeader';
+import CurvedSheet from '../components/ui/CurvedSheet';
 import { showToast } from '../lib/toastStore';
 import type { ProviderScore } from '../api/client';
 import { confirmBooking } from '../api/client';
@@ -115,20 +117,16 @@ export default function ResultsScreen() {
   const serviceTitle = `${result.intent.service_label} · ${result.intent.location}`;
 
   return (
-    <SafeAreaView style={styles.safe} edges={['bottom']}>
-      <BookingFlowBar step={1} />
-      <ScrollView contentContainerStyle={styles.scroll}>
-        <View style={styles.pageHeader}>
-          <Pressable style={styles.backBtn} onPress={() => router.back()}>
-            <Text style={styles.backArrow}>←</Text>
-          </Pressable>
-          <Text style={styles.pageTitle} numberOfLines={1}>
-            {serviceTitle}
-          </Text>
-          <Badge label={`${1 + alts.length} Found`} variant="violet" />
-        </View>
-        <Text style={styles.sub}>AI matched by location, rating & availability</Text>
-
+    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+      <PageHeader
+        title={serviceTitle}
+        subtitle="AI matched by location, rating & availability"
+        onBack={() => router.back()}
+        right={<Badge label={`${1 + alts.length} Found`} variant="violet" />}
+      />
+      <CurvedSheet style={styles.sheet}>
+        <BookingFlowBar step={1} />
+        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.tipWrap}>
           <TipCard
             tipId="results_pick"
@@ -181,47 +179,17 @@ export default function ResultsScreen() {
             </Pressable>
           </Link>
         </View>
-      </ScrollView>
+        </ScrollView>
+      </CurvedSheet>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bg },
-  scroll: { paddingBottom: spacing.xl },
-  pageHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-  },
-  backBtn: {
-    width: 38,
-    height: 38,
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  backArrow: { color: colors.text, fontSize: 18 },
-  pageTitle: {
-    flex: 1,
-    fontFamily: fonts.display,
-    fontSize: 17,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  sub: {
-    fontSize: 12,
-    color: colors.text3,
-    paddingHorizontal: spacing.lg,
-    paddingTop: 8,
-    fontFamily: fonts.body,
-  },
-  tipWrap: { paddingHorizontal: spacing.lg, marginTop: 8 },
+  safe: { flex: 1, backgroundColor: colors.violetDeep },
+  sheet: { flex: 1, marginTop: -20 },
+  scroll: { paddingBottom: spacing.xl, paddingTop: spacing.sm },
+  tipWrap: { paddingHorizontal: spacing.lg, marginTop: 4 },
   topWrap: { marginHorizontal: spacing.lg, marginTop: 4, marginBottom: 12 },
   altWrap: { marginHorizontal: spacing.lg, marginBottom: 12 },
   pcard: {
@@ -230,6 +198,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: radius.lg,
     padding: 16,
+    ...shadows.card,
   },
   pcardTop: {
     borderColor: 'rgba(123,94,167,0.35)',

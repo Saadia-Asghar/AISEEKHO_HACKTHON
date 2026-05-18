@@ -6,19 +6,21 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { colors, fonts, radius, spacing } from '../constants/theme';
+import { LinearGradient } from 'expo-linear-gradient';
+import { colors, fonts, gradients, radius, shadows, spacing } from '../constants/theme';
 import { useBookingStore } from '../lib/store';
 import { getSession } from '../lib/auth';
 import { postReview } from '../api/client';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import BookingFlowBar from '../components/BookingFlowBar';
+import CurvedSheet from '../components/ui/CurvedSheet';
+import InputField from '../components/ui/InputField';
 import { showToast } from '../lib/toastStore';
 
 if (Platform.OS !== 'web') {
@@ -98,22 +100,23 @@ export default function BookingConfirmScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <BookingFlowBar step={2} />
-      <ScrollView contentContainerStyle={styles.scroll}>
-        <View style={styles.hero}>
-          <Animated.View style={[styles.checkAnim, { transform: [{ scale }] }]}>
-            <Text style={styles.checkMark}>✓</Text>
-          </Animated.View>
-          <Text style={styles.confirmTitle}>Booking Confirmed!</Text>
-          <Text style={styles.bookingRef}>
-            Code: <Text style={styles.code}>{code}</Text>
-          </Text>
-          <Badge label={`${b.provider_name} · ${b.slot}`} variant="jade" />
-          <Text style={styles.nextHint}>
-            Next: rate your provider below, then check 📋 Bookings or 🧠 Trace in the bottom bar
-          </Text>
-        </View>
+    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+      <LinearGradient colors={[...gradients.jade]} style={styles.heroGrad}>
+        <Animated.View style={[styles.checkAnim, { transform: [{ scale }] }]}>
+          <Text style={styles.checkMark}>✓</Text>
+        </Animated.View>
+        <Text style={styles.confirmTitle}>Booking Confirmed!</Text>
+        <Text style={styles.bookingRef}>
+          Code: <Text style={styles.code}>{code}</Text>
+        </Text>
+        <Badge label={`${b.provider_name} · ${b.slot}`} variant="jade" />
+      </LinearGradient>
+      <CurvedSheet style={styles.sheet}>
+        <BookingFlowBar step={2} />
+        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <Text style={styles.nextHint}>
+          Rate your provider below, then check 📋 Bookings or 🧠 Trace in the bottom bar
+        </Text>
 
         <View style={styles.card}>
           <View style={styles.detailRow}>
@@ -143,10 +146,9 @@ export default function BookingConfirmScreen() {
               </Pressable>
             ))}
           </View>
-          <TextInput
-            style={styles.comment}
+          <InputField
+            icon="💬"
             placeholder="Bahut acha kaam kiya…"
-            placeholderTextColor={colors.text3}
             value={comment}
             onChangeText={setComment}
             multiline
@@ -170,43 +172,51 @@ export default function BookingConfirmScreen() {
           style={{ width: '100%', marginTop: 10 }}
         />
         <Button label="← Back to Home" onPress={() => router.replace('/')} style={{ width: '100%', marginTop: 10 }} />
-      </ScrollView>
+        </ScrollView>
+      </CurvedSheet>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bg },
+  safe: { flex: 1, backgroundColor: colors.jade },
+  heroGrad: {
+    alignItems: 'center',
+    paddingTop: spacing.lg,
+    paddingBottom: 40,
+    paddingHorizontal: spacing.lg,
+  },
+  sheet: { flex: 1, marginTop: -20 },
   scroll: { padding: spacing.lg, paddingBottom: spacing.xl },
-  hero: { alignItems: 'center', paddingVertical: 36 },
   checkAnim: {
-    width: 92,
-    height: 92,
-    borderRadius: 46,
-    backgroundColor: colors.jade,
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    backgroundColor: 'rgba(255,255,255,0.25)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 18,
+    marginBottom: 14,
+    borderWidth: 3,
+    borderColor: 'rgba(255,255,255,0.5)',
   },
-  checkMark: { fontSize: 44, color: '#fff', fontWeight: '700' },
+  checkMark: { fontSize: 42, color: '#fff', fontWeight: '700' },
   confirmTitle: {
     fontFamily: fonts.display,
     fontSize: 24,
     fontWeight: '700',
-    color: colors.text,
+    color: '#fff',
     marginBottom: 6,
   },
-  bookingRef: { fontSize: 13, color: colors.text3, marginBottom: 10, fontFamily: fonts.body },
+  bookingRef: { fontSize: 13, color: 'rgba(255,255,255,0.85)', marginBottom: 10, fontFamily: fonts.body },
   nextHint: {
     fontSize: 12,
     color: colors.text2,
     textAlign: 'center',
-    marginTop: 12,
+    marginBottom: spacing.md,
     lineHeight: 18,
-    paddingHorizontal: spacing.sm,
     fontFamily: fonts.body,
   },
-  code: { color: colors.violetBright, fontWeight: '600', fontFamily: fonts.display },
+  code: { color: '#fff', fontWeight: '700', fontFamily: fonts.display },
   card: {
     backgroundColor: colors.card,
     borderWidth: 1,
@@ -214,6 +224,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     padding: 16,
     marginBottom: 12,
+    ...shadows.card,
   },
   detailRow: {
     flexDirection: 'row',
@@ -228,15 +239,4 @@ const styles = StyleSheet.create({
   starRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
   starPick: { fontSize: 30, color: colors.text3 },
   starOn: { color: colors.amber },
-  comment: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.r,
-    color: colors.text,
-    padding: 14,
-    marginBottom: 10,
-    minHeight: 64,
-    fontFamily: fonts.body,
-  },
 });

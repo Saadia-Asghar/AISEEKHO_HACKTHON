@@ -8,7 +8,8 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
-import { colors, fonts, radius, spacing } from '../constants/theme';
+import { LinearGradient } from 'expo-linear-gradient';
+import { colors, fonts, gradients, radius, spacing } from '../constants/theme';
 import { ONBOARDING_STEPS } from '../constants/guide';
 import { markOnboardingSeen } from '../lib/onboarding';
 import Button from './ui/Button';
@@ -48,6 +49,9 @@ export default function OnboardingModal({ visible, onClose }: Props) {
     <Modal visible={visible} animationType="slide" transparent onRequestClose={skip}>
       <View style={styles.backdrop}>
         <View style={[styles.sheet, { maxWidth: Math.min(width - 32, 420) }]}>
+          <LinearGradient colors={[...gradients.hero]} style={styles.sheetHeader}>
+            <Text style={styles.sheetHeaderIcon}>{current.icon}</Text>
+          </LinearGradient>
           <View style={styles.dots}>
             {ONBOARDING_STEPS.map((_, i) => (
               <View key={i} style={[styles.dot, i === step && styles.dotOn]} />
@@ -55,7 +59,6 @@ export default function OnboardingModal({ visible, onClose }: Props) {
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false} style={styles.scroll}>
-            <Text style={styles.icon}>{current.icon}</Text>
             <Text style={styles.title}>{current.title}</Text>
             <Text style={styles.body}>{current.body}</Text>
             {current.bullets?.map((b) => (
@@ -96,17 +99,28 @@ const styles = StyleSheet.create({
   },
   sheet: {
     width: '100%',
-    backgroundColor: colors.card,
+    backgroundColor: colors.sheet,
     borderRadius: radius.xl,
     borderWidth: 1,
     borderColor: colors.border2,
-    padding: spacing.lg,
+    overflow: 'hidden',
     maxHeight: '85%',
   },
-  dots: { flexDirection: 'row', gap: 6, justifyContent: 'center', marginBottom: spacing.md },
+  sheetHeader: {
+    paddingVertical: spacing.lg,
+    alignItems: 'center',
+  },
+  sheetHeaderIcon: { fontSize: 44 },
+  scroll: { maxHeight: 280, paddingHorizontal: spacing.lg, paddingTop: spacing.md },
+  dots: {
+    flexDirection: 'row',
+    gap: 6,
+    justifyContent: 'center',
+    paddingTop: spacing.md,
+    paddingBottom: spacing.sm,
+  },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.border2 },
   dotOn: { width: 18, backgroundColor: colors.violet },
-  scroll: { maxHeight: 340 },
   icon: { fontSize: 48, textAlign: 'center', marginBottom: spacing.sm },
   title: {
     fontFamily: fonts.display,
@@ -134,7 +148,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
     fontFamily: fonts.body,
   },
-  actions: { marginTop: spacing.md, gap: spacing.sm },
+  actions: { marginTop: spacing.md, gap: spacing.sm, paddingHorizontal: spacing.lg, paddingBottom: spacing.lg },
   skipBtn: { alignItems: 'center', paddingVertical: spacing.sm },
   skipText: { color: colors.text3, fontSize: 13, fontFamily: fonts.body },
 });
