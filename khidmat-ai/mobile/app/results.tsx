@@ -9,6 +9,7 @@ import Avatar from '../components/Avatar';
 import ScoreBar from '../components/ScoreBar';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
+import TipCard from '../components/TipCard';
 import type { ProviderScore } from '../api/client';
 import { confirmBooking } from '../api/client';
 
@@ -124,6 +125,14 @@ export default function ResultsScreen() {
         </View>
         <Text style={styles.sub}>AI matched by location, rating & availability</Text>
 
+        <View style={styles.tipWrap}>
+          <TipCard
+            tipId="results_pick"
+            title="How to choose"
+            message="⭐ Top Match is AI’s best pick. Tap a card for full profile. Use Book on the top provider to confirm."
+          />
+        </View>
+
         <View style={styles.topWrap}>
           <ProviderCard
             name={top.name}
@@ -208,7 +217,8 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     fontFamily: fonts.body,
   },
-  topWrap: { marginHorizontal: spacing.lg, marginTop: 14, marginBottom: 12 },
+  tipWrap: { paddingHorizontal: spacing.lg, marginTop: 8 },
+  topWrap: { marginHorizontal: spacing.lg, marginTop: 4, marginBottom: 12 },
   altWrap: { marginHorizontal: spacing.lg, marginBottom: 12 },
   pcard: {
     backgroundColor: colors.card,

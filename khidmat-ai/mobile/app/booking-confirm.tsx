@@ -104,6 +104,9 @@ export default function BookingConfirmScreen() {
             Code: <Text style={styles.code}>{code}</Text>
           </Text>
           <Badge label={`${b.provider_name} · ${b.slot}`} variant="jade" />
+          <Text style={styles.nextHint}>
+            Next: rate your provider below, then check 📋 Bookings or 🧠 Trace in the bottom bar
+          </Text>
         </View>
 
         <View style={styles.card}>
@@ -188,6 +191,15 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   bookingRef: { fontSize: 13, color: colors.text3, marginBottom: 10, fontFamily: fonts.body },
+  nextHint: {
+    fontSize: 12,
+    color: colors.text2,
+    textAlign: 'center',
+    marginTop: 12,
+    lineHeight: 18,
+    paddingHorizontal: spacing.sm,
+    fontFamily: fonts.body,
+  },
   code: { color: colors.violetBright, fontWeight: '600', fontFamily: fonts.display },
   card: {
     backgroundColor: colors.card,

@@ -21,7 +21,10 @@ import { addRecentSearch, getRecentSearches } from '../../lib/searchHistory';
 import ShimmerOverlay from '../../components/ShimmerOverlay';
 import SecLabel from '../../components/ui/SecLabel';
 import Button from '../../components/ui/Button';
+import OnboardingModal from '../../components/OnboardingModal';
+import TipCard from '../../components/TipCard';
 import { isRecording, startRecording, stopRecordingBase64 } from '../../lib/voice';
+import { hasSeenOnboarding } from '../../lib/onboarding';
 
 const DEMO = 'Mujhe kal subah G-13 mein AC technician chahiye';
 
@@ -44,8 +47,12 @@ export default function HomeScreen() {
   const { loading, setLoading, setResult, setError, error } = useBookingStore();
   const submitting = useRef(false);
   const [recording, setRecording] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
 
   useEffect(() => {
+    hasSeenOnboarding().then((seen) => {
+      if (!seen) setShowGuide(true);
+    });
     getSession().then((s) => s && setName(s.name));
     getRecentSearches().then(setRecent);
     getSuggestions(new Date().getHours()).then((sug) =>
@@ -127,14 +134,35 @@ export default function HomeScreen() {
               </Text>
             </View>
           </View>
-          <Link href="/(tabs)/profile" asChild>
-            <Pressable style={styles.gearBtn}>
-              <Text style={styles.gearIcon}>⚙️</Text>
+          <View style={styles.headerActions}>
+            <Pressable style={styles.helpBtn} onPress={() => setShowGuide(true)}>
+              <Text style={styles.helpIcon}>❓</Text>
             </Pressable>
-          </Link>
+            <Link href="/(tabs)/profile" asChild>
+              <Pressable style={styles.gearBtn}>
+                <Text style={styles.gearIcon}>⚙️</Text>
+              </Pressable>
+            </Link>
+          </View>
         </View>
 
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+          <View style={styles.quickStart}>
+            <Text style={styles.quickTitle}>Quick start</Text>
+            <Text style={styles.quickStep}>① Type or tap 🎤 · ② Try Demo · ③ Book Now → pick a pro</Text>
+          </View>
+
+          <TipCard
+            tipId="home_try_demo"
+            title="New here?"
+            message="Tap ⚡ Try Demo below for a full sample booking in one tap — no typing needed."
+            actionLabel="Run demo now →"
+            onAction={() => {
+              setInput(DEMO);
+              submit(DEMO);
+            }}
+          />
+
           <View style={styles.micSection}>
             <View style={styles.micFrame}>
               <Animated.View style={[styles.pulseRing, styles.ring1, { transform: [{ scale: pulse }] }]} />
@@ -241,6 +269,18 @@ const styles = StyleSheet.create({
   greetingSub: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
   locDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.jade },
   greetingSubText: { fontSize: 12, color: colors.text2, fontFamily: fonts.body },
+  headerActions: { flexDirection: 'row', gap: 8 },
+  helpBtn: {
+    width: 40,
+    height: 40,
+    backgroundColor: colors.violetSoft,
+    borderWidth: 1,
+    borderColor: 'rgba(123,94,167,0.35)',
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  helpIcon: { fontSize: 18 },
   gearBtn: {
     width: 40,
     height: 40,
@@ -253,6 +293,25 @@ const styles = StyleSheet.create({
   },
   gearIcon: { fontSize: 18 },
   scroll: { paddingBottom: 100 },
+  quickStart: {
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.sm,
+    padding: spacing.md,
+    backgroundColor: colors.card,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  quickTitle: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+    color: colors.text3,
+    marginBottom: 4,
+    fontFamily: fonts.body,
+  },
+  quickStep: { fontSize: 12, color: colors.text2, lineHeight: 18, fontFamily: fonts.body },
   micSection: { alignItems: 'center', paddingVertical: spacing.lg, paddingHorizontal: spacing.lg },
   micFrame: { width: 128, height: 128, alignItems: 'center', justifyContent: 'center' },
   pulseRing: {

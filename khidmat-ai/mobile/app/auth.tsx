@@ -113,6 +113,9 @@ export default function AuthScreen() {
             </View>
             <Text style={styles.brand}>KhidmatAI</Text>
             <Text style={styles.tagline}>Bolein, Hum Karein</Text>
+            <Text style={styles.authHint}>
+              Sign in with OTP or continue as Guest · Demo OTP: 1234
+            </Text>
           </View>
 
           <View style={styles.stepDots}>
@@ -223,6 +226,15 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   tagline: { color: colors.text2, fontSize: 14, fontStyle: 'italic', fontFamily: fonts.body },
+  authHint: {
+    color: colors.text3,
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 10,
+    paddingHorizontal: spacing.md,
+    lineHeight: 18,
+    fontFamily: fonts.body,
+  },
   stepDots: { flexDirection: 'row', gap: 6, justifyContent: 'center', marginVertical: 20 },
   sd: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.border2 },
   sdOn: { width: 20, backgroundColor: colors.violet },
@@ -280,4 +292,6 @@ const styles = StyleSheet.create({
   demoOtp: { textAlign: 'center', fontSize: 12, color: colors.text3, marginBottom: 8, fontFamily: fonts.body },
   demoOtpCode: { color: colors.violetBright, fontWeight: '700', letterSpacing: 4, fontFamily: fonts.display },
   resend: { marginTop: 8, alignItems: 'center', padding: spacing.sm },
-  resendText: { color: colors.t
+  resendText: { color: colors.text3, fontSize: 13, fontFamily: fonts.body },
+  error: { color: colors.rose, textAlign: 'center', marginTop: spacing.md, fontFamily: fonts.body },
+});

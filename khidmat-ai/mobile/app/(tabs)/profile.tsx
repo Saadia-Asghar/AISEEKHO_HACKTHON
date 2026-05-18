@@ -7,16 +7,19 @@ import { clearSession, getLang, getSession, setLang, type Session } from '../../
 import Avatar from '../../components/Avatar';
 import Badge from '../../components/ui/Badge';
 import GoogleBadge from '../../components/GoogleBadge';
+import OnboardingModal from '../../components/OnboardingModal';
 import { getUserReviews } from '../../api/client';
+import { HOW_TO_SECTIONS } from '../../constants/guide';
 
 type Review = { rating: number; comment?: string; provider_name?: string };
 
 const MENU = [
-  { icon: '🌐', label: 'Language', sub: 'Urdu · اردو', bg: colors.violetSoft },
-  { icon: '📋', label: 'My Bookings', sub: 'View upcoming', bg: colors.jadeSoft, route: '/(tabs)/bookings' },
-  { icon: '⭐', label: 'My Reviews', sub: 'Reviews given', bg: colors.amberSoft, action: 'reviews' },
-  { icon: '💬', label: 'Help & Support', sub: 'Chat with us', bg: 'rgba(59,130,246,0.1)' },
-  { icon: '🔒', label: 'Privacy', sub: 'Data & permissions', bg: 'rgba(160,155,192,0.1)' },
+  { icon: '📖', label: 'How to use KhidmatAI', sub: 'Step-by-step guide', bg: colors.violetSoft, action: 'guide' as const },
+  { icon: '🌐', label: 'Language', sub: 'Urdu · اردو', bg: colors.violetSoft, action: 'lang' as const },
+  { icon: '📋', label: 'My Bookings', sub: 'View upcoming', bg: colors.jadeSoft, route: '/(tabs)/bookings' as const },
+  { icon: '⭐', label: 'My Reviews', sub: 'Reviews given', bg: colors.amberSoft, action: 'reviews' as const },
+  { icon: '💬', label: 'Help & Support', sub: 'support@khidmat.ai', bg: 'rgba(59,130,246,0.1)', action: 'help' as const },
+  { icon: '🔒', label: 'Privacy', sub: 'Data & permissions', bg: 'rgba(160,155,192,0.1)', action: 'privacy' as const },
 ];
 
 export default function ProfileScreen() {
@@ -24,6 +27,8 @@ export default function ProfileScreen() {
   const [lang, setLangState] = useState<'en' | 'ur'>('en');
   const [reviews, setReviews] = useState<Review[]>([]);
   const [showReviews, setShowReviews] = useState(false);
+  const [showHowTo, setShowHowTo] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
 
   const load = useCallback(async () => {
     const s = await getSession();
@@ -67,6 +72,14 @@ export default function ProfileScreen() {
           </View>
         </View>
 
+        <View style={styles.navCard}>
+          <Text style={styles.navTitle}>App navigation</Text>
+          <Text style={styles.navRow}>🏠 Home — book services</Text>
+          <Text style={styles.navRow}>📋 Bookings — your jobs</Text>
+          <Text style={styles.navRow}>🧠 Trace — AI reasoning</Text>
+          <Text style={styles.navRow}>👤 Profile — you are here</Text>
+        </View>
+
         <View style={styles.divider} />
 
         {MENU.map((item) => (
@@ -74,17 +87,19 @@ export default function ProfileScreen() {
             key={item.label}
             style={styles.menuItem}
             onPress={async () => {
-              if (item.label === 'Language') {
+              if (item.action === 'guide') {
+                setShowHowTo((v) => !v);
+              } else if (item.action === 'lang') {
                 const next = lang === 'en' ? 'ur' : 'en';
                 await setLang(next);
                 setLangState(next);
               } else if (item.route) {
-                router.push(item.route as '/(tabs)/bookings');
+                router.push(item.route);
               } else if (item.action === 'reviews') {
                 setShowReviews((v) => !v);
-              } else if (item.label === 'Help & Support') {
-                Alert.alert('Help', 'Email support@khidmat.ai');
-              } else {
+              } else if (item.action === 'help') {
+                setShowGuide(true);
+              } else if (item.action === 'privacy') {
                 Alert.alert('Privacy', 'Your data stays on device and our secure API.');
               }
             }}
@@ -96,14 +111,32 @@ export default function ProfileScreen() {
               <Text style={styles.miStrong}>{item.label}</Text>
               <Text style={styles.miSmall}>{item.sub}</Text>
             </View>
-            <Text style={styles.miArrow}>›</Text>
+            <Text style={styles.miArrow}>{item.action === 'guide' && showHowTo ? '▼' : '›'}</Text>
           </Pressable>
         ))}
+
+        {showHowTo ? (
+          <View style={styles.howTo}>
+            {HOW_TO_SECTIONS.map((sec) => (
+              <View key={sec.title} style={styles.howSection}>
+                <Text style={styles.howTitle}>{sec.title}</Text>
+                {sec.steps.map((step, i) => (
+                  <Text key={i} style={styles.howStep}>
+                    {step}
+                  </Text>
+                ))}
+              </View>
+            ))}
+            <Pressable onPress={() => setShowGuide(true)} style={styles.replayBtn}>
+              <Text style={styles.replayText}>▶ Replay welcome tour</Text>
+            </Pressable>
+          </View>
+        ) : null}
 
         {showReviews ? (
           <View style={styles.reviews}>
             {reviews.length === 0 ? (
-              <Text style={styles.miSmall}>No reviews yet</Text>
+              <Text style={styles.miSmall}>No reviews yet — rate a provider after booking</Text>
             ) : (
               reviews.map((r, i) => (
                 <View key={i} style={styles.reviewCard}>
@@ -116,7 +149,13 @@ export default function ProfileScreen() {
           </View>
         ) : null}
 
-        <Pressable style={styles.menuItem} onPress={async () => { await clearSession(); router.replace('/auth'); }}>
+        <Pressable
+          style={styles.menuItem}
+          onPress={async () => {
+            await clearSession();
+            router.replace('/auth');
+          }}
+        >
           <View style={[styles.miIcon, { backgroundColor: colors.roseSoft }]}>
             <Text>🚪</Text>
           </View>
@@ -129,6 +168,7 @@ export default function ProfileScreen() {
         <GoogleBadge />
         <Text style={styles.version}>KhidmatAI v2.0 · Karachi, Pakistan</Text>
       </ScrollView>
+      <OnboardingModal visible={showGuide} onClose={() => setShowGuide(false)} />
     </SafeAreaView>
   );
 }
@@ -147,6 +187,25 @@ const styles = StyleSheet.create({
   name: { fontFamily: fonts.display, fontSize: 20, fontWeight: '600', color: colors.text },
   sub: { fontSize: 12, color: colors.text2, marginTop: 4, fontFamily: fonts.body },
   badges: { flexDirection: 'row', gap: 8, marginTop: 12 },
+  navCard: {
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.md,
+    padding: spacing.md,
+    backgroundColor: colors.card,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  navTitle: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+    color: colors.text3,
+    marginBottom: 8,
+    fontFamily: fonts.body,
+  },
+  navRow: { fontSize: 13, color: colors.text2, marginBottom: 4, fontFamily: fonts.body },
   divider: { height: 1, backgroundColor: colors.border, marginHorizontal: spacing.lg },
   menuItem: {
     flexDirection: 'row',
@@ -168,6 +227,29 @@ const styles = StyleSheet.create({
   miStrong: { fontSize: 14, fontWeight: '500', color: colors.text, fontFamily: fonts.body },
   miSmall: { fontSize: 12, color: colors.text3, marginTop: 2, fontFamily: fonts.body },
   miArrow: { color: colors.text3, fontSize: 18 },
+  howTo: {
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.md,
+    backgroundColor: colors.surface,
+  },
+  howSection: { marginBottom: spacing.md },
+  howTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.violetBright,
+    marginBottom: 6,
+    fontFamily: fonts.body,
+  },
+  howStep: {
+    fontSize: 13,
+    color: colors.text2,
+    lineHeight: 20,
+    marginBottom: 4,
+    paddingLeft: 4,
+    fontFamily: fonts.body,
+  },
+  replayBtn: { paddingVertical: spacing.sm, alignItems: 'center' },
+  replayText: { color: colors.violetBright, fontWeight: '600', fontSize: 13, fontFamily: fonts.body },
   reviews: { paddingHorizontal: spacing.lg, paddingBottom: spacing.md },
   reviewCard: {
     backgroundColor: colors.card,

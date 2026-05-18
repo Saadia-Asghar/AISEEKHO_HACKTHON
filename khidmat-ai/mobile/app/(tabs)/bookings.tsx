@@ -17,6 +17,8 @@ import { cancelBooking, getBookings } from '../../api/client';
 import Avatar from '../../components/Avatar';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
+import ScreenGuide from '../../components/ScreenGuide';
+import TipCard from '../../components/TipCard';
 
 type Tab = 'upcoming' | 'past' | 'cancelled';
 
@@ -75,8 +77,16 @@ export default function BookingsScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-      <View style={styles.header}>
-        <Text style={styles.title}>My Bookings</Text>
+      <ScreenGuide
+        title="My Bookings"
+        subtitle="Upcoming jobs, past history, and cancellations. Pull down to refresh."
+      />
+      <View style={{ paddingHorizontal: spacing.lg }}>
+        <TipCard
+          tipId="bookings_tabs"
+          title="Tabs explained"
+          message="Upcoming = active jobs · Past = completed · Cancelled = ended by you"
+        />
       </View>
       <View style={styles.tabsWrap}>
         {(['upcoming', 'past', 'cancelled'] as Tab[]).map((t) => (
@@ -154,8 +164,6 @@ export default function BookingsScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
-  header: { paddingHorizontal: spacing.lg, paddingTop: spacing.md },
-  title: { fontFamily: fonts.display, fontSize: 22, fontWeight: '600', color: colors.text },
   tabsWrap: {
     flexDirection: 'row',
     backgroundColor: colors.card,

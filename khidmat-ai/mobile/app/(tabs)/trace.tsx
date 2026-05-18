@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import { colors, fonts, radius, spacing } from '../../constants/theme';
@@ -9,6 +10,8 @@ import { getSessionTrace } from '../../api/client';
 import type { OrchestrateResult } from '../../api/client';
 import Badge from '../../components/ui/Badge';
 import GoogleBadge from '../../components/GoogleBadge';
+import ScreenGuide from '../../components/ScreenGuide';
+import TipCard from '../../components/TipCard';
 
 const ICONS: Record<string, { icon: string; tone: 'jade' | 'violet' | 'amber' | 'gray' }> = {
   intent: { icon: '🎤', tone: 'jade' },
@@ -87,9 +90,22 @@ export default function TraceScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+      <ScreenGuide
+        title="Agent Trace"
+        subtitle="See how AI understood your request, found providers, and ranked them. Run a search from Home first."
+      />
       <ScrollView contentContainerStyle={styles.scroll}>
+        <View style={styles.tipPad}>
+          <TipCard
+            tipId="trace_empty"
+          title="No steps yet?"
+          message="Go to Home → Try Demo or Book Now. Your latest AI reasoning appears here automatically."
+          actionLabel="Go to Home →"
+          onAction={() => router.push('/')}
+          />
+        </View>
         <View style={styles.pageHeader}>
-          <Text style={styles.pageTitle}>Agent Trace</Text>
+          <Text style={styles.pageTitle}>Live trace</Text>
           <View style={styles.gBadge}>
             <Text style={styles.gLetter}>G</Text>
             <Text style={styles.gText}>Google AI</Text>
@@ -133,7 +149,8 @@ export default function TraceScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
-  scroll: { padding: spacing.lg, paddingBottom: 100 },
+  scroll: { paddingHorizontal: spacing.lg, paddingBottom: 100 },
+  tipPad: { marginBottom: spacing.sm },
   pageHeader: {
     flexDirection: 'row',
     alignItems: 'center',

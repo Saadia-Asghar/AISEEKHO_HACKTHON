@@ -1,13 +1,20 @@
 import { Tabs } from 'expo-router';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import { colors, fonts } from '../../constants/theme';
+import { TAB_HINTS } from '../../constants/guide';
 
 function TabIcon({ label, focused }: { label: string; focused: boolean }) {
   const icons: Record<string, string> = { Home: '🏠', Bookings: '📋', Trace: '🧠', Profile: '👤' };
+  const hint = TAB_HINTS[label] || '';
   return (
     <View style={styles.ni}>
       <Text style={[styles.icon, focused && styles.iconActive]}>{icons[label] || '•'}</Text>
       <Text style={[styles.label, focused && styles.labelActive]}>{label}</Text>
+      {hint ? (
+        <Text style={[styles.hint, focused && styles.hintActive]} numberOfLines={1}>
+          {hint}
+        </Text>
+      ) : null}
       {focused ? <View style={styles.dot} /> : null}
     </View>
   );
@@ -61,15 +68,17 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(10,10,15,0.97)',
     borderTopColor: colors.border,
     borderTopWidth: 1,
-    height: Platform.OS === 'ios' ? 88 : 72,
-    paddingBottom: Platform.OS === 'ios' ? 24 : 16,
-    paddingTop: 8,
+    height: Platform.OS === 'ios' ? 96 : 80,
+    paddingBottom: Platform.OS === 'ios' ? 24 : 12,
+    paddingTop: 6,
   },
-  ni: { alignItems: 'center', gap: 4, paddingVertical: 4 },
+  ni: { alignItems: 'center', gap: 2, paddingVertical: 2, minWidth: 64 },
   icon: { fontSize: 20, opacity: 0.5 },
   iconActive: { opacity: 1 },
   label: { fontSize: 10, fontWeight: '600', color: colors.text3, fontFamily: fonts.body },
   labelActive: { color: colors.violetBright },
+  hint: { fontSize: 8, color: colors.text3, fontFamily: fonts.body },
+  hintActive: { color: colors.text2 },
   dot: {
     width: 4,
     height: 4,
