@@ -42,23 +42,64 @@ export type ProviderScore = {
   total_score: number;
 };
 
+export type ProviderSummary = {
+  id: string;
+  name: string;
+  rating: number;
+  distance_km: number;
+  phone: string;
+  area: string;
+  category?: string;
+  price_min_pkr?: number;
+  price_max_pkr?: number;
+  verified?: boolean;
+  score?: number;
+  score_breakdown?: Record<string, number>;
+  lat?: number;
+  lng?: number;
+  contacted_before?: boolean;
+  is_saved?: boolean;
+  effective_rating?: number;
+};
+
+export type MapMarker = {
+  id: string;
+  name: string;
+  lat: number;
+  lng: number;
+  distance_km: number;
+  rating: number;
+  price_min_pkr?: number;
+  price_max_pkr?: number;
+  is_recommended?: boolean;
+  contacted_before?: boolean;
+};
+
+export type ContactedWorker = {
+  id: string;
+  name: string;
+  category: string;
+  area: string;
+  rating: number;
+  phone: string;
+  last_booked_at?: string;
+  bookings_count?: number;
+  price_min_pkr?: number;
+  price_max_pkr?: number;
+};
+
+export type PriceSort = 'smart' | 'low' | 'high';
+
 export type OrchestrateResult = {
   session_id: string;
   intent: { service_label: string; location: string; time_expression: string; language: string };
-  recommended: {
-    id: string;
-    name: string;
-    rating: number;
-    distance_km: number;
-    phone: string;
-    area: string;
-    price_min_pkr?: number;
-    price_max_pkr?: number;
-    verified?: boolean;
-    score?: number;
-    score_breakdown?: Record<string, number>;
-  };
-  top_three: OrchestrateResult['recommended'][];
+  recommended: ProviderSummary;
+  top_three: ProviderSummary[];
+  top_rated?: ProviderSummary[];
+  candidates?: ProviderSummary[];
+  map_markers?: MapMarker[];
+  user_location?: { lat: number; lng: number; source: string };
+  price_sort?: PriceSort;
   alternatives: ProviderScore[];
   booking: {
     booking_id: string;
@@ -83,7 +124,12 @@ export async function orchestrate(
   text: string,
   userId: string,
   name?: string,
-  phone?: string
+  phone?: string,
+  opts?: {
+    userLat?: number;
+    userLng?: number;
+    priceSort?: PriceSort;
+  }
 ): Promise<OrchestrateResult> {
   try {
     const { data } = await api.post<OrchestrateResult>('/api/orchestrate', {
@@ -91,11 +137,21 @@ export async function orchestrate(
       user_id: userId,
       customer_name: name,
       customer_phone: phone,
+      user_lat: opts?.userLat,
+      user_lng: opts?.userLng,
+      price_sort: opts?.priceSort ?? 'smart',
     });
     return data;
   } catch (e) {
     throw new Error(parseErr(e));
   }
+}
+
+export async function getContactedWorkers(userId: string) {
+  const { data } = await api.get<{ contacted: ContactedWorker[] }>(
+    `/api/users/${userId}/contacted`
+  );
+  return data.contacted;
 }
 
 export async function getSuggestions(hour: number) {

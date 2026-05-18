@@ -278,6 +278,46 @@ def unsave_provider(user_id: str, provider_id: str) -> dict[str, Any]:
     return {"user_id": user_id, "provider_id": provider_id, "saved": False}
 
 
+def list_contacted_providers(user_id: str, limit: int = 8) -> list[dict[str, Any]]:
+    """Workers this user has booked before, most recent first."""
+    providers_map = _load_providers_map()
+    with _connect() as conn:
+        rows = conn.execute(
+            """
+            SELECT provider_id, MAX(created_at) as last_at, COUNT(*) as cnt
+            FROM bookings
+            WHERE user_id = ? AND provider_id IS NOT NULL
+            GROUP BY provider_id
+            ORDER BY last_at DESC
+            LIMIT ?
+            """,
+            (user_id, limit),
+        ).fetchall()
+    result: list[dict[str, Any]] = []
+    for row in rows:
+        p = providers_map.get(row["provider_id"])
+        if not p:
+            continue
+        agg = get_provider_aggregate_rating(row["provider_id"])
+        result.append(
+            {
+                "id": p["id"],
+                "name": p["name"],
+                "category": p["category"],
+                "area": p["area"],
+                "rating": agg["effective_rating"],
+                "phone": p["phone"],
+                "lat": p.get("lat"),
+                "lng": p.get("lng"),
+                "price_min_pkr": p.get("price_min_pkr"),
+                "price_max_pkr": p.get("price_max_pkr"),
+                "last_booked_at": row["last_at"],
+                "bookings_count": int(row["cnt"]),
+            }
+        )
+    return result
+
+
 def list_saved_providers(user_id: str) -> list[dict[str, Any]]:
     providers_map = _load_providers_map()
     with _connect() as conn:

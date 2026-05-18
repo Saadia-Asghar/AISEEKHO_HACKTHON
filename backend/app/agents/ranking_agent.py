@@ -126,8 +126,33 @@ class RankingAgent(BaseAgent):
             )
 
         ranked.sort(key=lambda x: x.score or 0, reverse=True)
+
+        price_sort = context.get("price_sort", "smart")
+        if price_sort == "low":
+            ranked.sort(
+                key=lambda x: (x.price_min_pkr if x.price_min_pkr is not None else 999999, x.distance_km)
+            )
+        elif price_sort == "high":
+            ranked.sort(
+                key=lambda x: (-(x.price_max_pkr or x.price_min_pkr or 0), x.distance_km)
+            )
+
+        past_ids = personalization_ctx["past_provider_ids"]
+        ranked = [
+            p.model_copy(update={"contacted_before": p.id in past_ids})
+            for p in ranked
+        ]
+
         recommended = ranked[0]
         top_three = ranked[:3]
+
+        top_rated = sorted(
+            ranked,
+            key=lambda x: (x.effective_rating or x.rating, -(x.reviews or 0)),
+            reverse=True,
+        )
+        top_rated = [p for p in top_rated if (p.effective_rating or p.rating) >= 4.0][:3]
+        context["top_rated"] = top_rated
 
         if recommended.is_saved or recommended.your_rating:
             applied_personalization = PersonalizationSummary(

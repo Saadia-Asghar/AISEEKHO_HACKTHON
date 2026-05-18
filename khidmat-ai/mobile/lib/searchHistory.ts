@@ -14,6 +14,6 @@ export async function getRecentSearches(): Promise<string[]> {
 export async function addRecentSearch(q: string) {
   const trimmed = q.trim();
   if (!trimmed) return;
-  const list = [trimmed, ...(await getRecentSearches()).filter((x) => x !== trimmed)].slice(0, 3);
+  const list = [trimmed, ...(await getRecentSearches()).filter((x) => x !== trimmed)].slice(0, 8);
   await AsyncStorage.setItem(KEY, JSON.stringify(list));
 }

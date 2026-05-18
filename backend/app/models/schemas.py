@@ -44,12 +44,44 @@ class Provider(BaseModel):
     available_slots: list[str]
     phone: str
     available_now: bool = True
+    lat: float | None = None
+    lng: float | None = None
+    price_min_pkr: int | None = None
+    price_max_pkr: int | None = None
+    verified: bool = False
     score: float | None = None
     rank_reason: str | None = None
     score_breakdown: dict[str, float] | None = None
     effective_rating: float | None = None
     is_saved: bool = False
     your_rating: int | None = None
+    contacted_before: bool = False
+
+
+class MapMarker(BaseModel):
+    id: str
+    name: str
+    lat: float
+    lng: float
+    distance_km: float
+    rating: float
+    price_min_pkr: int | None = None
+    price_max_pkr: int | None = None
+    is_recommended: bool = False
+    contacted_before: bool = False
+
+
+class ContactedWorker(BaseModel):
+    id: str
+    name: str
+    category: str
+    area: str
+    rating: float
+    phone: str
+    last_booked_at: str | None = None
+    bookings_count: int = 1
+    price_min_pkr: int | None = None
+    price_max_pkr: int | None = None
 
 
 class PersonalizationSummary(BaseModel):
@@ -146,9 +178,11 @@ class OrchestrationResponse(BaseModel):
     intent: ServiceIntent
     candidates: list[Provider]
     top_three: list[Provider]
+    top_rated: list[Provider] = Field(default_factory=list)
     recommended: Provider
     ranking: RankingResult | None = None
     alternatives: list[ProviderScoreSummary] = Field(default_factory=list)
+    map_markers: list[MapMarker] = Field(default_factory=list)
     booking: BookingResult
     payment: PaymentInfo
     follow_up: FollowUpResult
@@ -158,6 +192,7 @@ class OrchestrationResponse(BaseModel):
     rate_booking: bool = False
     user_location: LocationInfo | None = None
     notifications: list[NotificationResult] = Field(default_factory=list)
+    price_sort: str = "smart"
 
 
 class ServiceRequest(BaseModel):
@@ -168,6 +203,7 @@ class ServiceRequest(BaseModel):
     user_lat: float | None = None
     user_lng: float | None = None
     customer_phone: str | None = None
+    price_sort: str = "smart"  # smart | low | high
 
 
 class SyncClerkRequest(BaseModel):

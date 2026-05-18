@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, Link } from 'expo-router';
@@ -13,61 +13,113 @@ import TipCard from '../components/TipCard';
 import BookingFlowBar from '../components/BookingFlowBar';
 import PageHeader from '../components/PageHeader';
 import CurvedSheet from '../components/ui/CurvedSheet';
+import NearbyMap from '../components/NearbyMap';
+import PriceSortChips from '../components/PriceSortChips';
+import SecLabel from '../components/ui/SecLabel';
 import { showToast } from '../lib/toastStore';
-import type { ProviderScore } from '../api/client';
-import { confirmBooking } from '../api/client';
+import type { ProviderSummary, PriceSort } from '../api/client';
+import { confirmBooking, orchestrate } from '../api/client';
+import { getSession } from '../lib/auth';
+import { getUserCoords } from '../lib/location';
+import { setPriceSort as persistPriceSort } from '../lib/bookingPrefs';
+
+function formatPrice(p: ProviderSummary) {
+  if (p.price_min_pkr && p.price_max_pkr) {
+    return `PKR ${p.price_min_pkr.toLocaleString()}–${p.price_max_pkr.toLocaleString()}`;
+  }
+  if (p.price_min_pkr) return `from PKR ${p.price_min_pkr.toLocaleString()}`;
+  return 'Quote on visit';
+}
 
 function ProviderCard({
-  name,
-  rating,
-  distanceKm,
-  price,
-  verified,
+  provider,
   top,
-  breakdown,
+  topRated,
   badge,
   onPress,
 }: {
-  name: string;
-  rating: number;
-  distanceKm: number;
-  price: string;
-  verified?: boolean;
+  provider: ProviderSummary;
   top?: boolean;
+  topRated?: boolean;
   badge?: string;
-  breakdown?: { distance_score?: number; rating_score?: number; availability_score?: number };
   onPress?: () => void;
 }) {
-  const dist = breakdown?.distance_score ?? 0.32;
-  const rat = breakdown?.rating_score ?? 0.25;
-  const avail = breakdown?.availability_score ?? 0.43;
+  const bd = provider.score_breakdown;
+  const dist = bd?.distance_40pct ?? 0.32;
+  const rat = bd?.rating_35pct ?? 0.25;
+  const avail = bd?.availability_25pct ?? 0.43;
+
   return (
     <Pressable style={[styles.pcard, top && styles.pcardTop]} onPress={onPress} disabled={!onPress}>
-      {top ? <View style={styles.topTag}><Text style={styles.topTagText}>⭐ Top Match</Text></View> : null}
+      {top ? (
+        <View style={styles.topTag}>
+          <Text style={styles.topTagText}>⭐ Top Match</Text>
+        </View>
+      ) : null}
+      {topRated && !top ? (
+        <View style={[styles.topTag, styles.topRatedTag]}>
+          <Text style={styles.topTagText}>🏆 Top Rated</Text>
+        </View>
+      ) : null}
       <View style={styles.pcardTopRow}>
-        <Avatar name={name} size={top ? 52 : 48} square />
+        <Avatar name={provider.name} size={top ? 52 : 48} square />
         <View style={styles.pinfo}>
-          <Text style={styles.pname}>{name}</Text>
+          <Text style={styles.pname}>{provider.name}</Text>
           <Text style={styles.pmeta}>
             <Text style={styles.star}>★ </Text>
-            <Text style={styles.pmetaBold}>{rating.toFixed(1)}</Text>
-            {' · '}{distanceKm.toFixed(1)} km · {price}
+            <Text style={styles.pmetaBold}>{provider.rating.toFixed(1)}</Text>
+            {' · '}
+            {provider.distance_km.toFixed(1)} km · {formatPrice(provider)}
           </Text>
         </View>
-        {verified ? <Badge label="✓ Verified" variant="jade" /> : badge ? <Badge label={badge} variant="amber" /> : null}
+        <View style={styles.badgesCol}>
+          {provider.verified ? <Badge label="✓ Verified" variant="jade" /> : null}
+          {provider.contacted_before ? <Badge label="Contacted" variant="violet" /> : null}
+          {badge ? <Badge label={badge} variant="amber" /> : null}
+        </View>
       </View>
-      <ScoreBar distance={dist} rating={rat} availability={avail} />
+      {bd ? <ScoreBar distance={dist} rating={rat} availability={avail} /> : null}
     </Pressable>
   );
 }
 
 export default function ResultsScreen() {
-  const { result } = useBookingStore();
+  const { result, priceSort, setPriceSort, setResult, lastSearchText } = useBookingStore();
   const [booking, setBooking] = useState(false);
+  const [resorting, setResorting] = useState(false);
 
   useEffect(() => {
     if (!result) router.replace('/');
   }, [result]);
+
+  const reSearch = useCallback(
+    async (sort: PriceSort) => {
+      if (!lastSearchText || resorting) return;
+      setResorting(true);
+      setPriceSort(sort);
+      await persistPriceSort(sort);
+      try {
+        const session = await getSession();
+        if (!session) {
+          router.replace('/auth');
+          return;
+        }
+        const coords = await getUserCoords();
+        const data = await orchestrate(lastSearchText, session.userId, session.name, session.phone, {
+          userLat: coords.lat,
+          userLng: coords.lng,
+          priceSort: sort,
+        });
+        setResult(data);
+        showToast(sort === 'smart' ? 'Sorted by best match' : sort === 'low' ? 'Lowest price first' : 'Premium first');
+      } catch (e) {
+        showToast(e instanceof Error ? e.message : 'Could not re-sort');
+      } finally {
+        setResorting(false);
+      }
+    },
+    [lastSearchText, resorting, setPriceSort, setResult]
+  );
 
   if (!result) {
     return (
@@ -78,28 +130,14 @@ export default function ResultsScreen() {
   }
 
   const top = result.recommended;
-  const alts: ProviderScore[] = result.alternatives?.length
-    ? result.alternatives
-    : (result.top_three?.slice(1, 3).map((p) => ({
-        name: p.name,
-        provider_id: p.id,
-        score: p.score ?? 0,
-        distance_score: p.score_breakdown?.distance_40pct ?? 0.28,
-        rating_score: p.score_breakdown?.rating_35pct ?? 0.31,
-        availability_score: p.score_breakdown?.availability_25pct ?? 0.35,
-        total_score: p.score ?? 0,
-      })) ?? []);
+  const topRated = (result.top_rated ?? []).filter((p) => p.id !== top.id);
+  const candidates = result.candidates ?? result.top_three ?? [];
+  const others = candidates.filter(
+    (p) => p.id !== top.id && !topRated.some((t) => t.id === p.id)
+  );
 
-  const price =
-    top.price_min_pkr && top.price_max_pkr
-      ? `PKR ${top.price_min_pkr.toLocaleString()}`
-      : 'Quote on visit';
-
-  const topBreakdown = {
-    distance_score: top.score_breakdown?.distance_40pct ?? 0.32,
-    rating_score: top.score_breakdown?.rating_35pct ?? 0.25,
-    availability_score: top.score_breakdown?.availability_25pct ?? 0.43,
-  };
+  const sortLabel =
+    result.price_sort === 'low' ? 'Lowest price' : result.price_sort === 'high' ? 'Premium' : 'Best match';
 
   const bookNow = async () => {
     if (booking) return;
@@ -115,70 +153,97 @@ export default function ResultsScreen() {
   };
 
   const serviceTitle = `${result.intent.service_label} · ${result.intent.location}`;
+  const markerCount = result.map_markers?.length ?? 0;
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <PageHeader
         title={serviceTitle}
-        subtitle="AI matched by location, rating & availability"
+        subtitle={`${sortLabel} · ${markerCount || candidates.length} nearby`}
         onBack={() => router.back()}
-        right={<Badge label={`${1 + alts.length} Found`} variant="violet" />}
+        right={<Badge label={`${candidates.length} Found`} variant="violet" />}
       />
       <CurvedSheet style={styles.sheet}>
         <BookingFlowBar step={1} />
+        {resorting ? (
+          <ActivityIndicator color={colors.violet} style={{ marginVertical: spacing.md }} />
+        ) : null}
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <View style={styles.tipWrap}>
-          <TipCard
-            tipId="results_pick"
-            title="How to choose"
-            message="⭐ Top Match is AI’s best pick. Tap a card for full profile. Use Book on the top provider to confirm."
-          />
-        </View>
+          <View style={styles.sortPad}>
+            <PriceSortChips value={priceSort} onChange={reSearch} />
+          </View>
 
-        <View style={styles.topWrap}>
-          <ProviderCard
-            name={top.name}
-            rating={top.rating}
-            distanceKm={top.distance_km}
-            price={price}
-            verified={top.verified !== false}
-            top
-            breakdown={topBreakdown}
-            onPress={() => router.push(`/provider/${top.id}`)}
-          />
-        </View>
+          {result.map_markers && result.map_markers.length > 0 ? (
+            <NearbyMap
+              markers={result.map_markers}
+              userLat={result.user_location?.lat}
+              userLng={result.user_location?.lng}
+              onMarkerPress={(id) => router.push(`/provider/${id}`)}
+            />
+          ) : null}
 
-        {alts.map((a, i) => (
-          <View key={a.provider_id} style={styles.altWrap}>
-            <ProviderCard
-              name={a.name}
-              rating={top.rating}
-              distanceKm={top.distance_km}
-              price={price}
-              badge={i === 0 ? 'Popular' : 'Budget'}
-              breakdown={{
-                distance_score: a.distance_score,
-                rating_score: a.rating_score,
-                availability_score: a.availability_score,
-              }}
-              onPress={() => router.push(`/provider/${a.provider_id}`)}
+          <View style={styles.tipWrap}>
+            <TipCard
+              tipId="results_pick"
+              title="How to choose"
+              message="🏆 Top rated workers appear first. Use charge sort for budget or premium. Tap map pins or cards for profiles."
             />
           </View>
-        ))}
 
-        <View style={styles.footer}>
-          <Button
-            label={`Book ${top.name} →`}
-            onPress={bookNow}
-            loading={booking}
-            style={{ width: '100%' }}
-          />
-          <Link href="/(tabs)/trace" asChild>
-            <Pressable style={styles.traceLink}>
-              <Text style={styles.traceText}>🧠 View Agent Reasoning</Text>
-            </Pressable>
-          </Link>
-        </View>
+          {topRated.length > 0 ? (
+            <View style={styles.block}>
+              <SecLabel>Top rated nearby</SecLabel>
+              {topRated.map((p) => (
+                <View key={p.id} style={styles.cardWrap}>
+                  <ProviderCard
+                    provider={p}
+                    topRated
+                    onPress={() => router.push(`/provider/${p.id}`)}
+                  />
+                </View>
+              ))}
+            </View>
+          ) : null}
+
+          <View style={styles.block}>
+            <SecLabel>AI top match</SecLabel>
+            <View style={styles.cardWrap}>
+              <ProviderCard
+                provider={top}
+                top
+                onPress={() => router.push(`/provider/${top.id}`)}
+              />
+            </View>
+          </View>
+
+          {others.length > 0 ? (
+            <View style={styles.block}>
+              <SecLabel>More nearby</SecLabel>
+              {others.map((p, i) => (
+                <View key={p.id} style={styles.cardWrap}>
+                  <ProviderCard
+                    provider={p}
+                    badge={i === 0 ? 'Nearby' : undefined}
+                    onPress={() => router.push(`/provider/${p.id}`)}
+                  />
+                </View>
+              ))}
+            </View>
+          ) : null}
+
+          <View style={styles.footer}>
+            <Button
+              label={`Book ${top.name} →`}
+              onPress={bookNow}
+              loading={booking}
+              style={{ width: '100%' }}
+            />
+            <Link href="/(tabs)/trace" asChild>
+              <Pressable style={styles.traceLink}>
+                <Text style={styles.traceText}>🧠 View Agent Reasoning</Text>
+              </Pressable>
+            </Link>
+          </View>
         </ScrollView>
       </CurvedSheet>
     </SafeAreaView>
@@ -189,9 +254,10 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.violetDeep },
   sheet: { flex: 1, marginTop: -20 },
   scroll: { paddingBottom: spacing.xl, paddingTop: spacing.sm },
+  sortPad: { paddingHorizontal: spacing.lg, marginBottom: spacing.sm },
   tipWrap: { paddingHorizontal: spacing.lg, marginTop: 4 },
-  topWrap: { marginHorizontal: spacing.lg, marginTop: 4, marginBottom: 12 },
-  altWrap: { marginHorizontal: spacing.lg, marginBottom: 12 },
+  block: { marginTop: spacing.md },
+  cardWrap: { marginHorizontal: spacing.lg, marginBottom: 12 },
   pcard: {
     backgroundColor: colors.card,
     borderWidth: 1,
@@ -215,9 +281,11 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     borderRadius: 20,
   },
+  topRatedTag: { backgroundColor: colors.amber, left: 'auto', right: 14 },
   topTagText: { color: '#fff', fontSize: 11, fontWeight: '700', fontFamily: fonts.body },
   pcardTopRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 14 },
   pinfo: { flex: 1 },
+  badgesCol: { alignItems: 'flex-end', gap: 4 },
   pname: { fontWeight: '600', fontSize: 15, color: colors.text, fontFamily: fonts.body },
   pmeta: { fontSize: 12, color: colors.text2, marginTop: 3, fontFamily: fonts.body },
   star: { color: colors.amber },

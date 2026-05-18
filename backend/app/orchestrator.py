@@ -11,6 +11,7 @@ from app.db import payments_db
 from app.models.schemas import (
     AlternativeRanking,
     LocationInfo,
+    MapMarker,
     OrchestrationResponse,
     PaymentInfo,
     PersonalizationSummary,
@@ -49,6 +50,7 @@ class KhidmatOrchestrator:
         user_lat: float | None = None,
         user_lng: float | None = None,
         customer_phone: str | None = None,
+        price_sort: str = "smart",
     ) -> OrchestrationResponse:
         database.init_db()
         sid = session_id or str(uuid4())
@@ -67,6 +69,7 @@ class KhidmatOrchestrator:
             "user_lat": user_lat,
             "user_lng": user_lng,
             "customer_phone": customer_phone,
+            "price_sort": price_sort if price_sort in ("smart", "low", "high") else "smart",
         }
         traces: list[TraceEntry] = []
 
@@ -112,13 +115,17 @@ class KhidmatOrchestrator:
         )
         loc = context.get("user_location")
         user_location = LocationInfo(**loc) if loc else None
+        top_rated: list[Provider] = context.get("top_rated", [])
+        map_markers = self._build_map_markers(context["candidates"], recommended.id)
 
         return OrchestrationResponse(
             session_id=sid,
             intent=context["intent"],
             candidates=context["candidates"],
             top_three=top_three,
+            top_rated=top_rated,
             recommended=recommended,
+            map_markers=map_markers,
             ranking=ranking,
             alternatives=alternatives,
             booking=booking,
@@ -130,7 +137,30 @@ class KhidmatOrchestrator:
             rate_booking=False,
             user_location=user_location,
             notifications=[],
+            price_sort=context.get("price_sort", "smart"),
         )
+
+    @staticmethod
+    def _build_map_markers(candidates: list[Provider], recommended_id: str) -> list[MapMarker]:
+        markers: list[MapMarker] = []
+        for p in candidates:
+            if p.lat is None or p.lng is None:
+                continue
+            markers.append(
+                MapMarker(
+                    id=p.id,
+                    name=p.name,
+                    lat=p.lat,
+                    lng=p.lng,
+                    distance_km=p.distance_km,
+                    rating=p.effective_rating or p.rating,
+                    price_min_pkr=p.price_min_pkr,
+                    price_max_pkr=p.price_max_pkr,
+                    is_recommended=p.id == recommended_id,
+                    contacted_before=p.contacted_before or False,
+                )
+            )
+        return markers[:12]
 
 
     @staticmethod

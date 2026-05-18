@@ -96,6 +96,7 @@ def orchestrate(
             request.user_lat,
             request.user_lng,
             request.customer_phone,
+            request.price_sort,
         )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e

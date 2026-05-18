@@ -48,6 +48,11 @@ def list_saved(user_id: str):
     return {"saved": user_data.list_saved_providers(user_id)}
 
 
+@router.get("/{user_id}/contacted")
+def list_contacted(user_id: str, limit: int = 8):
+    return {"contacted": user_data.list_contacted_providers(user_id, limit=limit)}
+
+
 @router.post("/{user_id}/saved/{provider_id}")
 def save_worker(user_id: str, provider_id: str):
     try:

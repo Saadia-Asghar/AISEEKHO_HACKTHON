@@ -47,6 +47,11 @@ class ProviderDiscoveryAgent(BaseAgent):
                     available_slots=slots,
                     phone=p["phone"],
                     available_now=bool(slots),
+                    lat=p["lat"],
+                    lng=p["lng"],
+                    price_min_pkr=p.get("price_min_pkr"),
+                    price_max_pkr=p.get("price_max_pkr"),
+                    verified=bool(p.get("verified", False)),
                 )
             )
         matches.sort(key=lambda x: x.distance_km)

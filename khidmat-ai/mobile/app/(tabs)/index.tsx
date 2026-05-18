@@ -15,9 +15,12 @@ import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { colors, fonts, gradients, radius, shadows, spacing } from '../../constants/theme';
 import { getSession } from '../../lib/auth';
-import { orchestrate, getSuggestions, transcribeSpeech } from '../../api/client';
+import { orchestrate, getSuggestions, transcribeSpeech, getContactedWorkers } from '../../api/client';
+import type { ContactedWorker } from '../../api/client';
 import { useBookingStore } from '../../lib/store';
 import { addRecentSearch, getRecentSearches } from '../../lib/searchHistory';
+import { getPriceSort, setPriceSort as persistPriceSort, type PriceSort } from '../../lib/bookingPrefs';
+import { getUserCoords } from '../../lib/location';
 import ShimmerOverlay from '../../components/ShimmerOverlay';
 import SecLabel from '../../components/ui/SecLabel';
 import Button from '../../components/ui/Button';
@@ -32,6 +35,8 @@ import DashboardHeader from '../../components/DashboardHeader';
 import CurvedSheet from '../../components/ui/CurvedSheet';
 import ServiceGrid from '../../components/ServiceGrid';
 import InputField from '../../components/ui/InputField';
+import PriceSortChips from '../../components/PriceSortChips';
+import SearchSuggestionsPanel from '../../components/SearchSuggestionsPanel';
 
 const DEMO = 'Mujhe kal subah G-13 mein AC technician chahiye';
 
@@ -50,17 +55,29 @@ export default function HomeScreen() {
   const [recent, setRecent] = useState<string[]>([]);
   const [highlight, setHighlight] = useState<Set<string>>(new Set());
   const pulse = useRef(new Animated.Value(1)).current;
-  const { loading, setLoading, setResult, setError, error } = useBookingStore();
+  const { loading, setLoading, setResult, setError, error, priceSort, setPriceSort, setLastSearchText } =
+    useBookingStore();
   const submitting = useRef(false);
   const [recording, setRecording] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [contacted, setContacted] = useState<ContactedWorker[]>([]);
 
   useEffect(() => {
     hasSeenOnboarding().then((seen) => {
       if (!seen) setShowGuide(true);
     });
-    getSession().then((s) => s && setName(s.name));
+    getSession().then(async (s) => {
+      if (!s) return;
+      setName(s.name);
+      try {
+        setContacted(await getContactedWorkers(s.userId));
+      } catch {
+        setContacted([]);
+      }
+    });
     getRecentSearches().then(setRecent);
+    getPriceSort().then(setPriceSort);
     getSuggestions(new Date().getHours()).then((sug) =>
       setHighlight(new Set(sug.map((x) => x.service_type.replace(/_/g, ' '))))
     );
@@ -86,7 +103,13 @@ export default function HomeScreen() {
         }
         await addRecentSearch(text.trim());
         setRecent(await getRecentSearches());
-        const data = await orchestrate(text.trim(), session.userId, session.name, session.phone);
+        setLastSearchText(text.trim());
+        const coords = await getUserCoords();
+        const data = await orchestrate(text.trim(), session.userId, session.name, session.phone, {
+          userLat: coords.lat,
+          userLng: coords.lng,
+          priceSort,
+        });
         setResult(data);
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
         showToast('✓ Providers found — pick your match');
@@ -99,8 +122,21 @@ export default function HomeScreen() {
         submitting.current = false;
       }
     },
-    [setLoading, setResult, setError]
+    [setLoading, setResult, setError, priceSort, setLastSearchText]
   );
+
+  const onPriceSortChange = async (sort: PriceSort) => {
+    setPriceSort(sort);
+    await persistPriceSort(sort);
+  };
+
+  const bookContacted = (w: ContactedWorker) => {
+    const cat = w.category.replace(/_/g, ' ');
+    const msg = `Mujhe ${cat} chahiye ${w.area} mein — prefer ${w.name}`;
+    setInput(msg);
+    setSearchFocused(false);
+    submit(msg);
+  };
 
   const onMicPress = async () => {
     if (loading) return;
@@ -203,7 +239,22 @@ export default function HomeScreen() {
               onChangeText={setInput}
               multiline
               editable={!loading}
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
             />
+            {(searchFocused || input.length > 0) && (recent.length > 0 || contacted.length > 0) ? (
+              <SearchSuggestionsPanel
+                query={input}
+                recent={recent}
+                contacted={contacted}
+                onSelectRecent={(text) => {
+                  setInput(text);
+                  setSearchFocused(false);
+                }}
+                onSelectContacted={bookContacted}
+              />
+            ) : null}
+            <PriceSortChips value={priceSort} onChange={onPriceSortChange} />
             <View style={styles.btnRow}>
               <Button
                 label="⚡ Try Demo"
@@ -247,21 +298,6 @@ export default function HomeScreen() {
               }}
             />
           </View>
-
-          {recent.length > 0 ? (
-            <View style={styles.section}>
-              <SecLabel>Recent Searches</SecLabel>
-              <View style={styles.pillsRow}>
-                {recent.map((r) => (
-                  <Pressable key={r} style={styles.pill} onPress={() => setInput(r)}>
-                    <Text style={styles.pillText} numberOfLines={1}>
-                      {r}
-                    </Text>
-                  </Pressable>
-                ))}
-              </View>
-            </View>
-          ) : null}
 
           {error ? (
             <Pressable onPress={() => submit(input)} style={styles.errorBox}>
