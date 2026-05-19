@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import type { AppColors } from '../constants/theme';
 import { fonts, radius, spacing } from '../constants/theme';
 import ThemedSafeArea from '../components/ThemedSafeArea';
@@ -43,19 +43,36 @@ export default function NotificationsScreen() {
   const { colors } = useTheme();
   const styles = useMemo(() => listStyles(colors), [colors]);
   const { t } = useI18n();
-  const { items, hydrated, hydrate, markRead, markAllRead } = useAppNotifications();
+  const items = useAppNotifications((s) => s.items);
+  const hydrated = useAppNotifications((s) => s.hydrated);
+  const hydrate = useAppNotifications((s) => s.hydrate);
+  const markRead = useAppNotifications((s) => s.markRead);
+  const markAllRead = useAppNotifications((s) => s.markAllRead);
+  const remove = useAppNotifications((s) => s.remove);
+  const clearAll = useAppNotifications((s) => s.clearAll);
 
   const load = useCallback(async () => {
     await hydrate();
   }, [hydrate]);
 
-  useEffect(() => {
-    void load();
-  }, [load]);
+  useFocusEffect(
+    useCallback(() => {
+      void load();
+    }, [load])
+  );
 
   const enablePush = async () => {
     const ok = await requestNotificationPermission();
     showToast(ok ? t('notifications_enabled') : t('notifications_denied'));
+  };
+
+  const dismissOne = (id: string) => {
+    remove(id);
+  };
+
+  const dismissAll = () => {
+    clearAll();
+    showToast(t('notifications_cleared'));
   };
 
   return (
@@ -69,9 +86,18 @@ export default function NotificationsScreen() {
       >
         <View style={styles.toolbar}>
           <Button label={t('enable_push')} variant="outline" onPress={enablePush} style={{ flex: 1 }} />
+        </View>
+        <View style={styles.toolbar}>
           {items.some((n) => !n.read) ? (
-            <Pressable style={styles.markAll} onPress={markAllRead}>
-              <Text style={styles.markAllText}>{t('mark_all_read')}</Text>
+            <Pressable style={styles.textBtn} onPress={markAllRead}>
+              <Text style={styles.textBtnLabel}>{t('mark_all_read')}</Text>
+            </Pressable>
+          ) : (
+            <View style={{ flex: 1 }} />
+          )}
+          {items.length > 0 ? (
+            <Pressable style={styles.textBtn} onPress={dismissAll}>
+              <Text style={[styles.textBtnLabel, styles.clearLabel]}>{t('clear_all_notifications')}</Text>
             </Pressable>
           ) : null}
         </View>
@@ -84,8 +110,8 @@ export default function NotificationsScreen() {
           </View>
         ) : (
           items.map((n) => (
-            <Pressable key={n.id} onPress={() => markRead(n.id)}>
-              <StitchGlassCard style={[styles.row, !n.read && styles.rowUnread]}>
+            <StitchGlassCard key={n.id} style={[styles.row, !n.read && styles.rowUnread]}>
+              <Pressable style={styles.rowMain} onPress={() => markRead(n.id)}>
                 <Text style={styles.rowIcon}>{channelIcon(n.channel)}</Text>
                 <View style={styles.rowBody}>
                   <Text style={styles.rowTitle}>{n.title}</Text>
@@ -93,8 +119,16 @@ export default function NotificationsScreen() {
                   <Text style={styles.rowTime}>{formatTime(n.createdAt)}</Text>
                 </View>
                 {!n.read ? <View style={styles.dot} /> : null}
-              </StitchGlassCard>
-            </Pressable>
+              </Pressable>
+              <Pressable
+                style={styles.closeBtn}
+                onPress={() => dismissOne(n.id)}
+                hitSlop={12}
+                accessibilityLabel={t('dismiss_notification')}
+              >
+                <Text style={styles.closeIcon}>✕</Text>
+              </Pressable>
+            </StitchGlassCard>
           ))
         )}
       </ScrollView>
@@ -105,16 +139,25 @@ export default function NotificationsScreen() {
 function listStyles(colors: AppColors) {
   return StyleSheet.create({
     scroll: { padding: spacing.lg, paddingBottom: spacing.xl, gap: spacing.sm },
-    toolbar: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.md },
-    markAll: { paddingVertical: 12, paddingHorizontal: 8 },
-    markAllText: { fontSize: 13, color: colors.violetBright, fontWeight: '600', fontFamily: fonts.body },
+    toolbar: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.xs },
+    textBtn: { paddingVertical: 8, paddingHorizontal: 4 },
+    textBtnLabel: { fontSize: 13, color: colors.violetBright, fontWeight: '600', fontFamily: fonts.body },
+    clearLabel: { color: colors.rose },
     row: {
+      flexDirection: 'row',
+      alignItems: 'stretch',
+      paddingVertical: 4,
+      paddingLeft: spacing.md,
+      paddingRight: 4,
+    },
+    rowUnread: { borderColor: colors.violet, backgroundColor: colors.violetSoft },
+    rowMain: {
+      flex: 1,
       flexDirection: 'row',
       alignItems: 'flex-start',
       gap: 12,
-      padding: spacing.md,
+      paddingVertical: spacing.sm,
     },
-    rowUnread: { borderColor: colors.violet, backgroundColor: colors.violetSoft },
     rowIcon: { fontSize: 22, marginTop: 2 },
     rowBody: { flex: 1 },
     rowTitle: { fontSize: 15, fontWeight: '700', color: colors.text, fontFamily: fonts.body },
@@ -125,7 +168,19 @@ function listStyles(colors: AppColors) {
       height: 8,
       borderRadius: 4,
       backgroundColor: colors.violet,
-      marginTop: 6,
+      marginTop: 8,
+      marginRight: 4,
+    },
+    closeBtn: {
+      width: 40,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    closeIcon: {
+      fontSize: 20,
+      fontWeight: '600',
+      color: colors.text2,
+      lineHeight: 22,
     },
     empty: { alignItems: 'center', paddingVertical: spacing.xl * 2 },
     emptyIcon: { fontSize: 48, marginBottom: spacing.md },

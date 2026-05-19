@@ -41,7 +41,9 @@ export default function BookingConfirmScreen() {
   const [reviewDone, setReviewDone] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
-  const { items: inAppNotifs, markRead } = useAppNotifications();
+  const inAppNotifs = useAppNotifications((s) => s.items);
+  const markRead = useAppNotifications((s) => s.markRead);
+  const remove = useAppNotifications((s) => s.remove);
 
   useEffect(() => {
     if (!result) {
@@ -147,12 +149,22 @@ export default function BookingConfirmScreen() {
 
         {(notifications.length > 0 || inAppNotifs.length > 0) ? (
           <View style={styles.card}>
-            <Text style={styles.reviewTitle}>{t('app_notifications')}</Text>
-            {inAppNotifs.slice(0, 4).map((n) => (
-              <Pressable key={n.id} style={styles.notifyRow} onPress={() => markRead(n.id)}>
-                <Text style={styles.notifyChannel}>🔔 {n.title}</Text>
-                <Text style={styles.notifyStatus}>{n.body}</Text>
+            <View style={styles.notifyHead}>
+              <Text style={styles.reviewTitle}>{t('app_notifications')}</Text>
+              <Pressable onPress={() => router.push('/notifications')}>
+                <Text style={styles.seeAll}>{t('view_notifications')}</Text>
               </Pressable>
+            </View>
+            {inAppNotifs.slice(0, 4).map((n) => (
+              <View key={n.id} style={styles.notifyRowWrap}>
+                <Pressable style={styles.notifyRow} onPress={() => markRead(n.id)}>
+                  <Text style={styles.notifyChannel}>🔔 {n.title}</Text>
+                  <Text style={styles.notifyStatus}>{n.body}</Text>
+                </Pressable>
+                <Pressable onPress={() => remove(n.id)} hitSlop={10} style={styles.notifyClose}>
+                  <Text style={styles.notifyCloseIcon}>✕</Text>
+                </Pressable>
+              </View>
             ))}
             {notifications.slice(0, 4).map((n, i) => (
               <Pressable
@@ -251,11 +263,25 @@ function confirmStyles(colors: AppColors) {
   },
   bookingRef: { fontSize: 15, color: colors.text2, marginBottom: spacing.lg, fontFamily: fonts.body },
   quickGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.lg },
-  notifyRow: {
-    paddingVertical: spacing.sm,
+  notifyHead: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
+  seeAll: { fontSize: 12, color: colors.violetBright, fontWeight: '600', fontFamily: fonts.body },
+  notifyRowWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
+  notifyRow: {
+    flex: 1,
+    paddingVertical: spacing.sm,
+  },
+  notifyClose: { width: 36, alignItems: 'center', justifyContent: 'center' },
+  notifyCloseIcon: { fontSize: 18, color: colors.text3, fontWeight: '600' },
   notifyChannel: { fontFamily: fonts.body, fontSize: 14, color: colors.text },
   notifyStatus: { fontFamily: fonts.body, fontSize: 12, color: colors.text3, marginTop: 2 },
   quickBtn: {
