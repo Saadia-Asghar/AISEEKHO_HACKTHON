@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
   wrap: {
     marginHorizontal: spacing.lg,
     marginTop: spacing.md,
-    height: 180,
+    height: 208,
     borderRadius: radius.xxl,
     overflow: 'hidden',
     borderWidth: 1,

@@ -1,6 +1,8 @@
 import { type ReactNode } from 'react';
-import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
-import { colors, radius } from '../../constants/theme';
+import { View, type StyleProp, type ViewStyle } from 'react-native';
+import { useMemo } from 'react';
+import { radius } from '../../constants/theme';
+import { useTheme } from '../../lib/ThemeContext';
 
 export default function StitchGlassCard({
   children,
@@ -9,15 +11,16 @@ export default function StitchGlassCard({
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
 }) {
-  return <View style={[styles.card, style]}>{children}</View>;
+  const { colors } = useTheme();
+  const cardStyle = useMemo(
+    () => ({
+      backgroundColor: colors.glass,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.xl,
+      overflow: 'hidden' as const,
+    }),
+    [colors]
+  );
+  return <View style={[cardStyle, style]}>{children}</View>;
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.glass,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.xl,
-    overflow: 'hidden',
-  },
-});

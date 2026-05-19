@@ -9,7 +9,46 @@ export const stitch = {
   },
 } as const;
 
-export const colors = {
+export type AppColors = {
+  bg: string;
+  bgLowest: string;
+  surface: string;
+  surfaceLow: string;
+  card: string;
+  card2: string;
+  glass: string;
+  sheet: string;
+  border: string;
+  border2: string;
+  violet: string;
+  violetBright: string;
+  primaryText: string;
+  onPrimaryContainer: string;
+  violetDeep: string;
+  violetSoft: string;
+  violetGlow: string;
+  accent: string;
+  accentSoft: string;
+  coral: string;
+  amber: string;
+  amberSoft: string;
+  jade: string;
+  jadeSoft: string;
+  rose: string;
+  roseSoft: string;
+  text: string;
+  text2: string;
+  text3: string;
+  primary: string;
+  success: string;
+  muted: string;
+  error: string;
+  googleBlue: string;
+  tabBar: string;
+  switchTrackOff: string;
+};
+
+export const darkColors: AppColors = {
   bg: '#131315',
   bgLowest: '#0e0e10',
   surface: '#201f22',
@@ -44,7 +83,51 @@ export const colors = {
   muted: '#958da1',
   error: '#ffb4ab',
   googleBlue: '#4285F4',
-} as const;
+  tabBar: 'rgba(32, 31, 34, 0.92)',
+  switchTrackOff: '#4a4455',
+};
+
+export const lightColors: AppColors = {
+  bg: '#f4f4f5',
+  bgLowest: '#ffffff',
+  surface: '#ffffff',
+  surfaceLow: '#f0f0f2',
+  card: '#ffffff',
+  card2: '#e4e4e7',
+  glass: 'rgba(255, 255, 255, 0.94)',
+  sheet: '#fafafa',
+  border: '#e4e4e7',
+  border2: '#d4d4d8',
+  violet: '#7C3AED',
+  violetBright: '#5B21B6',
+  primaryText: '#5B21B6',
+  onPrimaryContainer: '#ffffff',
+  violetDeep: '#4c1d95',
+  violetSoft: 'rgba(124,58,237,0.1)',
+  violetGlow: 'rgba(124,58,237,0.2)',
+  accent: '#EA580C',
+  accentSoft: 'rgba(234,88,12,0.1)',
+  coral: '#EA580C',
+  amber: '#EA580C',
+  amberSoft: 'rgba(234,88,12,0.1)',
+  jade: '#059669',
+  jadeSoft: 'rgba(5,150,105,0.12)',
+  rose: '#DC2626',
+  roseSoft: 'rgba(220,38,38,0.1)',
+  text: '#18181b',
+  text2: '#52525b',
+  text3: '#71717a',
+  primary: '#7C3AED',
+  success: '#059669',
+  muted: '#71717a',
+  error: '#b91c1c',
+  googleBlue: '#4285F4',
+  tabBar: 'rgba(255, 255, 255, 0.96)',
+  switchTrackOff: '#d4d4d8',
+};
+
+/** Default export for legacy imports — prefer `useTheme().colors` */
+export const colors = darkColors;
 
 export const radius = { sm: 8, md: 12, r: 12, lg: 16, xl: 20, xxl: 24, pill: 999 } as const;
 export const spacing = { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 } as const;
@@ -79,6 +162,6 @@ export const shadows: Record<string, ViewStyle> = {
 /** Flat Stitch panel (no curved overlap) */
 export const sheetCurve = {
   flex: 1,
-  backgroundColor: colors.bg,
+  backgroundColor: darkColors.bg,
   paddingTop: spacing.sm,
 };

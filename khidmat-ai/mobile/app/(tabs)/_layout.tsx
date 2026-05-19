@@ -1,15 +1,31 @@
 import { Tabs } from 'expo-router';
 import { Platform, StyleSheet, Text, View } from 'react-native';
-import { colors, fonts, radius, shadows, spacing } from '../../constants/theme';
+import { MaterialIcons } from '@expo/vector-icons';
+import { fonts, radius, shadows, spacing } from '../../constants/theme';
 import { TAB_HINTS } from '../../constants/guide';
+import { useTheme } from '../../lib/ThemeContext';
+
+const TAB_ICONS: Record<string, keyof typeof MaterialIcons.glyphMap> = {
+  Home: 'home',
+  Bookings: 'calendar-month',
+  Trace: 'my-location',
+  Profile: 'person',
+};
 
 function TabIcon({ label, focused }: { label: string; focused: boolean }) {
-  const icons: Record<string, string> = { Home: '🏠', Bookings: '📋', Trace: '🧠', Profile: '👤' };
+  const { colors } = useTheme();
   const hint = TAB_HINTS[label] || '';
+  const iconName = TAB_ICONS[label] ?? 'circle';
+  const styles = makeTabStyles(colors);
+
   return (
     <View style={[styles.ni, focused && styles.niActive]}>
       {focused ? <View style={styles.tabIndicator} /> : null}
-      <Text style={[styles.icon, focused && styles.iconActive]}>{icons[label] || '•'}</Text>
+      <MaterialIcons
+        name={iconName}
+        size={24}
+        color={focused ? colors.primaryText : colors.text3}
+      />
       <Text style={[styles.label, focused && styles.labelActive]}>{label}</Text>
       {hint ? (
         <Text style={[styles.hint, focused && styles.hintActive]} numberOfLines={1}>
@@ -21,11 +37,18 @@ function TabIcon({ label, focused }: { label: string; focused: boolean }) {
 }
 
 export default function TabLayout() {
+  const { colors } = useTheme();
+  const tabBarStyle = {
+    ...styles.tabBarBase,
+    backgroundColor: colors.tabBar,
+    borderColor: colors.border2,
+  };
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarStyle: styles.tabBar,
+        tabBarStyle,
         tabBarShowLabel: false,
         tabBarActiveTintColor: colors.violetBright,
         tabBarInactiveTintColor: colors.text3,
@@ -64,45 +87,48 @@ export default function TabLayout() {
 }
 
 const styles = StyleSheet.create({
-  tabBar: {
+  tabBarBase: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    height: 76,
+    height: 80,
     borderTopLeftRadius: radius.xl,
     borderTopRightRadius: radius.xl,
-    backgroundColor: colors.glass,
     borderTopWidth: 1,
-    borderColor: colors.border2,
-    paddingBottom: 8,
+    paddingBottom: Platform.OS === 'ios' ? 10 : 8,
     paddingTop: 8,
+    zIndex: 100,
+    elevation: 24,
     ...shadows.card,
   },
-  ni: {
-    alignItems: 'center',
-    gap: 2,
-    paddingVertical: 4,
-    paddingHorizontal: 4,
-    borderRadius: radius.lg,
-    minWidth: 56,
-    position: 'relative',
-  },
-  tabIndicator: {
-    position: 'absolute',
-    top: 0,
-    width: 28,
-    height: 3,
-    borderRadius: 2,
-    backgroundColor: colors.violet,
-  },
-  niActive: {
-    backgroundColor: colors.violetSoft,
-  },
-  icon: { fontSize: 20, opacity: 0.45 },
-  iconActive: { opacity: 1 },
-  label: { fontSize: 10, fontWeight: '700', color: colors.text3, fontFamily: fonts.body },
-  labelActive: { color: colors.primaryText },
-  hint: { fontSize: 8, color: colors.text3, fontFamily: fonts.body },
-  hintActive: { color: colors.text2 },
 });
+
+function makeTabStyles(colors: ReturnType<typeof useTheme>['colors']) {
+  return StyleSheet.create({
+    ni: {
+      alignItems: 'center',
+      gap: 2,
+      paddingVertical: 4,
+      paddingHorizontal: 6,
+      borderRadius: radius.lg,
+      minWidth: 64,
+      position: 'relative',
+    },
+    tabIndicator: {
+      position: 'absolute',
+      top: 0,
+      width: 28,
+      height: 3,
+      borderRadius: 2,
+      backgroundColor: colors.violet,
+    },
+    niActive: {
+      backgroundColor: colors.violetSoft,
+    },
+    label: { fontSize: 10, fontWeight: '700', color: colors.text3, fontFamily: fonts.body },
+    labelActive: { color: colors.primaryText },
+    hint: { fontSize: 8, color: colors.text3, fontFamily: fonts.body, maxWidth: 72, textAlign: 'center' },
+    hintActive: { color: colors.text2 },
+  });
+}

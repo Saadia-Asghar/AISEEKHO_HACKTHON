@@ -4,9 +4,12 @@ import { discover } from '../api/client';
 import { getSession } from './auth';
 import { getUserCoords } from './location';
 import { addRecentSearch } from './searchHistory';
+import { priceSortFromFilters } from '../components/SearchFilterDropdown';
 import { useBookingStore } from './store';
 import { showToast } from './toastStore';
 import type { Lang } from '../constants/i18n';
+
+const MIN_LOADING_MS = 700;
 
 export function formatCategorySearch(
   template: string,
@@ -36,6 +39,7 @@ export async function runDiscoverSearch(
 
   setLoading(true);
   setError(null);
+  const started = Date.now();
 
   try {
     const session = await getSession();
@@ -46,20 +50,22 @@ export async function runDiscoverSearch(
     await addRecentSearch(trimmed);
     setLastSearchText(trimmed);
     const coords = await getUserCoords();
+    const effectiveSort = priceSortFromFilters(searchFilters, priceSort);
     const data = await discover(trimmed, session.userId, session.name, session.phone, {
       userLat: coords.lat,
       userLng: coords.lng,
-      priceSort,
+      priceSort: effectiveSort,
       maxDistanceKm: searchFilters.maxDistanceKm,
       minRating: searchFilters.minRating,
       verifiedOnly: searchFilters.verifiedOnly,
       availableToday: searchFilters.availableToday,
       lang,
     });
+    const wait = MIN_LOADING_MS - (Date.now() - started);
+    if (wait > 0) await new Promise((r) => setTimeout(r, wait));
     setResult(data);
     setSelectedProviderId(data.recommended?.id ?? null);
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    showToast(t('preview_note'));
     router.push('/results');
     return true;
   } catch (e) {

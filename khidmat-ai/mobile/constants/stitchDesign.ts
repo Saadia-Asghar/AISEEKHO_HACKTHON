@@ -13,6 +13,10 @@ export const stitchScreens = {
   booking_confirmation: 'app/booking-confirm.tsx',
   payment: 'app/payment.tsx',
   browse: 'app/browse.tsx',
+  payment_methods: 'app/payment-methods.tsx',
+  add_new_card: 'app/add-card.tsx',
+  '404_error_page': 'app/+not-found.tsx',
+  loading_state: 'components/stitch/StitchLoadingOverlay.tsx',
 } as const;
 
 export const stitchColors = {

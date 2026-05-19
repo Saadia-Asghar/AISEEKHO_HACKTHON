@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Platform, View } from 'react-native';
+import { Platform, View } from 'react-native';
+import StitchLoadingOverlay from '../components/stitch/StitchLoadingOverlay';
 
 if (Platform.OS !== 'web') {
   require('react-native-gesture-handler');
 }
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { colors } from '../constants/theme';
 import { getSession } from '../lib/auth';
 import AppToast from '../components/AppToast';
 import { I18nProvider } from '../lib/i18n';
+import { ThemeProvider, useTheme } from '../lib/ThemeContext';
 
 export default function RootLayout() {
   const [ready, setReady] = useState(false);
@@ -44,15 +45,35 @@ export default function RootLayout() {
 
   if (!ready) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg }}>
-        <ActivityIndicator color={colors.violet} size="large" />
-      </View>
+      <ThemeProvider>
+        <BootSplash />
+      </ThemeProvider>
     );
   }
 
   return (
-    <I18nProvider>
-      <StatusBar style="light" />
+    <ThemeProvider>
+      <I18nProvider>
+        <ThemedRoot authed={authed} />
+      </I18nProvider>
+    </ThemeProvider>
+  );
+}
+
+function BootSplash() {
+  const { colors } = useTheme();
+  return (
+    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+      <StitchLoadingOverlay visible subtitle="Starting KhidmatAI…" />
+    </View>
+  );
+}
+
+function ThemedRoot({ authed: _authed }: { authed: boolean }) {
+  const { colors, isDark } = useTheme();
+  return (
+    <>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
       <AppToast />
       <Stack
         screenOptions={{
@@ -66,9 +87,12 @@ export default function RootLayout() {
         <Stack.Screen name="browse" options={{ title: 'Browse', headerShown: false }} />
         <Stack.Screen name="results" options={{ title: 'Results', headerShown: false }} />
         <Stack.Screen name="payment" options={{ title: 'Payment', headerShown: false }} />
+        <Stack.Screen name="payment-methods" options={{ title: 'Payment Methods', headerShown: false }} />
+        <Stack.Screen name="add-card" options={{ title: 'Add Card', headerShown: false }} />
         <Stack.Screen name="booking-confirm" options={{ title: 'Confirmed', headerShown: false }} />
         <Stack.Screen name="provider/[id]" options={{ title: 'Provider', headerShown: false }} />
+        <Stack.Screen name="+not-found" options={{ headerShown: false }} />
       </Stack>
-    </I18nProvider>
+    </>
   );
 }

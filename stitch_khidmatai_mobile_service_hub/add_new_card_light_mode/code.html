@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Add New Card - KhidmatAI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(17, 24, 39, 0.08);
+        }
+        .premium-card-gradient {
+            background: linear-gradient(135deg, #7C3AED 0%, #630ED4 100%);
+        }
+        .input-focus-glow:focus-within {
+            border-color: #7C3AED;
+            box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.08);
+        }
+        body {
+            font-family: 'Geist', sans-serif;
+            background-color: #f8f9fb;
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#dce2f7",
+                    "on-surface": "#191c1e",
+                    "tertiary": "#474e60",
+                    "surface-container": "#edeef0",
+                    "primary-fixed": "#eaddff",
+                    "surface": "#f8f9fb",
+                    "outline-variant": "#ccc3d8",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary": "#5c5f60",
+                    "on-error": "#ffffff",
+                    "on-primary-container": "#ede0ff",
+                    "on-background": "#191c1e",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-container": "#dfe5fa",
+                    "primary-container": "#7c3aed",
+                    "on-primary-fixed": "#25005a",
+                    "on-secondary-fixed-variant": "#454748",
+                    "inverse-primary": "#d2bbff",
+                    "inverse-on-surface": "#f0f1f3",
+                    "error": "#ba1a1a",
+                    "primary-fixed-dim": "#d2bbff",
+                    "surface-variant": "#e1e2e4",
+                    "secondary-container": "#e1e3e4",
+                    "surface-tint": "#732ee4",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#404758",
+                    "on-primary-fixed-variant": "#5a00c6",
+                    "on-error-container": "#93000a",
+                    "on-secondary-fixed": "#191c1d",
+                    "surface-dim": "#d9dadc",
+                    "on-primary": "#ffffff",
+                    "tertiary-container": "#5f6678",
+                    "secondary-fixed": "#e1e3e4",
+                    "outline": "#7b7487",
+                    "on-secondary-container": "#626566",
+                    "on-tertiary-fixed": "#141b2b",
+                    "surface-container-highest": "#e1e2e4",
+                    "surface-container-low": "#f3f4f6",
+                    "surface-container-high": "#e7e8ea",
+                    "inverse-surface": "#2e3132",
+                    "primary": "#630ed4",
+                    "on-surface-variant": "#4a4455",
+                    "surface-bright": "#f8f9fb",
+                    "on-tertiary": "#ffffff",
+                    "secondary-fixed-dim": "#c5c7c8",
+                    "tertiary-fixed-dim": "#c0c6db",
+                    "background": "#f8f9fb"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-mobile": "16px",
+                    "container-max": "1440px",
+                    "unit": "4px",
+                    "margin-desktop": "40px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Geist"],
+                    "mono-sm": ["Geist"],
+                    "body-md": ["Geist"],
+                    "headline-lg-mobile": ["Geist"],
+                    "headline-xl": ["Geist"],
+                    "headline-lg": ["Geist"],
+                    "label-md": ["Geist"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "mono-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-24">
+<!-- TopAppBar (Supressed standard Shell for Task-Focused journey) -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 bg-surface/80 backdrop-blur-md border-b border-outline-variant/10">
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high/50 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-on-surface">arrow_back</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary tracking-tight">Add New Card</h1>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-container-high hover:bg-surface-container-highest transition-colors active:scale-95">
+<span class="material-symbols-outlined text-on-surface-variant">photo_camera</span>
+<span class="font-label-md text-label-md text-on-surface-variant">Scan Card</span>
+</button>
+</header>
+<main class="pt-24 px-margin-mobile max-w-lg mx-auto">
+<!-- Premium Card Preview Section -->
+<section class="mb-10">
+<div class="relative w-full aspect-[1.58/1] premium-card-gradient rounded-xl shadow-lg p-8 flex flex-col justify-between text-white overflow-hidden" id="card-preview">
+<!-- Abstract Glass Shapes -->
+<div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+<div class="absolute -bottom-10 -left-10 w-40 h-40 bg-primary-fixed/20 rounded-full blur-2xl"></div>
+<div class="flex justify-between items-start z-10">
+<div class="flex flex-col">
+<span class="font-mono-sm text-mono-sm opacity-80 uppercase tracking-widest">KhidmatAI Premium</span>
+<div class="mt-4 flex gap-1">
+<div class="w-10 h-8 bg-surface-bright/20 rounded-md backdrop-blur-sm border border-white/20"></div>
+</div>
+</div>
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">contactless</span>
+</div>
+<div class="z-10">
+<div class="font-headline-lg-mobile text-headline-lg-mobile tracking-[0.15em] mb-4" id="display-number">•••• •••• •••• ••••</div>
+<div class="flex justify-between items-end">
+<div class="flex flex-col">
+<span class="font-mono-sm text-mono-sm opacity-60 uppercase text-[10px]">Card Holder</span>
+<span class="font-label-md text-label-md uppercase tracking-wider" id="display-name">YOUR NAME</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-mono-sm text-mono-sm opacity-60 uppercase text-[10px]">Expires</span>
+<span class="font-label-md text-label-md" id="display-expiry">MM/YY</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Form Section -->
+<section class="space-y-6">
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant block ml-1" for="card-number">Card Number</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">credit_card</span>
+<input class="w-full pl-12 pr-4 py-3.5 bg-surface-bright border border-outline-variant/50 rounded-xl font-body-md text-body-md input-focus-glow outline-none transition-all" id="card-number" placeholder="0000 0000 0000 0000" type="text"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant block ml-1" for="card-holder">Card Holder Name</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">person</span>
+<input class="w-full pl-12 pr-4 py-3.5 bg-surface-bright border border-outline-variant/50 rounded-xl font-body-md text-body-md input-focus-glow outline-none transition-all" id="card-holder" placeholder="John Doe" type="text"/>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-gutter">
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant block ml-1" for="expiry">Expiry Date</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">calendar_today</span>
+<input class="w-full pl-12 pr-4 py-3.5 bg-surface-bright border border-outline-variant/50 rounded-xl font-body-md text-body-md input-focus-glow outline-none transition-all" id="expiry" placeholder="MM/YY" type="text"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant block ml-1" for="cvv">CVV</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">lock</span>
+<input class="w-full pl-12 pr-4 py-3.5 bg-surface-bright border border-outline-variant/50 rounded-xl font-body-md text-body-md input-focus-glow outline-none transition-all" id="cvv" maxlength="4" placeholder="•••" type="password"/>
+</div>
+</div>
+</div>
+<!-- Options -->
+<div class="flex items-center gap-3 p-4 glass-card rounded-xl">
+<input checked="" class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary" id="save-card" type="checkbox"/>
+<label class="font-body-md text-body-md text-on-surface-variant" for="save-card">Save this card for future payments</label>
+</div>
+<!-- Action Button -->
+<button class="w-full py-4 bg-primary text-on-primary rounded-xl font-headline-lg-mobile text-body-lg font-bold shadow-lg shadow-primary/20 hover:bg-primary-container transition-all active:scale-[0.98] mt-8">
+                Confirm and Add Card
+            </button>
+</section>
+<!-- Security Badges -->
+<footer class="mt-12 flex flex-col items-center gap-6">
+<div class="flex items-center gap-8 opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[20px]">verified_user</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">PCI-DSS Compliant</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[20px]">security</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">256-Bit SSL</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[20px]">shield</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Safe Checkout</span>
+</div>
+</div>
+<p class="font-body-md text-on-surface-variant text-center opacity-60 text-[12px] max-w-[280px]">
+                Your payment information is encrypted and never stored on our servers.
+            </p>
+</footer>
+</main>
+<script>
+        // Real-time preview update
+        const inputs = {
+            number: document.getElementById('card-number'),
+            name: document.getElementById('card-holder'),
+            expiry: document.getElementById('expiry')
+        };
+
+        const displays = {
+            number: document.getElementById('display-number'),
+            name: document.getElementById('display-name'),
+            expiry: document.getElementById('display-expiry')
+        };
+
+        inputs.number.addEventListener('input', (e) => {
+            let val = e.target.value.replace(/\D/g, '').substring(0, 16);
+            let formatted = val.match(/.{1,4}/g)?.join(' ') || '•••• •••• •••• ••••';
+            displays.number.textContent = formatted;
+            e.target.value = val.match(/.{1,4}/g)?.join(' ') || '';
+        });
+
+        inputs.name.addEventListener('input', (e) => {
+            displays.name.textContent = e.target.value || 'YOUR NAME';
+        });
+
+        inputs.expiry.addEventListener('input', (e) => {
+            let val = e.target.value.replace(/\D/g, '').substring(0, 4);
+            if (val.length > 2) {
+                val = val.substring(0, 2) + '/' + val.substring(2);
+            }
+            displays.expiry.textContent = val || 'MM/YY';
+            e.target.value = val;
+        });
+
+        // Simple feedback for Scan Card
+        document.querySelector('header button:last-child').onclick = () => {
+            alert('Opening secure camera scanner...');
+        };
+    </script>
+</body></html>

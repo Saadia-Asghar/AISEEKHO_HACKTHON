@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Search Results | KhidmatAI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#dce2f7",
+                        "on-surface": "#191c1e",
+                        "tertiary": "#474e60",
+                        "surface-container": "#edeef0",
+                        "primary-fixed": "#eaddff",
+                        "surface": "#f8f9fb",
+                        "outline-variant": "#ccc3d8",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#5c5f60",
+                        "on-error": "#ffffff",
+                        "on-primary-container": "#ede0ff",
+                        "on-background": "#191c1e",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-container": "#dfe5fa",
+                        "primary-container": "#7c3aed",
+                        "on-primary-fixed": "#25005a",
+                        "on-secondary-fixed-variant": "#454748",
+                        "inverse-primary": "#d2bbff",
+                        "inverse-on-surface": "#f0f1f3",
+                        "error": "#ba1a1a",
+                        "primary-fixed-dim": "#d2bbff",
+                        "surface-variant": "#e1e2e4",
+                        "secondary-container": "#e1e3e4",
+                        "surface-tint": "#732ee4",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#404758",
+                        "on-primary-fixed-variant": "#5a00c6",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed": "#191c1d",
+                        "surface-dim": "#d9dadc",
+                        "on-primary": "#ffffff",
+                        "tertiary-container": "#5f6678",
+                        "secondary-fixed": "#e1e3e4",
+                        "outline": "#7b7487",
+                        "on-secondary-container": "#626566",
+                        "on-tertiary-fixed": "#141b2b",
+                        "surface-container-highest": "#e1e2e4",
+                        "surface-container-low": "#f3f4f6",
+                        "surface-container-high": "#e7e8ea",
+                        "inverse-surface": "#2e3132",
+                        "primary": "#630ed4",
+                        "on-surface-variant": "#4a4455",
+                        "surface-bright": "#f8f9fb",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed-dim": "#c5c7c8",
+                        "tertiary-fixed-dim": "#c0c6db",
+                        "background": "#f8f9fb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "container-max": "1440px",
+                        "unit": "4px",
+                        "margin-desktop": "40px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Geist"],
+                        "mono-sm": ["Geist"],
+                        "body-md": ["Geist"],
+                        "headline-lg-mobile": ["Geist"],
+                        "headline-xl": ["Geist"],
+                        "headline-lg": ["Geist"],
+                        "label-md": ["Geist"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "mono-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Geist', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(17, 24, 39, 0.08);
+        }
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 bg-surface/80 backdrop-blur-md border-b border-outline-variant/10">
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-primary hover:bg-surface-container-high/50 p-2 rounded-full transition-colors active:scale-95 duration-150 ease-in-out">arrow_back</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary tracking-tight">KhidmatAI</h1>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant/20">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a smiling person with neutral studio lighting, set against a clean, soft-grey background. The aesthetic is high-end and modern, matching a premium corporate UI. The lighting is bright and even, highlighting clear facial features with a professional and approachable mood, consistent with a tech-focused design system." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-C_BmoKcnJ1NNMgbKP6S3mIe53aoRpQBHix_WjN_rtYvN7ssHCTnGSezMjwwJerJxJbSlN12H1km5QkyxbH5CCBkv77HjX9esob48sStj3cvktPuhT-e31qIEu5dVouIsdt5eKhdjkPXjSq-uv0UTMJB4B4g0CxZKtPHsJC79EzoKuJaps23z5oZ19J27o0ewlpSTJTHyz9TyrSrrXyDdjB2Tq08O4wPVWtPL0iJlvQ3L0QYPMzC8ahb8TyjYRPPVCTIjcwBgZouj"/>
+</div>
+</header>
+<main class="pt-20 pb-24 px-margin-mobile max-w-container-max mx-auto">
+<!-- AI Insight Section -->
+<section class="mb-8 p-6 rounded-xl glass-panel card-shadow border border-primary/10">
+<div class="flex items-start gap-3 mb-4">
+<span class="material-symbols-outlined text-primary bg-primary-fixed p-1.5 rounded-lg">psychology</span>
+<div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">AI Top Picks</h2>
+<p class="font-body-md text-on-surface-variant">Based on your requirement for "Emergency HVAC Repair" in Dubai Marina.</p>
+</div>
+</div>
+<div class="bg-surface-container-low/50 rounded-lg p-4 border border-outline-variant/20">
+<p class="font-body-md text-on-surface italic">"I've identified 3 providers with rapid response times and high reliability ratings for electrical and HVAC emergencies. They are prioritized by proximity and recent customer satisfaction."</p>
+</div>
+</section>
+<!-- Search Results Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- Provider Card 1 -->
+<article class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 card-shadow overflow-hidden flex flex-col hover:border-primary/30 transition-all duration-300">
+<div class="relative h-48">
+<img alt="Maintenance Team" class="w-full h-full object-cover" data-alt="A clean, professional photo of a technician in a branded uniform working on a modern air conditioning unit inside a bright, well-lit apartment. The setting is luxurious and minimalist, with soft daylight streaming in. The image conveys high-quality service, technical expertise, and a trustworthy, professional atmosphere aligned with a premium service platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBfCGEBLZYXwak4UYMAmeLKBMCqXT-FO8yD_ov_knJyCz1sE_u1Xz0orAe5VPSSK-JzgErOEF2CEUCo9dVh-YJ9KWynQFo27Ch8BD2_7MeHwvNq9ps1BYf8DYLOua3NujzUMtggKQrVbZNMBd3WxwZ5AN2EcCT00XnanbS4aqXcUlOp9hFAt5KLuF68VxTkm2-9PK6OCzVlg17FYrbnL5gn-zwexTsQSq5a2gGfJS4PAld1tITGZYoaYN-3pKQIVi49jbu5tuvlOjp"/>
+<div class="absolute top-3 right-3 bg-surface-container-lowest/90 backdrop-blur px-3 py-1 rounded-full border border-outline-variant/20 flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-on-surface">4.9</span>
+</div>
+</div>
+<div class="p-5 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">CoolAir Solutions</h3>
+<span class="material-symbols-outlined text-primary text-xl" title="Verified Provider">verified</span>
+</div>
+<p class="font-label-md text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">location_on</span> Dubai Marina • 1.2km away
+                            </p>
+</div>
+</div>
+<div class="mt-4 p-3 bg-primary-fixed/30 rounded-lg border border-primary/5">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-primary text-sm">auto_awesome</span>
+<span class="font-label-md text-primary font-bold">Why we suggested this</span>
+</div>
+<p class="font-label-md text-on-surface-variant leading-relaxed">Fastest response time (15 mins) and specializes in high-rise HVAC systems similar to yours.</p>
+</div>
+<div class="mt-auto pt-5 flex items-center justify-between border-t border-outline-variant/10 mt-5">
+<div>
+<span class="font-label-md text-secondary block">Starting from</span>
+<span class="font-headline-lg-mobile text-primary font-bold">AED 150</span>
+</div>
+<button class="bg-primary text-on-primary font-label-md px-6 py-2.5 rounded-xl hover:bg-primary/90 transition-colors active:scale-95">Book Now</button>
+</div>
+</div>
+</article>
+<!-- Provider Card 2 -->
+<article class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 card-shadow overflow-hidden flex flex-col hover:border-primary/30 transition-all duration-300">
+<div class="relative h-48">
+<img alt="Electrical Work" class="w-full h-full object-cover" data-alt="A focused close-up of a skilled electrician's hands using high-quality tools to work on a sophisticated home automation panel. The lighting is crisp and clear, highlighting technical precision. The background is a soft-focus, modern residential interior in light tones. The overall mood is innovative, safe, and highly professional, utilizing a bright and airy color palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTFVJ3yZzBGOa6OyLWNuw2fi5qWNwxNqteZNCcC1hc7gaEw8ClACx55AucJCR4GdIShw8sy7Bo-Oa0y0NoSq6iaWjb6FfAGt_EgPM5PHngpdXmC3iaRT-9ctysThoh-O_0mKvLQYgTbMUQNRoOEYcCPwaQn67mlBn5_5_3tcb2dDAWBzYmKqfInAtutjJbspEDakcgFJaFk65EtpEwhEaCUGCZK2LwzH_R_lpsrgeJJysdMZr8wah1ARz-OVS5MwfCq7GrGin2cMAX"/>
+<div class="absolute top-3 right-3 bg-surface-container-lowest/90 backdrop-blur px-3 py-1 rounded-full border border-outline-variant/20 flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-on-surface">4.7</span>
+</div>
+</div>
+<div class="p-5 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Prime Maintenance</h3>
+<span class="material-symbols-outlined text-primary text-xl" title="Verified Provider">verified</span>
+</div>
+<p class="font-label-md text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">location_on</span> JBR • 2.5km away
+                            </p>
+</div>
+</div>
+<div class="mt-4 p-3 bg-primary-fixed/30 rounded-lg border border-primary/5">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-primary text-sm">auto_awesome</span>
+<span class="font-label-md text-primary font-bold">Why we suggested this</span>
+</div>
+<p class="font-label-md text-on-surface-variant leading-relaxed">Highest reliability score for complex electrical repairs with 200+ five-star reviews.</p>
+</div>
+<div class="mt-auto pt-5 flex items-center justify-between border-t border-outline-variant/10 mt-5">
+<div>
+<span class="font-label-md text-secondary block">Starting from</span>
+<span class="font-headline-lg-mobile text-primary font-bold">AED 120</span>
+</div>
+<button class="bg-primary text-on-primary font-label-md px-6 py-2.5 rounded-xl hover:bg-primary/90 transition-colors active:scale-95">Book Now</button>
+</div>
+</div>
+</article>
+<!-- Provider Card 3 -->
+<article class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 card-shadow overflow-hidden flex flex-col hover:border-primary/30 transition-all duration-300">
+<div class="relative h-48">
+<img alt="Repair Specialist" class="w-full h-full object-cover" data-alt="A portrait of an expert technician standing confidently in front of a modern service van parked in a bright, contemporary urban setting. The technician is wearing a neat, high-visibility vest over a clean uniform. The lighting is golden-hour sunlight, giving a warm and trustworthy feeling. The aesthetic is professional, reliable, and grounded, emphasizing a premium service experience." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0TUj1xemJZm-tl3jt5hN_WpLh2v4ZBAe-tHkCU57XaKUt3rYRlve6qnvycBuEyywAprfJqHQJihiotRLovhmTME7hAoZ_mRB8AzCdxcyjeGiI6ykHNMKGKdDF-F6-H9tiOPL6CHR6fYyHFgMprt8e4ECZJrXYq487E9p6e1rPdaLbfetL5Q0xc_56XexWmwDteSfgko3N4Yi0dKayhaYr2_pYYa_WSt2nhsm_AtMEA5E487gYogqXXnDwOvcOYYUKtzIJ7YthglTR"/>
+<div class="absolute top-3 right-3 bg-surface-container-lowest/90 backdrop-blur px-3 py-1 rounded-full border border-outline-variant/20 flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-on-surface">4.8</span>
+</div>
+</div>
+<div class="p-5 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">SwiftFix Services</h3>
+<span class="material-symbols-outlined text-primary text-xl" title="Verified Provider">verified</span>
+</div>
+<p class="font-label-md text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">location_on</span> The Greens • 3.1km away
+                            </p>
+</div>
+</div>
+<div class="mt-4 p-3 bg-primary-fixed/30 rounded-lg border border-primary/5">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-primary text-sm">auto_awesome</span>
+<span class="font-label-md text-primary font-bold">Why we suggested this</span>
+</div>
+<p class="font-label-md text-on-surface-variant leading-relaxed">Offers 24/7 priority booking for emergency cases and competitive hourly rates.</p>
+</div>
+<div class="mt-auto pt-5 flex items-center justify-between border-t border-outline-variant/10 mt-5">
+<div>
+<span class="font-label-md text-secondary block">Starting from</span>
+<span class="font-headline-lg-mobile text-primary font-bold">AED 180</span>
+</div>
+<button class="bg-primary text-on-primary font-label-md px-6 py-2.5 rounded-xl hover:bg-primary/90 transition-colors active:scale-95">Book Now</button>
+</div>
+</div>
+</article>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-3 pb-safe bg-surface/80 backdrop-blur-md rounded-t-xl border-t border-outline-variant/10 shadow-sm">
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1.5 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1.5 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-label-md text-label-md">Bookings</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-4 py-1.5 transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">timeline</span>
+<span class="font-label-md text-label-md">Trace</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1.5 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</a>
+</nav>
+<script>
+        // Micro-interactions for cards
+        document.querySelectorAll('article').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.classList.add('scale-[1.01]', 'shadow-lg');
+            });
+            card.addEventListener('mouseleave', () => {
+                card.classList.remove('scale-[1.01]', 'shadow-lg');
+            });
+        });
+    </script>
+</body></html>

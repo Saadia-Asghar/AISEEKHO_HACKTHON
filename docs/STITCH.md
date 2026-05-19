@@ -28,7 +28,11 @@ Expand-Archive -Path "d:\project\stitch_khidmatai_mobile_service_hub.zip" `
 | Home | `app/(tabs)/index.tsx` |
 | Search results | `app/results.tsx` |
 | Browse / categories | `app/browse.tsx` |
-| Payment | `app/payment.tsx` |
+| Payment (checkout) | `app/payment.tsx` |
+| Payment methods | `app/payment-methods.tsx` |
+| Add new card | `app/add-card.tsx` |
+| 404 error | `app/+not-found.tsx` |
+| Loading state | `components/stitch/StitchLoadingOverlay.tsx` |
 | Booking confirmed | `app/booking-confirm.tsx` |
 | Bookings | `app/(tabs)/bookings.tsx` |
 | Trace | `app/(tabs)/trace.tsx` |

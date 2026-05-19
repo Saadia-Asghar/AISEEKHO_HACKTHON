@@ -11,6 +11,7 @@
     "lint": "echo \"No strict linting configured yet; passing\""
   },
   "dependencies": {
+    "@expo/vector-icons": "^15.0.3",
     "@react-native-async-storage/async-storage": "2.2.0",
     "axios": "^1.7.9",
     "babel-preset-expo": "~54.0.10",

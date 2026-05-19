@@ -16,11 +16,11 @@ import { colors, fonts, radius, shadows, spacing } from '../../constants/theme';
 import { getSession } from '../../lib/auth';
 import { getSuggestions, transcribeSpeech, getContactedWorkers } from '../../api/client';
 import { runDiscoverSearch } from '../../lib/discoverSearch';
-import SearchFilters from '../../components/SearchFilters';
+import SearchFilterDropdown from '../../components/SearchFilterDropdown';
+import { useTheme } from '../../lib/ThemeContext';
 import { useI18n } from '../../lib/i18n';
 import type { ContactedWorker } from '../../api/client';
 import { useBookingStore } from '../../lib/store';
-import GoogleStatusBanner from '../../components/GoogleStatusBanner';
 import { getRecentSearches } from '../../lib/searchHistory';
 import { getPriceSort, setPriceSort as persistPriceSort, type PriceSort } from '../../lib/bookingPrefs';
 import ShimmerOverlay from '../../components/ShimmerOverlay';
@@ -48,6 +48,7 @@ const CHIPS = [
 ];
 
 export default function HomeScreen() {
+  const { colors } = useTheme();
   const { q, submit: autoSubmit } = useLocalSearchParams<{ q?: string; submit?: string }>();
   const [name, setName] = useState('Guest');
   const [input, setInput] = useState('');
@@ -151,7 +152,7 @@ export default function HomeScreen() {
   }));
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <SafeAreaView style={[styles.safe, { backgroundColor: colors.bg }]} edges={['top']}>
       <StitchAppHeader onSettings={() => router.push('/(tabs)/profile')} />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView
@@ -159,8 +160,6 @@ export default function HomeScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <GoogleStatusBanner />
-
           <View style={styles.greet}>
             <Text style={styles.greetTitle}>
               Assalamu Alaikum 👋 {name}
@@ -218,7 +217,7 @@ export default function HomeScreen() {
                 onSelectContacted={bookContacted}
               />
             ) : null}
-            <SearchFilters value={searchFilters} onChange={setSearchFilters} />
+            <SearchFilterDropdown value={searchFilters} onChange={setSearchFilters} />
           </View>
 
           <StitchSectionLabel>Popular Services</StitchSectionLabel>
@@ -269,7 +268,7 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
-  scroll: { paddingBottom: 100 },
+  scroll: { paddingBottom: 120 },
   greet: { paddingHorizontal: spacing.lg, marginTop: spacing.md, marginBottom: spacing.sm },
   greetTitle: {
     fontFamily: fonts.display,
@@ -281,21 +280,25 @@ const styles = StyleSheet.create({
   micSection: { alignItems: 'center', paddingVertical: spacing.lg },
   pulseRing: {
     position: 'absolute',
-    width: 108,
-    height: 108,
-    borderRadius: 54,
-    backgroundColor: 'rgba(124,58,237,0.2)',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: 'rgba(124,58,237,0.15)',
   },
   micBtn: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
+    width: 96,
+    height: 96,
+    borderRadius: 48,
     backgroundColor: colors.violet,
     alignItems: 'center',
     justifyContent: 'center',
-    ...shadows.card,
+    shadowColor: colors.violet,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.45,
+    shadowRadius: 20,
+    elevation: 8,
   },
-  micIcon: { fontSize: 36 },
+  micIcon: { fontSize: 40 },
   micCaption: { fontSize: 14, color: colors.primaryText, marginTop: 12, fontFamily: fonts.body },
   block: { paddingHorizontal: spacing.lg },
   recentWrap: {
@@ -314,6 +317,8 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     backgroundColor: colors.surfaceLow,
     borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: 'rgba(74, 68, 85, 0.35)',
   },
   recentIcon: { fontSize: 12 },
   recentText: { fontSize: 12, color: colors.text2, fontFamily: fonts.body, flex: 1 },

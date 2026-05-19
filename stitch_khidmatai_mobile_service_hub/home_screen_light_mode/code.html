@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#dce2f7",
+                        "on-surface": "#191c1e",
+                        "tertiary": "#474e60",
+                        "surface-container": "#edeef0",
+                        "primary-fixed": "#eaddff",
+                        "surface": "#f8f9fb",
+                        "outline-variant": "#ccc3d8",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#5c5f60",
+                        "on-error": "#ffffff",
+                        "on-primary-container": "#ede0ff",
+                        "on-background": "#191c1e",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-container": "#dfe5fa",
+                        "primary-container": "#7c3aed",
+                        "on-primary-fixed": "#25005a",
+                        "on-secondary-fixed-variant": "#454748",
+                        "inverse-primary": "#d2bbff",
+                        "inverse-on-surface": "#f0f1f3",
+                        "error": "#ba1a1a",
+                        "primary-fixed-dim": "#d2bbff",
+                        "surface-variant": "#e1e2e4",
+                        "secondary-container": "#e1e3e4",
+                        "surface-tint": "#732ee4",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#404758",
+                        "on-primary-fixed-variant": "#5a00c6",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed": "#191c1d",
+                        "surface-dim": "#d9dadc",
+                        "on-primary": "#ffffff",
+                        "tertiary-container": "#5f6678",
+                        "secondary-fixed": "#e1e3e4",
+                        "outline": "#7b7487",
+                        "on-secondary-container": "#626566",
+                        "on-tertiary-fixed": "#141b2b",
+                        "surface-container-highest": "#e1e2e4",
+                        "surface-container-low": "#f3f4f6",
+                        "surface-container-high": "#e7e8ea",
+                        "inverse-surface": "#2e3132",
+                        "primary": "#630ed4",
+                        "on-surface-variant": "#4a4455",
+                        "surface-bright": "#f8f9fb",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed-dim": "#c5c7c8",
+                        "tertiary-fixed-dim": "#c0c6db",
+                        "background": "#f8f9fb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "container-max": "1440px",
+                        "unit": "4px",
+                        "margin-desktop": "40px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Geist"],
+                        "mono-sm": ["Geist"],
+                        "body-md": ["Geist"],
+                        "headline-lg-mobile": ["Geist"],
+                        "headline-xl": ["Geist"],
+                        "headline-lg": ["Geist"],
+                        "label-md": ["Geist"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "mono-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Geist:wght@100;300;400;500;600;700;800;900&display=swap');
+        
+        body {
+            font-family: 'Geist', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            background-color: #f8f9fb;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(17, 24, 39, 0.08);
+        }
+
+        .premium-shadow {
+            box-shadow: 0 4px 20px -2px rgba(124, 58, 237, 0.08);
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .active-nav-bg {
+            background-color: #7c3aed;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 bg-surface/80 backdrop-blur-md border-b border-outline-variant/10">
+<div class="flex items-center gap-3">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary tracking-tight">KhidmatAI</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant p-2 hover:bg-surface-container-high/50 rounded-full transition-colors active:scale-95 duration-150">notifications</button>
+<div class="w-10 h-10 rounded-full border-2 border-primary-container overflow-hidden">
+<img alt="User Profile Avatar" data-alt="A professional close-up portrait of a smiling man in a high-end corporate setting. The lighting is soft and natural, emphasizing a bright and welcoming atmosphere. The background is a slightly blurred modern office with warm wooden textures and clean white surfaces. The image is captured with a high-end camera lens for a premium, authentic feel." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkjYiUM4YJ_vSOQ94lFO_UvIG6g6I4461qwYSOmO9iyab6MfBjpXzbXOJeNevtJe2sgSKre8Pj5air15WjHcKoVWiNP3gl48fm_PrJ0WdJAFtUES5bXpn2RCsBo7CVwiXDcSwY0hlud5ll8PVjKBRawQMN40tw9TzApaIQCTCAYqEzF5hoUL2TR_unqEHPVkmflR0GTGImgkyMakpFv6mB2QOKGWF9J9ZfRTSs0GMaWaj7BGy4s8SxDqG9sUcLGtVjeSk_9PFImshr"/>
+</div>
+</div>
+</header>
+<main class="pt-20 px-margin-mobile space-y-8 max-w-container-max mx-auto">
+<!-- Hero Section & AI Search -->
+<section class="mt-4 space-y-6">
+<div class="space-y-2">
+<h2 class="font-headline-lg text-headline-lg text-on-surface leading-tight">Expert services,<br/><span class="text-primary">AI-powered simplicity.</span></h2>
+<p class="font-body-md text-on-surface-variant max-w-[80%]">Find the best professional help for your home and lifestyle needs.</p>
+</div>
+<!-- AI Quick Search Bar -->
+<div class="glass-card premium-shadow rounded-xl p-2 flex items-center gap-3 border-outline-variant/20">
+<div class="bg-primary/10 p-2 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<input class="flex-grow bg-transparent border-none focus:ring-0 text-body-md font-body-md placeholder:text-outline h-12" placeholder="Tell AI what you need help with..." type="text"/>
+<button class="bg-primary text-on-primary px-4 py-2.5 rounded-lg font-label-md flex items-center gap-2 active:scale-95 transition-transform">
+<span>Search</span>
+</button>
+</div>
+</section>
+<!-- Service Categories - Bento Grid Style -->
+<section class="space-y-4">
+<div class="flex justify-between items-end">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface">Categories</h3>
+<a class="text-primary font-label-md hover:underline" href="#">View all</a>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<!-- Cleaning -->
+<div class="group relative aspect-square rounded-2xl overflow-hidden glass-card transition-all hover:scale-[1.02]">
+<img class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A high-resolution, bright and airy photograph of a professional house cleaner using high-end equipment in a luxury modern apartment. The scene is flooded with natural sunlight, highlighting the sparkling clean surfaces and minimalist decor. The color palette is composed of soft whites, light woods, and subtle purple accents. The mood is fresh and efficient." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAh7JVPwnlnYaBAgYbzR9NVk8ZxMKkBtAgheC7hX-dxSfifamoZl2O5YD9JXgTNLrLIEKRisY04N0eVEkGCXgzuwUeG88RR0nzqHfegfGg2TIDWXX1lmls5N4kdUHfp6IIFkSYCkoePrrc9Sfw0zwZmd19Dx6Y0EO7u140E6mg-7_9o9g0u76F9aDmhljUfaEm1uqbFyyQFMVIYtrkmQtk9z0qnoUbwPvmkfPoZKAVWj4Fkw3oIHcGl8CmLxvKhF_rWM0mQJtTCVLOq"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+<div class="absolute bottom-4 left-4">
+<span class="text-white font-label-md font-bold block">Cleaning</span>
+<span class="text-white/80 text-[12px]">240+ Pros</span>
+</div>
+</div>
+<!-- Repairs -->
+<div class="group relative aspect-square rounded-2xl overflow-hidden glass-card transition-all hover:scale-[1.02]">
+<img class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A detailed, realistic close-up of professional repair tools like a precision screwdriver and a multi-meter lying on a clean workbench. The lighting is focused and technical, with soft shadows. The overall aesthetic is professional and precise, using a clean color palette of metallic grays, white workspace surfaces, and vibrant purple highlights on the tools." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0Q5cWacsa1GtAysKtNBAN6FoxSYAPnH6BR0XYeacwqlM62C1WpXcF4D2dasE545B_QKfWujGZkEzdSJG7fTbDS0deEnrZJhSUTSMyZC-xzOuzTZiwFoKl_UjlhmJ6wyv0VNRKDkVwUBWwDSvaOgwl7czfLQPcRVrTTNXk51-oWXWzLsSD8cXz7_mnpFFLXTLlIgujLhjx-Se3iEN8yd0n7I1hdf0rAK4BXnDZfp7DKVJkSa_zWKfk2wgz-xSD3V2MQDnzlOl7MEMm"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+<div class="absolute bottom-4 left-4">
+<span class="text-white font-label-md font-bold block">Repairs</span>
+<span class="text-white/80 text-[12px]">180+ Pros</span>
+</div>
+</div>
+<!-- Moving -->
+<div class="group relative aspect-square rounded-2xl overflow-hidden glass-card transition-all hover:scale-[1.02]">
+<img class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A high-quality lifestyle shot of a professional moving service team carefully handling organized cardboard boxes in a bright, contemporary hallway. The lighting is warm and welcoming, conveying a stress-free relocation experience. The scene features clean lines, white walls, and bright natural light coming from a nearby window." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYIGtgyRq0eNZJogZxxrSajxwER266oIz2fS8aN7LuIwHkjzcV7gnK2Es-rxZHlEVLNeD6zJGL-l1eoViRgqWg9n5M5fClW5MDCytWtEA6E-S9ViT9Szr4n0KMe1VsjTRx6pnU8MAkDBjHUFM2pxb4ZIyl2UWqUjCRghZKE_H0wKuk8-ghb5BxHNLSLQsYbHHwfXcgYEJcHMZ1O2mSr0_P12w0UnC5DP6pur1Ut3uJe4OrROlFGvJIE3A_brtcYFkaB7c5cbgSFYYX"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+<div class="absolute bottom-4 left-4">
+<span class="text-white font-label-md font-bold block">Moving</span>
+<span class="text-white/80 text-[12px]">95+ Pros</span>
+</div>
+</div>
+<!-- Wellness -->
+<div class="group relative aspect-square rounded-2xl overflow-hidden glass-card transition-all hover:scale-[1.02]">
+<img class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A serene, professional wellness setting featuring a person receiving a therapeutic treatment in a high-end spa environment. The lighting is moody and calm, with soft warm glows and diffused highlights. The textures are rich and luxurious, including clean white linens and dark wood accents, creating a professional-futuristic and tranquil atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCf8mWhrpIvek-lQgKPVh25-GmBToZM-cIw-LAIHG52DxJn32MWyimGEK0ODA6_LH6efbLVObznBJxlQkOYunHMxrRk4RdXwzeFFVoeffKrS3ED3nCtDg_3WjNibiPu8WInx5qJq_D_VB6omfe7eGmU5_XtvSra4ailsUgSrQbLcoXMSJ-cYDCFP6t3PU9sm2kXEONac0ESfaZQZKxmpKBE423sYeubdALcosZojoxA-AI3Rts3hQtD3MokXXorA_btu0SLQqczI26C"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+<div class="absolute bottom-4 left-4">
+<span class="text-white font-label-md font-bold block">Wellness</span>
+<span class="text-white/80 text-[12px]">310+ Pros</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Featured Providers -->
+<section class="space-y-4">
+<div class="flex justify-between items-end">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface">Top Rated Pros</h3>
+</div>
+<div class="flex overflow-x-auto pb-4 gap-4 no-scrollbar -mx-margin-mobile px-margin-mobile">
+<!-- Provider Card 1 -->
+<div class="min-w-[280px] glass-card rounded-2xl p-4 space-y-4 premium-shadow border-outline-variant/10">
+<div class="flex gap-4">
+<div class="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a female technician in a neat uniform, smiling confidently in a modern technical environment. The background is brightly lit with a clean, light-mode aesthetic, featuring high-end technical equipment and white surfaces. The lighting is crisp and detailed, showcasing professional expertise." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIkh1tJe8EFr4ZI6wtXdov8-XolKkwGKG9ZQujv2iE0W-M9W218nLoihMR52VJTPc0LXGkxb_HsXJSKVnsTrDo3V8DnfeOqc6C80Tt9m48we2nG-E9vV7mqVG9dNPTIEh2EeoQiZ84ikbbpH4y7O3yMuXhzh4BIeAYmP70g6XTcwQeKuYjaGMSJ4TXGAUZ0_M5fFJaMbuUB3cLycqKC6EY6HqrVKaI6A_e6R_W6SkB2YUlvA7tIwbqt0LnqnfNIczdviOcVs4JxMFB"/>
+</div>
+<div class="flex-grow pt-1">
+<div class="flex justify-between items-start">
+<h4 class="font-label-md font-bold text-on-surface">Sarah Mitchell</h4>
+<div class="flex items-center gap-1 bg-primary/5 px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[14px] text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-primary text-[12px] font-bold">4.9</span>
+</div>
+</div>
+<p class="text-[12px] text-on-surface-variant">Expert Interior Stylist</p>
+</div>
+</div>
+<div class="flex gap-2">
+<span class="px-2 py-1 bg-surface-container-high rounded text-[10px] font-bold text-secondary">DESIGN</span>
+<span class="px-2 py-1 bg-surface-container-high rounded text-[10px] font-bold text-secondary">CONSULT</span>
+</div>
+<button class="w-full py-2 bg-primary/5 hover:bg-primary/10 text-primary rounded-xl font-label-md transition-colors border border-primary/20">Book Session</button>
+</div>
+<!-- Provider Card 2 -->
+<div class="min-w-[280px] glass-card rounded-2xl p-4 space-y-4 premium-shadow border-outline-variant/10">
+<div class="flex gap-4">
+<div class="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A professional portrait of a male electrician with a clean-cut look, wearing a branded company polo. He is standing in a brightly lit, modern smart-home setting with visible sleek light switches and minimalist interior. The lighting is bright and high-key, conveying trust and reliability through a clean and professional image." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSMZduTlqzp4M-9Kx86J4gCisrvevZMck974dY_prIb7KCdNIoWnM3kSaugENtpZy5t6QnBwehV_nUjLpx8rH7iAPg4f1knbXa2SNAaSZ-ZY_nhixFFKJBsls-S3fw4CYIS8VVLvmYswQ9ukx4jGay9cBzxK2wMo6my9DZRYyuH21Mj-ClDJmQPtPuiYzJvYzNFFXyR1do11aCx-FHO0PL26Qno5u6k3n-CSMh_O0GgXIx3USla0SO79L25T9bxVn-Wr1ZuGGD-Wlg"/>
+</div>
+<div class="flex-grow pt-1">
+<div class="flex justify-between items-start">
+<h4 class="font-label-md font-bold text-on-surface">Alex Rivera</h4>
+<div class="flex items-center gap-1 bg-primary/5 px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[14px] text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-primary text-[12px] font-bold">5.0</span>
+</div>
+</div>
+<p class="text-[12px] text-on-surface-variant">Master Electrician</p>
+</div>
+</div>
+<div class="flex gap-2">
+<span class="px-2 py-1 bg-surface-container-high rounded text-[10px] font-bold text-secondary">ELECTRIC</span>
+<span class="px-2 py-1 bg-surface-container-high rounded text-[10px] font-bold text-secondary">SMART-HOME</span>
+</div>
+<button class="w-full py-2 bg-primary/5 hover:bg-primary/10 text-primary rounded-xl font-label-md transition-colors border border-primary/20">Book Session</button>
+</div>
+<!-- Provider Card 3 -->
+<div class="min-w-[280px] glass-card rounded-2xl p-4 space-y-4 premium-shadow border-outline-variant/10">
+<div class="flex gap-4">
+<div class="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A bright and professional portrait of a fitness trainer in a minimalist, modern studio. The background features light-toned exercise equipment and large windows with soft daylight streaming in. The image is captured with a high-end lens, emphasizing clear details and a vibrant, energetic atmosphere that aligns with a healthy lifestyle." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCl6Z1MxZkMRymSd-UaMEL9LXLQC1JSOxGX0r0l1lzb2LC3tgCFD5S1r3o8zQZmfEVd-PeeIOIf4W5uggyVsVeHA0Xyjplaqx2q1gUcO5KRbH_GBHA5ODgTHJZNA5jbZN7ash9URIn4fnQC_E0K-hs2OXZaRaIoqrWqTC-cGRuevjaj67Lpz7pkwA_F_3pQVmxXHw3qMW7K-_DFFxjHR_FEB0QIyz4K2qZitfH-3tVhm2sTSoN2FuBqW3rEWatTI9K98b0urZtTkEoy"/>
+</div>
+<div class="flex-grow pt-1">
+<div class="flex justify-between items-start">
+<h4 class="font-label-md font-bold text-on-surface">Marcus Chen</h4>
+<div class="flex items-center gap-1 bg-primary/5 px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[14px] text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-primary text-[12px] font-bold">4.8</span>
+</div>
+</div>
+<p class="text-[12px] text-on-surface-variant">Personal Wellness Coach</p>
+</div>
+</div>
+<div class="flex gap-2">
+<span class="px-2 py-1 bg-surface-container-high rounded text-[10px] font-bold text-secondary">FITNESS</span>
+<span class="px-2 py-1 bg-surface-container-high rounded text-[10px] font-bold text-secondary">HEALTH</span>
+</div>
+<button class="w-full py-2 bg-primary/5 hover:bg-primary/10 text-primary rounded-xl font-label-md transition-colors border border-primary/20">Book Session</button>
+</div>
+</div>
+</section>
+<!-- AI Recommendations (Atmospheric Effect Section) -->
+<section class="glass-card rounded-3xl p-6 relative overflow-hidden premium-shadow">
+<div class="absolute -top-10 -right-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl"></div>
+<div class="absolute -bottom-10 -left-10 w-40 h-40 bg-tertiary/10 rounded-full blur-3xl"></div>
+<div class="relative z-10 space-y-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">spark</span>
+<h3 class="font-label-md font-bold text-primary tracking-wide uppercase">AI Insights for you</h3>
+</div>
+<p class="font-body-md text-on-surface-variant">Based on your recent activity, your AC might need a maintenance check-up soon to save energy.</p>
+<div class="flex items-center gap-3">
+<button class="px-6 py-2 bg-primary text-on-primary rounded-full font-label-md active:scale-95 transition-transform">Get Estimate</button>
+<button class="px-6 py-2 bg-surface-container-high text-on-surface-variant rounded-full font-label-md">Dismiss</button>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-3 pb-safe bg-surface/80 backdrop-blur-md border-t border-outline-variant/10 rounded-t-xl shadow-sm">
+<!-- Home (Active) -->
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-4 py-1.5 transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-md text-label-md mt-0.5">Home</span>
+</a>
+<!-- Bookings -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1.5 hover:text-primary transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-label-md text-label-md mt-0.5">Bookings</span>
+</a>
+<!-- Trace -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1.5 hover:text-primary transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">timeline</span>
+<span class="font-label-md text-label-md mt-0.5">Trace</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1.5 hover:text-primary transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md mt-0.5">Profile</span>
+</a>
+</nav>
+<script>
+        // Micro-interactions for horizontal scroll
+        const scrollContainer = document.querySelector('.overflow-x-auto');
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        scrollContainer.addEventListener('mousedown', (e) => {
+            isDown = true;
+            startX = e.pageX - scrollContainer.offsetLeft;
+            scrollLeft = scrollContainer.scrollLeft;
+        });
+        scrollContainer.addEventListener('mouseleave', () => {
+            isDown = false;
+        });
+        scrollContainer.addEventListener('mouseup', () => {
+            isDown = false;
+        });
+        scrollContainer.addEventListener('mousemove', (e) => {
+            if(!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - scrollContainer.offsetLeft;
+            const walk = (x - startX) * 2;
+            scrollContainer.scrollLeft = scrollLeft - walk;
+        });
+
+        // Search bar focus effect
+        const searchInput = document.querySelector('input[type="text"]');
+        const searchContainer = searchInput.parentElement;
+        
+        searchInput.addEventListener('focus', () => {
+            searchContainer.classList.add('ring-2', 'ring-primary/20', 'border-primary/40');
+        });
+        
+        searchInput.addEventListener('blur', () => {
+            searchContainer.classList.remove('ring-2', 'ring-primary/20', 'border-primary/40');
+        });
+    </script>
+</body></html>

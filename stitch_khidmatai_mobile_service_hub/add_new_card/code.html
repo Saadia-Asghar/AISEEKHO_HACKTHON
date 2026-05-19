@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
+    
+    body {
+      font-family: 'Geist', sans-serif;
+      background-color: #131315;
+    }
+
+    .glass-card {
+      background: linear-gradient(135deg, rgba(28, 28, 30, 0.7) 0%, rgba(20, 20, 22, 0.8) 100%);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .credit-card-preview {
+      background: linear-gradient(135deg, #2D1B4D 0%, #131315 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .credit-card-preview::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 30% 30%, rgba(124, 58, 237, 0.15) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .shimmer-bg {
+      background: linear-gradient(90deg, #1C1C1E 0%, #27272A 50%, #1C1C1E 100%);
+      background-size: 200% 100%;
+      animation: shimmer 2s infinite linear;
+    }
+
+    @keyframes shimmer {
+      from { background-position: -200% 0; }
+      to { background-position: 200% 0; }
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+  </style>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-tint": "#d2bbff",
+            "on-tertiary-fixed-variant": "#005236",
+            "on-secondary-container": "#4a1c00",
+            "on-secondary-fixed-variant": "#783200",
+            "primary-fixed-dim": "#d2bbff",
+            "on-tertiary-fixed": "#002113",
+            "on-error-container": "#ffdad6",
+            "tertiary-fixed": "#6ffbbe",
+            "surface-dim": "#131315",
+            "tertiary": "#4edea3",
+            "surface-container-highest": "#353437",
+            "secondary-container": "#ec6a06",
+            "inverse-on-surface": "#313032",
+            "surface-container-lowest": "#0e0e10",
+            "surface-container": "#201f22",
+            "primary-container": "#7c3aed",
+            "on-primary-fixed-variant": "#5a00c6",
+            "on-secondary": "#552100",
+            "on-surface-variant": "#ccc3d8",
+            "error-container": "#93000a",
+            "secondary-fixed": "#ffdbca",
+            "on-primary-fixed": "#25005a",
+            "surface-container-low": "#1c1b1d",
+            "secondary-fixed-dim": "#ffb690",
+            "primary-fixed": "#eaddff",
+            "on-error": "#690005",
+            "tertiary-fixed-dim": "#4edea3",
+            "on-tertiary": "#003824",
+            "tertiary-container": "#007650",
+            "on-secondary-fixed": "#341100",
+            "surface-variant": "#353437",
+            "on-primary-container": "#ede0ff",
+            "on-primary": "#3f008e",
+            "background": "#131315",
+            "on-background": "#e5e1e4",
+            "error": "#ffb4ab",
+            "secondary": "#ffb690",
+            "on-tertiary-container": "#76ffc2",
+            "surface": "#131315",
+            "inverse-surface": "#e5e1e4",
+            "primary": "#d2bbff",
+            "on-surface": "#e5e1e4",
+            "surface-bright": "#39393b",
+            "outline-variant": "#4a4455",
+            "inverse-primary": "#732ee4",
+            "outline": "#958da1",
+            "surface-container-high": "#2a2a2c"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "stack-lg": "24px",
+            "gutter": "16px",
+            "base": "4px",
+            "stack-md": "16px",
+            "stack-sm": "8px",
+            "container-padding": "20px"
+          },
+          "fontFamily": {
+            "body-lg": ["Geist"],
+            "display": ["Geist"],
+            "body-md": ["Geist"],
+            "label-sm": ["Geist"],
+            "headline-md": ["Geist"],
+            "headline-lg": ["Geist"],
+            "label-md": ["Geist"]
+          },
+          "fontSize": {
+            "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+            "display": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+            "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+            "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+            "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+            "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+            "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col items-center">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md flex items-center justify-between px-container-padding h-16">
+<div class="flex items-center gap-4">
+<button class="active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md text-primary">Add New Card</h1>
+</div>
+<div class="w-10 h-10 flex items-center justify-center">
+<!-- Spacer for centering -->
+</div>
+</header>
+<main class="w-full max-w-[390px] px-container-padding pt-24 pb-32 flex flex-col gap-stack-lg">
+<!-- Dynamic Credit Card Preview -->
+<div class="credit-card-preview w-full aspect-[1.58/1] rounded-xl p-6 flex flex-col justify-between shadow-2xl border border-white/5">
+<div class="flex justify-between items-start">
+<div class="flex flex-col">
+<span class="font-label-sm text-on-surface-variant opacity-60">KHIDMAT AI PREMIUM</span>
+<div class="mt-4 w-12 h-9 bg-primary/20 rounded-lg flex items-center justify-center border border-primary/30">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">contactless</span>
+</div>
+</div>
+<div class="w-12 h-8 bg-on-surface/10 rounded-md backdrop-blur-sm"></div>
+</div>
+<div class="flex flex-col gap-4">
+<div class="font-headline-md tracking-widest text-on-surface transition-all duration-300" id="preview-number">
+          •••• •••• •••• ••••
+        </div>
+<div class="flex justify-between items-end">
+<div class="flex flex-col">
+<span class="font-label-sm text-on-surface-variant opacity-60 uppercase">Card Holder</span>
+<span class="font-label-md text-on-surface tracking-wide" id="preview-name">NAME ON CARD</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-label-sm text-on-surface-variant opacity-60 uppercase">Expiry</span>
+<span class="font-label-md text-on-surface tracking-wide" id="preview-expiry">MM/YY</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Scan Card Button -->
+<button class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-outline-variant bg-surface-container-low text-primary font-label-md hover:opacity-80 active:scale-95 transition-all">
+<span class="material-symbols-outlined">credit_card_heart</span>
+<span>Scan Card for Quick Entry</span>
+</button>
+<!-- Payment Form -->
+<div class="flex flex-col gap-stack-md">
+<!-- Card Number -->
+<div class="relative">
+<label class="absolute -top-2.5 left-4 px-1 bg-background font-label-sm text-primary z-10">Card Number</label>
+<div class="flex items-center bg-surface-container-lowest border border-outline-variant focus-within:border-primary-container rounded-lg p-4 transition-all">
+<input class="bg-transparent border-none w-full outline-none focus:ring-0 text-on-surface font-body-md" id="card-number" maxlength="19" placeholder="0000 0000 0000 0000" type="text"/>
+<span class="material-symbols-outlined text-on-surface-variant">lock</span>
+</div>
+</div>
+<!-- Cardholder Name -->
+<div class="relative">
+<label class="absolute -top-2.5 left-4 px-1 bg-background font-label-sm text-primary z-10">Cardholder Name</label>
+<div class="flex items-center bg-surface-container-lowest border border-outline-variant focus-within:border-primary-container rounded-lg p-4 transition-all">
+<input class="bg-transparent border-none w-full outline-none focus:ring-0 text-on-surface font-body-md" id="card-name" placeholder="John Doe" type="text"/>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-stack-md">
+<!-- Expiry Date -->
+<div class="relative">
+<label class="absolute -top-2.5 left-4 px-1 bg-background font-label-sm text-primary z-10">Expiry Date</label>
+<div class="flex items-center bg-surface-container-lowest border border-outline-variant focus-within:border-primary-container rounded-lg p-4 transition-all">
+<input class="bg-transparent border-none w-full outline-none focus:ring-0 text-on-surface font-body-md" id="card-expiry" maxlength="5" placeholder="MM/YY" type="text"/>
+</div>
+</div>
+<!-- CVV -->
+<div class="relative">
+<label class="absolute -top-2.5 left-4 px-1 bg-background font-label-sm text-primary z-10">CVV</label>
+<div class="flex items-center bg-surface-container-lowest border border-outline-variant focus-within:border-primary-container rounded-lg p-4 transition-all">
+<input class="bg-transparent border-none w-full outline-none focus:ring-0 text-on-surface font-body-md" id="card-cvv" maxlength="4" placeholder="•••" type="password"/>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer text-sm">help</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Security Badges -->
+<div class="flex justify-center items-center gap-6 py-4">
+<div class="flex flex-col items-center gap-1 opacity-60">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<span class="font-label-sm">PCI-DSS</span>
+</div>
+<div class="flex flex-col items-center gap-1 opacity-60">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">shield</span>
+<span class="font-label-sm">SSL Secure</span>
+</div>
+<div class="flex flex-col items-center gap-1 opacity-60">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">security</span>
+<span class="font-label-sm">Encrypted</span>
+</div>
+</div>
+<!-- Save Button -->
+<button class="w-full h-14 bg-primary-container text-on-primary-container rounded-xl font-headline-md shadow-lg shadow-primary-container/20 active:scale-95 transition-all mt-4">
+      Save Card
+    </button>
+</main>
+<!-- Footer -->
+<footer class="w-full mb-24 flex justify-center items-center py-4 text-on-surface-variant font-label-sm">
+    Powered by Google
+  </footer>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface-container/80 backdrop-blur-xl border-t border-outline-variant flex justify-around items-center h-20 px-4 pb-safe shadow-lg">
+<div class="flex flex-col items-center text-on-surface-variant hover:text-primary transition-colors active:scale-90 transition-transform">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</div>
+<div class="flex flex-col items-center text-on-surface-variant hover:text-primary transition-colors active:scale-90 transition-transform">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="font-label-sm text-label-sm">Bookings</span>
+</div>
+<div class="flex flex-col items-center text-on-surface-variant hover:text-primary transition-colors active:scale-90 transition-transform">
+<span class="material-symbols-outlined">location_searching</span>
+<span class="font-label-sm text-label-sm">Trace</span>
+</div>
+<div class="flex flex-col items-center text-primary border-b-2 border-primary pb-1 active:scale-90 transition-transform">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</div>
+</nav>
+<script>
+    // Dynamic card updating script
+    const numInp = document.getElementById('card-number');
+    const nameInp = document.getElementById('card-name');
+    const expInp = document.getElementById('card-expiry');
+    const cvvInp = document.getElementById('card-cvv');
+
+    const numPrev = document.getElementById('preview-number');
+    const namePrev = document.getElementById('preview-name');
+    const expPrev = document.getElementById('preview-expiry');
+
+    numInp.addEventListener('input', (e) => {
+      let val = e.target.value.replace(/\D/g, '');
+      val = val.replace(/(.{4})/g, '$1 ').trim();
+      e.target.value = val;
+      numPrev.textContent = val || '•••• •••• •••• ••••';
+    });
+
+    nameInp.addEventListener('input', (e) => {
+      namePrev.textContent = e.target.value.toUpperCase() || 'NAME ON CARD';
+    });
+
+    expInp.addEventListener('input', (e) => {
+      let val = e.target.value.replace(/\D/g, '');
+      if (val.length > 2) val = val.slice(0, 2) + '/' + val.slice(2, 4);
+      e.target.value = val;
+      expPrev.textContent = val || 'MM/YY';
+    });
+
+    // Simple interaction effect for CVV (flip preview would go here in a complex UI)
+    cvvInp.addEventListener('focus', () => {
+        document.querySelector('.credit-card-preview').style.transform = 'scale(1.02)';
+        document.querySelector('.credit-card-preview').style.boxShadow = '0 0 30px rgba(124, 58, 237, 0.3)';
+    });
+
+    cvvInp.addEventListener('blur', () => {
+        document.querySelector('.credit-card-preview').style.transform = 'scale(1)';
+        document.querySelector('.credit-card-preview').style.boxShadow = '0 25px 50px -12px rgb(0 0 0 / 0.25)';
+    });
+  </script>
+</body></html>

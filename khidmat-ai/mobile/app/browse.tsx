@@ -18,12 +18,14 @@ import { useI18n } from '../lib/i18n';
 import { formatCategorySearch, runDiscoverSearch } from '../lib/discoverSearch';
 import StitchAppHeader from '../components/stitch/StitchAppHeader';
 import StitchGlassCard from '../components/stitch/StitchGlassCard';
-import SearchFilters from '../components/SearchFilters';
+import SearchFilterDropdown from '../components/SearchFilterDropdown';
+import { useTheme } from '../lib/ThemeContext';
 import ShimmerOverlay from '../components/ShimmerOverlay';
 import SecLabel from '../components/ui/SecLabel';
 import { showToast } from '../lib/toastStore';
 
 export default function BrowseScreen() {
+  const { colors } = useTheme();
   const { category: preselect } = useLocalSearchParams<{ category?: string }>();
   const { t, lang } = useI18n();
   const { loading, searchFilters, setSearchFilters } = useBookingStore();
@@ -101,8 +103,7 @@ export default function BrowseScreen() {
             placeholder={t('browse_search')}
             placeholderTextColor={colors.text3}
           />
-          <SearchFilters value={searchFilters} onChange={setSearchFilters} />
-          <Text style={styles.filterNote}>{t('browse_filter_note')}</Text>
+          <SearchFilterDropdown value={searchFilters} onChange={setSearchFilters} areaLabel={area} />
       </StitchGlassCard>
 
         {fetching ? (

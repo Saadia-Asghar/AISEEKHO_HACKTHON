@@ -1,13 +1,11 @@
 import { create } from 'zustand';
 import type { DiscoverResult, PriceSort } from '../api/client';
-import type { SearchFilterState } from '../components/SearchFilters';
+import {
+  defaultSearchFilters,
+  type SearchFilterState,
+} from '../components/SearchFilterDropdown';
 
-export const defaultSearchFilters: SearchFilterState = {
-  maxDistanceKm: null,
-  minRating: null,
-  verifiedOnly: false,
-  availableToday: false,
-};
+export { defaultSearchFilters, type SearchFilterState };
 
 type State = {
   result: DiscoverResult | null;

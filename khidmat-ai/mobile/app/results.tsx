@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, Link } from 'expo-router';
+import Button from '../components/ui/Button';
 import { colors, fonts, radius, shadows, spacing } from '../constants/theme';
 import { useBookingStore } from '../lib/store';
 import Avatar from '../components/Avatar';
@@ -31,6 +32,16 @@ function formatPrice(p: ProviderSummary) {
   return 'Quote on visit';
 }
 
+function skillTags(provider: ProviderSummary): string[] {
+  const cat = provider.category?.replace(/_/g, ' ');
+  if (cat) {
+    const base = cat.split(/\s+/).filter(Boolean);
+    if (base.length >= 2) return base.slice(0, 3).map((s) => s[0].toUpperCase() + s.slice(1));
+    return [base[0], 'Verified Pro', 'Same-day'];
+  }
+  return ['Inverter AC', 'Gas Refill', 'Leakage Repair'];
+}
+
 function ProviderCard({
   provider,
   selected,
@@ -39,6 +50,7 @@ function ProviderCard({
   badge,
   onSelect,
   onProfile,
+  onBook,
   t,
 }: {
   provider: ProviderSummary;
@@ -48,12 +60,14 @@ function ProviderCard({
   badge?: string;
   onSelect: () => void;
   onProfile: () => void;
+  onBook?: () => void;
   t: (k: string) => string;
 }) {
   const bd = provider.score_breakdown;
   const dist = bd?.distance_40pct ?? 0.32;
   const rat = bd?.rating_35pct ?? 0.25;
   const avail = bd?.availability_25pct ?? 0.43;
+  const responseMin = Math.max(5, Math.round(15 - avail * 12));
 
   return (
     <Pressable
@@ -69,7 +83,7 @@ function ProviderCard({
           <Text style={styles.selectedTagText}>✓ {t('selected')}</Text>
         </View>
       ) : null}
-      {top ? <StitchMatchBadge pct={98} /> : null}
+      {top ? <StitchMatchBadge pct={Math.round((provider.score ?? 0.98) * 100)} /> : null}
       {topRated && !top ? (
         <View style={[styles.topTag, styles.topRatedTag]}>
           <Text style={styles.topTagText}>🏆 Top Rated</Text>
@@ -78,24 +92,77 @@ function ProviderCard({
       <View style={styles.pcardTopRow}>
         <Avatar name={provider.name} size={top ? 64 : 48} square={!top} />
         <View style={styles.pinfo}>
-          <Text style={styles.pname}>{provider.name}</Text>
+          <View style={styles.nameRow}>
+            <Text style={[styles.pname, top && styles.pnameTop]}>{provider.name}</Text>
+            {provider.verified ? (
+              <View style={styles.verifiedPill}>
+                <Text style={styles.verifiedText}>✓ VERIFIED</Text>
+              </View>
+            ) : null}
+          </View>
           <Text style={styles.pmeta}>
             <Text style={styles.star}>★ </Text>
             <Text style={styles.pmetaBold}>{provider.rating.toFixed(1)}</Text>
             {' · '}
-            {provider.distance_km.toFixed(1)} km · {formatPrice(provider)}
+            {provider.distance_km.toFixed(1)} km
+            {top ? (
+              <Text style={styles.response}> · ⚡ {responseMin} min response</Text>
+            ) : (
+              ` · ${formatPrice(provider)}`
+            )}
           </Text>
         </View>
-        <View style={styles.badgesCol}>
-          {provider.verified ? <Badge label="✓ Verified" variant="jade" /> : null}
-          {provider.contacted_before ? <Badge label="Contacted" variant="violet" /> : null}
-          {badge ? <Badge label={badge} variant="amber" /> : null}
-        </View>
+        {!top ? (
+          <View style={styles.badgesCol}>
+            {provider.contacted_before ? <Badge label="Contacted" variant="violet" /> : null}
+            {badge ? <Badge label={badge} variant="amber" /> : null}
+          </View>
+        ) : null}
       </View>
+
+      {top ? (
+        <View style={styles.skillRow}>
+          {skillTags(provider).map((tag) => (
+            <View key={tag} style={styles.skillChip}>
+              <Text style={styles.skillText}>{tag}</Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
+
+      {top ? (
+        <View style={styles.quoteBox}>
+          <Text style={styles.quoteText}>
+            &ldquo;Fixed my AC in 30 mins. Highly professional!&rdquo;{' '}
+            <Text style={styles.quoteAuthor}>- Recent customer</Text>
+          </Text>
+        </View>
+      ) : null}
+
       {bd ? <ScoreBar distance={dist} rating={rat} availability={avail} /> : null}
-      <Pressable style={styles.profileLink} onPress={onProfile} hitSlop={8}>
-        <Text style={styles.profileLinkText}>{t('view_profile')} →</Text>
-      </Pressable>
+
+      {top ? (
+        <View style={styles.bookRow}>
+          <View>
+            <Text style={styles.priceLabel}>Starting at</Text>
+            <Text style={styles.priceValue}>{formatPrice(provider)}</Text>
+          </View>
+          <Button label={t('book_now')} onPress={onBook ?? onSelect} variant="violet" style={styles.bookBtn} />
+        </View>
+      ) : (
+        <Pressable style={styles.profileLink} onPress={onProfile} hitSlop={8}>
+          <Text style={styles.profileLinkText}>{t('view_profile')} →</Text>
+        </Pressable>
+      )}
+
+      {top ? (
+        <Link href="/(tabs)/trace" asChild>
+          <Pressable style={styles.reasoningLink}>
+            <Text style={styles.reasoningText}>🧠 View Agent Reasoning</Text>
+            <Text style={styles.reasoningChevron}>›</Text>
+          </Pressable>
+        </Link>
+      ) : null}
     </Pressable>
   );
 }
@@ -262,6 +329,10 @@ export default function ResultsScreen() {
                 top
                 selected={selectedProviderId === top.id}
                 onSelect={() => onSelect(top.id)}
+                onBook={async () => {
+                  await onSelect(top.id);
+                  goToCheckout();
+                }}
                 onProfile={() => router.push(`/provider/${top.id}`)}
                 t={t}
               />
@@ -270,7 +341,7 @@ export default function ResultsScreen() {
 
           {others.length > 0 ? (
             <View style={styles.block}>
-              <SecLabel>{t('more_nearby')}</SecLabel>
+              <Text style={styles.altSectionTitle}>Other Great Options</Text>
               {others.map((p, i) => (
                 <View key={p.id} style={styles.cardWrap}>
                   <ProviderCard
@@ -286,11 +357,7 @@ export default function ResultsScreen() {
             </View>
           ) : null}
 
-          <Link href="/(tabs)/trace" asChild>
-            <Pressable style={styles.traceLink}>
-              <Text style={styles.traceText}>🧠 View Agent Reasoning</Text>
-            </Pressable>
-          </Link>
+          <Text style={styles.footer}>Powered by Google</Text>
         </ScrollView>
 
         {selectedProvider ? (
@@ -395,6 +462,86 @@ const styles = StyleSheet.create({
     color: colors.primaryText,
     fontFamily: fonts.body,
   },
-  traceLink: { marginTop: spacing.md, alignItems: 'center', padding: spacing.sm },
-  traceText: { color: colors.accent, fontWeight: '600', fontFamily: fonts.body },
+  nameRow: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
+  pnameTop: { fontSize: 18 },
+  verifiedPill: {
+    backgroundColor: colors.jadeSoft,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: radius.pill,
+  },
+  verifiedText: { fontSize: 10, fontWeight: '700', color: colors.jade, fontFamily: fonts.body },
+  response: { color: colors.jade },
+  skillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: spacing.sm },
+  skillChip: {
+    backgroundColor: colors.surface,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border2,
+  },
+  skillText: { fontSize: 11, color: colors.text, fontFamily: fonts.body },
+  quoteBox: {
+    backgroundColor: colors.surfaceLow,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(74, 68, 85, 0.35)',
+    padding: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  quoteText: { fontSize: 13, fontStyle: 'italic', color: colors.text2, lineHeight: 20, fontFamily: fonts.body },
+  quoteAuthor: { fontStyle: 'normal', fontWeight: '700', color: colors.text },
+  bookRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: spacing.md,
+    paddingTop: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  priceLabel: {
+    fontSize: 11,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    color: colors.text2,
+    fontFamily: fonts.body,
+  },
+  priceValue: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.text,
+    fontFamily: fonts.display,
+    marginTop: 2,
+  },
+  bookBtn: { paddingHorizontal: spacing.lg, minWidth: 120 },
+  reasoningLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    marginTop: spacing.md,
+    paddingTop: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  reasoningText: { color: colors.primaryText, fontWeight: '500', fontSize: 14, fontFamily: fonts.body },
+  reasoningChevron: { color: colors.primaryText, fontSize: 16 },
+  altSectionTitle: {
+    fontFamily: fonts.display,
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.text,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.sm,
+  },
+  footer: {
+    textAlign: 'center',
+    fontSize: 12,
+    color: colors.text3,
+    marginTop: spacing.lg,
+    marginBottom: spacing.md,
+    fontFamily: fonts.body,
+  },
 });
