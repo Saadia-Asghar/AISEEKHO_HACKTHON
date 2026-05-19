@@ -11,7 +11,31 @@
 3. For production scale, migrate SQLite → PostgreSQL (replace `database.py` connection string) and enable HTTPS behind a reverse proxy.
 4. Restrict CORS to your app origin instead of `*`.
 
-## Mobile (Expo)
+## Web app (Vercel) — fixes 404 on `*.vercel.app`
+
+Vercel was likely building the **repo root**, which has no `index.html`. Use the config in the repo root `vercel.json` (builds `khidmat-ai/mobile` → `dist/`).
+
+1. **Push to `main`** (required): root `package.json` (`vercel-build`), `vercel.json`, `khidmat-ai/mobile/package.json` (`build:web`). If these are only on your laptop, Vercel keeps serving **404** with no app files.
+2. **Vercel → Project → Settings → General**
+   - **Root Directory:** **empty** (repo root). Do **not** point at `khidmat-ai/web` (Next dashboard only).
+3. **Environment variables** (Production + Preview):
+   - `EXPO_PUBLIC_API_URL` = `https://your-backend.example.com` (not `127.0.0.1`)
+4. **Redeploy** (Deployments → … → Redeploy).
+5. Open `https://aiseekho-hackthon.vercel.app` — you should see KhidmatAI login, not `404: NOT_FOUND`.
+
+Local check before push:
+
+```powershell
+cd d:\project\khidmat-ai\mobile
+npm run build:web
+npx serve dist
+```
+
+Deploy the **FastAPI backend** separately (Railway, Render, Fly.io). The web app calls `EXPO_PUBLIC_API_URL`; without a public API, login/search will fail even if the UI loads.
+
+---
+
+## Mobile (Expo native / EAS)
 
 1. Set `EXPO_PUBLIC_API_URL` in `khidmat-ai/mobile/.env` to your deployed API URL.
 2. Install EAS CLI: `npm i -g eas-cli` and run `eas login`.

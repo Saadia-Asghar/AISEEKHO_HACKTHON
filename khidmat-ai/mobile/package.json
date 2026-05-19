@@ -8,6 +8,7 @@
     "android": "expo start --android --clear",
     "ios": "expo start --ios --clear",
     "web": "expo start --web --port 8081 --clear",
+    "build:web": "expo export -p web",
     "lint": "echo \"No strict linting configured yet; passing\""
   },
   "dependencies": {

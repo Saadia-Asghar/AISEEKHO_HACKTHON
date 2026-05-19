@@ -1,0 +1,7 @@
+{
+  "name": "khidmat-ai",
+  "private": true,
+  "scripts": {
+    "vercel-build": "npm install --prefix khidmat-ai/mobile && npm run build:web --prefix khidmat-ai/mobile"
+  }
+}
