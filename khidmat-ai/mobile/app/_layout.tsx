@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Platform, View } from 'react-native';
 import StitchLoadingOverlay from '../components/stitch/StitchLoadingOverlay';
 
@@ -8,6 +8,7 @@ if (Platform.OS !== 'web') {
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { getSession } from '../lib/auth';
+import { onAuthChange } from '../lib/authEvents';
 import AppToast from '../components/AppToast';
 import AppNotificationBanner from '../components/AppNotificationBanner';
 import { initAppNotifications } from '../lib/appNotifications';
@@ -20,31 +21,52 @@ export default function RootLayout() {
   const segments = useSegments();
   const router = useRouter();
 
-  useEffect(() => {
-    initAppNotifications();
-    getSession().then((s) => {
-      setAuthed(!!s);
-      setReady(true);
-    });
-  }, []);
+  const applyAuthGuard = useCallback(async () => {
+    const session = await getSession();
+    const onAuth = segments[0] === 'auth';
+    if (!session && !onAuth) {
+      router.replace('/auth');
+      setAuthed(false);
+      return;
+    }
+    if (session && onAuth) {
+      router.replace('/(tabs)');
+      setAuthed(true);
+      return;
+    }
+    setAuthed(!!session);
+  }, [router, segments]);
 
   useEffect(() => {
-    if (!ready) return;
-
     let cancelled = false;
     (async () => {
+      initAppNotifications();
       const session = await getSession();
       if (cancelled) return;
       setAuthed(!!session);
-      const onAuth = segments[0] === 'auth';
-      if (!session && !onAuth) router.replace('/auth');
-      else if (session && onAuth) router.replace('/');
+      if (session) {
+        router.replace('/(tabs)');
+      } else {
+        router.replace('/auth');
+      }
+      setReady(true);
     })();
-
     return () => {
       cancelled = true;
     };
-  }, [ready, segments, router]);
+  }, [router]);
+
+  useEffect(() => {
+    if (!ready) return;
+    applyAuthGuard();
+  }, [ready, applyAuthGuard]);
+
+  useEffect(() => {
+    if (!ready) return;
+    return onAuthChange(() => {
+      applyAuthGuard();
+    });
+  }, [ready, applyAuthGuard]);
 
   if (!ready) {
     return (
@@ -86,8 +108,8 @@ function ThemedRoot({ authed: _authed }: { authed: boolean }) {
           contentStyle: { backgroundColor: colors.bg },
         }}
       >
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="auth" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="browse" options={{ title: 'Browse', headerShown: false }} />
         <Stack.Screen name="workers" options={{ title: 'Workers', headerShown: false }} />
         <Stack.Screen name="results" options={{ title: 'Results', headerShown: false }} />

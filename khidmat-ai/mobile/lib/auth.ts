@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { notifyAuthChange } from './authEvents';
 
 const TOKEN = 'khidmat_token';
 const USER_ID = 'khidmat_user_id';
@@ -15,6 +16,7 @@ export async function persistSession(session: Session) {
     [NAME, session.name],
     [PHONE, session.phone],
   ]);
+  notifyAuthChange();
   return session;
 }
 
@@ -41,6 +43,7 @@ export async function getSession(): Promise<Session | null> {
 
 export async function clearSession() {
   await AsyncStorage.multiRemove([TOKEN, USER_ID, NAME, PHONE]);
+  notifyAuthChange();
 }
 
 /** Clear session + app state and go to sign-in (works on web; Alert.alert does not). */

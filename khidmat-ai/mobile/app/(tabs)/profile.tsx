@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import type { AppColors } from '../../constants/theme';
 import { fonts, gradients, radius, spacing } from '../../constants/theme';
@@ -169,13 +169,7 @@ export default function ProfileScreen() {
   };
 
   if (!session) {
-    return (
-      <SafeAreaView style={styles.safe}>
-        <Pressable onPress={() => router.replace('/auth')} style={{ padding: spacing.lg }}>
-          <Text style={styles.link}>Sign in</Text>
-        </Pressable>
-      </SafeAreaView>
-    );
+    return <Redirect href="/auth" />;
   }
 
   return (

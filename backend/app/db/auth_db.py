@@ -1,13 +1,18 @@
 """OTP auth and user profiles."""
 
+import logging
 import secrets
 import uuid
 from datetime import datetime, timedelta
 from typing import Any
 
 from app.db.database import _connect
+from app.services.otp_sms import GUEST_PHONE, normalize_pk_phone, send_otp_sms, twilio_configured
+
+logger = logging.getLogger(__name__)
 
 MOCK_OTP = "1234"
+OTP_TTL_MINUTES = 10
 
 
 def init_auth_tables() -> None:
@@ -36,28 +41,97 @@ def init_auth_tables() -> None:
                 conn.execute(f"ALTER TABLE users ADD COLUMN {col} {typedef}")
 
 
+def _generate_otp() -> str:
+    return f"{secrets.randbelow(9000) + 1000:04d}"
+
+
+def _otp_expires_at() -> str:
+    return (datetime.utcnow() + timedelta(minutes=OTP_TTL_MINUTES)).isoformat() + "Z"
+
+
+def _is_expired(expires_at: str) -> bool:
+    try:
+        exp = expires_at.replace("Z", "+00:00")
+        return datetime.fromisoformat(exp) < datetime.now(datetime.utcnow().astimezone().tzinfo)
+    except Exception:
+        return True
+
+
 def send_otp(phone: str) -> dict[str, Any]:
-    phone = phone.strip()
-    expires = (datetime.utcnow() + timedelta(minutes=10)).isoformat() + "Z"
+    phone = normalize_pk_phone(phone)
+    use_twilio = twilio_configured() and phone != GUEST_PHONE
+
+    if phone == GUEST_PHONE:
+        code = MOCK_OTP
+    elif use_twilio:
+        code = _generate_otp()
+    else:
+        code = MOCK_OTP
+
+    expires = _otp_expires_at()
     with _connect() as conn:
         conn.execute(
             "INSERT OR REPLACE INTO otp_codes (phone, code, expires_at) VALUES (?, ?, ?)",
-            (phone, MOCK_OTP, expires),
+            (phone, code, expires),
         )
+
+    if use_twilio:
+        sms = send_otp_sms(phone, code)
+        if sms.get("ok"):
+            return {
+                "phone": phone,
+                "message": "Verification code sent by SMS",
+                "twilio": True,
+                "sms_sent": True,
+                "demo_mode": False,
+            }
+        logger.warning("Twilio OTP failed, falling back to demo code for %s: %s", phone, sms.get("error"))
+
     return {
         "phone": phone,
-        "message": "OTP sent (demo: use 1234 or any 4-digit code)",
+        "message": "Demo OTP — use code 1234 (configure Twilio in backend/.env for real SMS)",
         "demo_otp": MOCK_OTP,
+        "twilio": False,
+        "sms_sent": False,
+        "demo_mode": True,
     }
 
 
-def verify_otp(phone: str, otp: str, name: str | None = None) -> dict[str, Any]:
-    phone = phone.strip()
+def _validate_otp(phone: str, otp: str) -> None:
     otp = otp.strip()
-    if len(otp) == 4 and (otp == MOCK_OTP or otp.isdigit()):
-        pass
-    else:
-        raise ValueError("Invalid OTP. Use 1234 in demo mode.")
+    if not otp.isdigit() or len(otp) != 4:
+        raise ValueError("Enter the 4-digit code from your SMS")
+
+    # Judge / hackathon guest account
+    if phone == GUEST_PHONE:
+        if otp != MOCK_OTP:
+            raise ValueError("Invalid guest code")
+        return
+
+    with _connect() as conn:
+        row = conn.execute(
+            "SELECT code, expires_at FROM otp_codes WHERE phone = ?",
+            (phone,),
+        ).fetchone()
+
+    if twilio_configured():
+        if not row:
+            raise ValueError("No OTP found — tap Send OTP again")
+        if _is_expired(row["expires_at"]):
+            raise ValueError("OTP expired — request a new code")
+        if row["code"] != otp:
+            raise ValueError("Incorrect code — check your SMS and try again")
+        return
+
+    # Demo mode (no Twilio): fixed 1234 or any 4 digits for local testing
+    if otp == MOCK_OTP or otp.isdigit():
+        return
+    raise ValueError("Invalid OTP — use 1234 in demo mode")
+
+
+def verify_otp(phone: str, otp: str, name: str | None = None) -> dict[str, Any]:
+    phone = normalize_pk_phone(phone)
+    _validate_otp(phone, otp)
 
     with _connect() as conn:
         row = conn.execute("SELECT id, display_name FROM users WHERE phone = ?", (phone,)).fetchone()
@@ -113,7 +187,6 @@ def get_user_profile(user_id: str) -> dict[str, Any]:
 
 
 def update_user_profile(user_id: str, **fields: Any) -> dict[str, Any]:
-    allowed = {"display_name": "name", "location": "location", "language_pref": "language_pref"}
     with _connect() as conn:
         for key, val in fields.items():
             if val is None:

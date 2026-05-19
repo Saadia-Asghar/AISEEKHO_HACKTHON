@@ -83,11 +83,10 @@ export default function HomeScreen() {
   useEffect(() => () => cancelRecording(), []);
 
   useEffect(() => {
-    hasSeenOnboarding().then((seen) => {
-      if (!seen) setShowGuide(true);
-    });
     getSession().then(async (s) => {
       if (!s) return;
+      const seen = await hasSeenOnboarding();
+      if (!seen) setShowGuide(true);
       setName(s.name);
       try {
         setContacted(await getContactedWorkers(s.userId));

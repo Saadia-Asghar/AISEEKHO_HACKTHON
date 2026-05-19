@@ -102,7 +102,7 @@ export default function AuthScreen() {
       }
       showToast(`Welcome!`);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      router.replace('/');
+      router.replace('/(tabs)');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Verification failed');
     } finally {
@@ -125,7 +125,7 @@ export default function AuthScreen() {
       });
       showToast('Welcome! Tap ❓ on Home for a tour');
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      router.replace('/');
+      router.replace('/(tabs)');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not continue — is the backend running?');
     } finally {
