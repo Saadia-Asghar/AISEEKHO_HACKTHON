@@ -1,6 +1,6 @@
 # KhidmatAI — Hackathon submission (team lead)
 
-**Deadline:** Wednesday 20 May 2026 (end of day) — final.  
+**Deadline:** Wednesday 20 May 2026 (end of day)  
 **Videos (you record):** Demo 3–5 min · Antigravity 2–3 min  
 
 **Copy-paste form answers:** [HACKATHON_FORM_ANSWERS.md](./HACKATHON_FORM_ANSWERS.md)
@@ -24,58 +24,41 @@
 
 ---
 
-## Make the mobile/web link work (required)
+## Fix Vercel 404 (if you see NOT_FOUND)
 
-The UI is on Vercel; **search/booking needs a public API**.
+Deployment was **Ready** but empty because Vercel did not run the web build (`dist/` is not in Git).
 
-### Step A — Deploy API on Render (~10 min)
+1. **Push latest `main`** (includes `buildCommand` in root `vercel.json`).
+2. Vercel → **aiseekho-hackthon** → **Settings** → **General**:
+   - **Root Directory:** leave **empty** (repository root).
+   - **Framework Preset:** Other (or None).
+3. **Environment variables** → add:
+   - `EXPO_PUBLIC_API_URL` = your public API (e.g. `https://khidmatai-api.onrender.com`)
+4. **Deployments** → **Redeploy** (check build logs show `expo export -p web` and `Exported: dist`).
+5. Open https://aiseekho-hackthon.vercel.app — you should see the **KhidmatAI login**, not 404.
 
-1. Go to [render.com](https://render.com) → **New** → **Blueprint** → connect repo `Saadia-Asghar/AISEEKHO_HACKTHON`.
-2. Use root file `render.yaml` (creates `khidmatai-api`).
-3. Add env vars: `GOOGLE_API_KEY`, `GOOGLE_MAPS_API_KEY` (from `backend/.env`).
-4. After deploy, open: `https://khidmatai-api.onrender.com/health` → should show `"agents": 6`.
+---
 
-### Step B — Vercel env + redeploy (~2 min)
+## Deploy API (so search/booking work)
 
-1. [vercel.com](https://vercel.com) → project **aiseekho-hackthon** → **Settings** → **Environment Variables**
-2. Set `EXPO_PUBLIC_API_URL` = `https://khidmatai-api.onrender.com` (your Render URL)
-3. **Deployments** → latest → **Redeploy**
+1. [render.com](https://render.com) → **Blueprint** → repo `AISEEKHO_HACKTHON` → `render.yaml`
+2. Set `GOOGLE_API_KEY`, `GOOGLE_MAPS_API_KEY`
+3. Test: `https://YOUR-SERVICE.onrender.com/health` → `"agents": 6`
+4. Put that URL in Vercel as `EXPO_PUBLIC_API_URL` → **Redeploy**
 
-If you see **404** on Vercel: push latest `main`, confirm **Root Directory** is empty (repo root), and redeploy.
+---
 
-### Step C — Antigravity ZIP
+## Antigravity ZIP
 
 ```powershell
 cd d:\project
 .\scripts\package-antigravity-traces.ps1
 ```
 
-Upload `d:\project\dist\khidmatai-antigravity-traces.zip` to Google Drive (anyone with link).
+Upload `d:\project\dist\khidmatai-antigravity-traces.zip` to Google Drive.
 
 ---
 
 ## Team form
 
-- All member names on Challenge 2  
-- CNIC front + back per member  
-
----
-
-## Demo script (videos)
-
-1. “Mujhe kal subah G-13 mein AC technician chahiye”  
-2. Results, map, match % → Pay → credentials → **Payment successful** → confirm screen  
-3. **Trace** tab — 6 Antigravity nodes  
-4. **Bookings** — Reschedule  
-5. Antigravity video: IDE + `GET /api/antigravity/workflow`
-
----
-
-## Verify before submit
-
-```powershell
-cd d:\project\backend
-python -m pytest tests/ -q
-```
-
-Smoke: open mobile URL → login → search → book → trace → logout.
+All member names + CNIC front/back per member.

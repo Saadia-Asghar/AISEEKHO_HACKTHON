@@ -17,7 +17,8 @@ Vercel was likely building the **repo root**, which has no `index.html`. Use the
 
 1. **Push to `main`** (required): root `package.json` (`vercel-build`), `vercel.json`, `khidmat-ai/mobile/package.json` (`build:web`). If these are only on your laptop, Vercel keeps serving **404** with no app files.
 2. **Vercel → Project → Settings → General**
-   - **Root Directory:** **empty** (repo root). Do **not** point at `khidmat-ai/web` (Next dashboard only).
+   - **Root Directory:** **empty** (repo root). Do **not** point at `khidmat-ai/mobile` or `khidmat-ai/web`.
+   - Root `vercel.json` must include `buildCommand` (runs `expo export -p web` → `khidmat-ai/mobile/dist`).
 3. **Environment variables** (Production + Preview):
    - `EXPO_PUBLIC_API_URL` = `https://your-backend.example.com` (not `127.0.0.1`)
 4. **Redeploy** (Deployments → … → Redeploy).

@@ -1,6 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
+  "installCommand": "npm install --prefix khidmat-ai/mobile",
+  "buildCommand": "npm run build:web --prefix khidmat-ai/mobile",
   "outputDirectory": "khidmat-ai/mobile/dist",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
