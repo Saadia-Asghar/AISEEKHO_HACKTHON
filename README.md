@@ -8,7 +8,6 @@
 
 | | |
 |---|---|
-| **Published Framer Prototype** | [https://splendid-gibbon-403400.framer.app](https://splendid-gibbon-403400.framer.app) |
 | **UX & Visual Aesthetics** | Sleek glassmorphism, responsive Urdu/English toggle, custom voice record visualizers. |
 | **Harmonious Palette** | HSL tailored slate/violet base with jade/amber accents (`khidmat-ai/mobile/constants/theme.ts`) |
 
