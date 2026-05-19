@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  Alert,
-  Linking,
   Modal,
   Pressable,
   ScrollView,
@@ -17,7 +15,7 @@ import * as Haptics from 'expo-haptics';
 import type { AppColors } from '../../constants/theme';
 import { fonts, gradients, radius, spacing } from '../../constants/theme';
 import { useTheme } from '../../lib/ThemeContext';
-import { clearSession, getSession, type Session } from '../../lib/auth';
+import { getSession, logout, type Session } from '../../lib/auth';
 import { deleteUserAccount, getBookings, getUserReviews } from '../../api/client';
 import { useI18n } from '../../lib/i18n';
 import type { Lang } from '../../constants/i18n';
@@ -103,6 +101,8 @@ export default function ProfileScreen() {
   const [showReviews, setShowReviews] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const load = useCallback(async () => {
     const s = await getSession();
@@ -132,18 +132,19 @@ export default function ProfileScreen() {
 
   const bookingsDisplay = bookingsCount !== null ? String(bookingsCount) : '—';
 
-  const confirmLogout = () => {
-    Alert.alert('Logout', 'Are you sure you want to logout?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Logout',
-        style: 'destructive',
-        onPress: async () => {
-          await clearSession();
-          router.replace('/auth');
-        },
-      },
-    ]);
+  const performLogout = async () => {
+    if (loggingOut) return;
+    setLoggingOut(true);
+    try {
+      setShowLogoutModal(false);
+      setSession(null);
+      await logout();
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } catch {
+      showToast('Could not log out — try again');
+    } finally {
+      setLoggingOut(false);
+    }
   };
 
   if (!session) {
@@ -256,7 +257,7 @@ export default function ProfileScreen() {
           </View>
         ) : null}
 
-        <Pressable style={styles.actionCard} onPress={confirmLogout}>
+        <Pressable style={styles.actionCard} onPress={() => setShowLogoutModal(true)}>
           <Text style={styles.logoutIcon}>🚪</Text>
           <Text style={styles.logoutText}>Logout</Text>
         </Pressable>
@@ -281,6 +282,25 @@ export default function ProfileScreen() {
 
       <OnboardingModal visible={showGuide} onClose={() => setShowGuide(false)} />
 
+      <Modal visible={showLogoutModal} transparent animationType="fade" onRequestClose={() => setShowLogoutModal(false)}>
+        <Pressable style={styles.modalBackdrop} onPress={() => setShowLogoutModal(false)}>
+          <Pressable style={styles.modalCard} onPress={(e) => e.stopPropagation()}>
+            <Text style={styles.modalTitle}>Log out?</Text>
+            <Text style={styles.modalBody}>You will need to sign in again to book services.</Text>
+            <Pressable
+              style={styles.modalDeleteBtn}
+              onPress={performLogout}
+              disabled={loggingOut}
+            >
+              <Text style={styles.modalDeleteLabel}>{loggingOut ? '…' : 'Log out'}</Text>
+            </Pressable>
+            <Pressable style={styles.modalCancelBtn} onPress={() => setShowLogoutModal(false)}>
+              <Text style={styles.modalCancelLabel}>Cancel</Text>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
       <Modal visible={showDeleteModal} transparent animationType="fade" onRequestClose={() => setShowDeleteModal(false)}>
         <Pressable style={styles.modalBackdrop} onPress={() => setShowDeleteModal(false)}>
           <Pressable style={styles.modalCard} onPress={(e) => e.stopPropagation()}>
@@ -298,9 +318,9 @@ export default function ProfileScreen() {
                 setShowDeleteModal(false);
                 try {
                   await deleteUserAccount(session.userId);
-                  await clearSession();
+                  setSession(null);
                   showToast('Account deleted');
-                  router.replace('/auth');
+                  await logout();
                 } catch {
                   showToast('Could not delete account');
                 }

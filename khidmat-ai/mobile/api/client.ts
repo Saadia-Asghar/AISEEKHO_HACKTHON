@@ -23,7 +23,8 @@ api.interceptors.response.use(
   async (error: AxiosError) => {
     if (error.response?.status === 401) {
       const session = await getSession();
-      if (session?.token && session.token !== 'mock') {
+      const detail = String((error.response?.data as { detail?: string })?.detail ?? '');
+      if (session?.token && detail.toLowerCase().includes('invalid')) {
         await clearSession();
         router.replace('/auth');
       }
@@ -268,6 +269,35 @@ export async function getServiceCategories() {
   return data;
 }
 
+export type ListedProvider = ProviderSummary & {
+  bio?: string;
+  service_label?: string;
+  review_count?: number;
+  verified?: boolean;
+};
+
+export async function listProvidersByCategory(
+  category: string,
+  area: string,
+  opts?: { userLat?: number; userLng?: number; limit?: number }
+) {
+  const { data } = await api.get<{
+    category: string;
+    area: string;
+    count: number;
+    providers: ListedProvider[];
+  }>('/api/providers/list', {
+    params: {
+      category,
+      area,
+      lat: opts?.userLat,
+      lng: opts?.userLng,
+      limit: opts?.limit ?? 50,
+    },
+  });
+  return data;
+}
+
 export async function getSuggestions(hour: number) {
   const { data } = await api.get<{ suggestions: Array<{ service_type: string; label: string }> }>(
     '/api/suggestions',
@@ -296,6 +326,16 @@ export async function confirmBooking(id: string) {
 
 export type PaymentMethod = 'card' | 'jazzcash' | 'easypaisa' | 'cash';
 
+export type PaymentCredentialsBody =
+  | {
+      card_number: string;
+      cardholder_name: string;
+      expiry: string;
+      cvv: string;
+    }
+  | { phone: string; pin: string }
+  | { cash_confirmed: boolean };
+
 export async function confirmPayment(body: {
   payment_id: string;
   booking_id: string;
@@ -303,6 +343,7 @@ export async function confirmPayment(body: {
   user_id?: string;
   customer_phone?: string;
   stripe_payment_intent_id?: string;
+  credentials?: PaymentCredentialsBody;
 }) {
   try {
     const { data } = await api.post<{

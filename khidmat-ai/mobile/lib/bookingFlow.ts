@@ -3,9 +3,11 @@ import * as Haptics from 'expo-haptics';
 import {
   confirmPayment,
   createBookingFromDiscover,
+  type PaymentCredentialsBody,
   type PaymentMethod,
   type ProviderSummary,
 } from '../api/client';
+import type { PaymentCredentialsPayload } from './paymentCredentials';
 import { getSession } from './auth';
 import { useBookingStore } from './store';
 import { showToast } from './toastStore';
@@ -94,6 +96,7 @@ export async function completeCheckout(method: PaymentMethod): Promise<boolean> 
     user_id: session.userId,
     customer_phone: session.phone,
     stripe_payment_intent_id: full.payment.stripe_payment_intent_id,
+    credentials: toApiCredentials(credentials),
   });
 
   const mergedNotifications = [

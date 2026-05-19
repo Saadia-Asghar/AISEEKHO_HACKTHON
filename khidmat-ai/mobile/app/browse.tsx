@@ -16,26 +16,23 @@ import ThemedSafeArea from '../components/ThemedSafeArea';
 import { getServiceCategories, type ServiceCategory } from '../api/client';
 import { useBookingStore } from '../lib/store';
 import { useI18n } from '../lib/i18n';
-import { formatCategorySearch, runDiscoverSearch } from '../lib/discoverSearch';
 import StitchAppHeader from '../components/stitch/StitchAppHeader';
 import StitchGlassCard from '../components/stitch/StitchGlassCard';
 import SearchFilterDropdown from '../components/SearchFilterDropdown';
 import { useTheme } from '../lib/ThemeContext';
 import ShimmerOverlay from '../components/ShimmerOverlay';
 import SecLabel from '../components/ui/SecLabel';
-import { showToast } from '../lib/toastStore';
 
 export default function BrowseScreen() {
   const { colors } = useTheme();
   const styles = useMemo(() => browseStyles(colors), [colors]);
   const { category: preselect } = useLocalSearchParams<{ category?: string }>();
-  const { t, lang } = useI18n();
+  const { t } = useI18n();
   const { loading, searchFilters, setSearchFilters } = useBookingStore();
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
   const [fetching, setFetching] = useState(true);
-  const [area, setArea] = useState('G-13');
+  const [area, setArea] = useState('');
   const [query, setQuery] = useState('');
-  const submitting = useRef(false);
 
   useEffect(() => {
     getServiceCategories()
@@ -54,22 +51,20 @@ export default function BrowseScreen() {
     );
   }, [categories, query]);
 
-  const onCategory = useCallback(
-    async (cat: ServiceCategory) => {
-      if (submitting.current || loading) return;
-      submitting.current = true;
-      try {
-        const template = lang === 'ur' ? cat.search_template_ur : cat.search_template_en;
-        const text = formatCategorySearch(template, area);
-        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        await runDiscoverSearch(text, lang, t);
-      } catch {
-        showToast(t('connect_error'));
-      } finally {
-        submitting.current = false;
-      }
+  const openWorkers = useCallback(
+    (cat: ServiceCategory) => {
+      if (loading) return;
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      router.push({
+        pathname: '/workers',
+        params: {
+          category: cat.id,
+          label: cat.label,
+          area: area.trim(),
+        },
+      });
     },
-    [area, lang, loading, t]
+    [area, loading]
   );
 
   const autoRan = useRef(false);
@@ -78,9 +73,9 @@ export default function BrowseScreen() {
     const cat = categories.find((c) => c.id === preselect);
     if (cat) {
       autoRan.current = true;
-      onCategory(cat);
+      openWorkers(cat);
     }
-  }, [preselect, fetching, categories, onCategory]);
+  }, [preselect, fetching, categories, openWorkers]);
 
   return (
     <ThemedSafeArea edges={['top', 'bottom']}>
@@ -124,7 +119,7 @@ export default function BrowseScreen() {
                 <Pressable
                   key={cat.id}
                   style={({ pressed }) => [styles.tile, pressed && styles.tilePressed]}
-                  onPress={() => onCategory(cat)}
+                  onPress={() => openWorkers(cat)}
                   disabled={loading}
                 >
                   <Text style={styles.emoji}>{cat.emoji}</Text>

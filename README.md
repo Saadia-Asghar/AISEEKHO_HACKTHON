@@ -108,10 +108,10 @@ To deliver premium agentic performance, KhidmatAI registers and leverages the fo
 
 ## 🚀 One-Click Developer Setup
 
-Ensure you have your active keys configured in `backend/.env`:
+Copy `backend/.env.example` → `backend/.env` and set your keys (never commit real keys):
 ```env
-GOOGLE_API_KEY=AIzaSyD0Nfq9Sl0C7pDizsgG3q21E1vPr3zJ5Fg
-GOOGLE_MAPS_API_KEY=AIzaSyBHgtKHUb8USWB1MMsul2IwOu9iWJpnROk
+GOOGLE_API_KEY=your_gemini_key
+GOOGLE_MAPS_API_KEY=your_maps_key
 ```
 
 Start the entire system locally:
@@ -123,6 +123,20 @@ Start the entire system locally:
 *   **FastAPI Backend**: [http://127.0.0.1:8000](http://127.0.0.1:8000)
 *   **Interactive Web Dashboard**: [http://localhost:3000](http://localhost:3000)
 *   **Demo Bypass Phone**: `+923000000000` / OTP `1234` (or click **Skip** at auth)
+
+---
+
+## 📦 Hackathon submission (team lead)
+
+See **[docs/SUBMISSION.md](docs/SUBMISSION.md)** for the form checklist, links table, and Antigravity ZIP instructions.
+
+| Deliverable | Location |
+|-------------|----------|
+| GitHub | This repository |
+| README / architecture | This file + `docs/DEPLOY.md` |
+| Antigravity traces ZIP | `.\scripts\package-antigravity-traces.ps1` → `dist/khidmatai-antigravity-traces.zip` |
+| Web (optional) | Vercel — see `docs/DEPLOY.md` |
+| Demo + Antigravity videos | Recorded by team (3–5 min + 2–3 min) |
 
 ---
 

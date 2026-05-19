@@ -43,6 +43,15 @@ export async function clearSession() {
   await AsyncStorage.multiRemove([TOKEN, USER_ID, NAME, PHONE]);
 }
 
+/** Clear session + app state and go to sign-in (works on web; Alert.alert does not). */
+export async function logout() {
+  const { router } = await import('expo-router');
+  const { useBookingStore } = await import('./store');
+  await clearSession();
+  useBookingStore.getState().reset();
+  router.replace('/auth');
+}
+
 export async function getLang(): Promise<'en' | 'ur'> {
   const v = await AsyncStorage.getItem(LANG);
   return v === 'ur' ? 'ur' : 'en';

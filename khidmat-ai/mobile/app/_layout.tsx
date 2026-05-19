@@ -41,7 +41,7 @@ export default function RootLayout() {
     return () => {
       cancelled = true;
     };
-  }, [ready, segments]);
+  }, [ready, segments, router]);
 
   if (!ready) {
     return (
@@ -85,6 +85,7 @@ function ThemedRoot({ authed: _authed }: { authed: boolean }) {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="auth" options={{ headerShown: false }} />
         <Stack.Screen name="browse" options={{ title: 'Browse', headerShown: false }} />
+        <Stack.Screen name="workers" options={{ title: 'Workers', headerShown: false }} />
         <Stack.Screen name="results" options={{ title: 'Results', headerShown: false }} />
         <Stack.Screen name="payment" options={{ title: 'Payment', headerShown: false }} />
         <Stack.Screen name="payment-methods" options={{ title: 'Payment Methods', headerShown: false }} />

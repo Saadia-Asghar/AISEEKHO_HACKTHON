@@ -70,6 +70,7 @@ app.include_router(discover.router)
 app.include_router(pricing_router.router)
 app.include_router(services_router.router)
 app.include_router(admin.router)
+app.include_router(antigravity.router)
 
 
 @app.get("/health")
@@ -78,8 +79,8 @@ def health():
         "status": "ok",
         "product": "HazirAI",
         "tagline": "Bolein, Hum Karein",
-        "platform": "FastAPI + 5-agent orchestrator",
-        "agents": 5,
+        "platform": "FastAPI + 6-node Antigravity orchestrator",
+        "agents": 6,
         "providers": 30,
         "gemini_configured": bool(os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")),
         "google_maps_configured": bool(os.getenv("GOOGLE_MAPS_API_KEY")),

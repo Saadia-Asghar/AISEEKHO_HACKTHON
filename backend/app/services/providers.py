@@ -91,3 +91,40 @@ def list_nearby(service_type: str | None, lat: float | None, lng: float | None, 
         out.append(e)
     out.sort(key=lambda x: x["distance_km"])
     return out[:limit]
+
+
+def list_by_category(
+    category: str,
+    area: str = "",
+    lat: float | None = None,
+    lng: float | None = None,
+    limit: int = 50,
+) -> list[dict[str, Any]]:
+    """All providers for a service category; empty area = all matching workers city-wide."""
+    from app.services.geo import haversine_km, resolve_user_coords
+
+    area_clean = (area or "").strip()
+    if lat is not None and lng is not None:
+        ulat, ulng = float(lat), float(lng)
+    elif area_clean:
+        ulat, ulng = resolve_user_coords(area_clean)
+    else:
+        ulat, ulng = 33.6844, 73.0479  # Islamabad — show all category workers when no area filter
+
+    max_km = 25.0 if not area_clean else 20.0
+
+    out: list[dict[str, Any]] = []
+    for p in _load_all():
+        cats = p.get("categories", [p["category"]])
+        if category and category not in cats and p.get("category") != category:
+            continue
+        dist = haversine_km(ulat, ulng, p["lat"], p["lng"])
+        if dist > max_km:
+            continue
+        e = enrich_provider(p)
+        e["distance_km"] = round(dist, 1)
+        e["area"] = p.get("area", "")
+        out.append(e)
+
+    out.sort(key=lambda x: (x["distance_km"], -(x.get("rating") or 0)))
+    return out[:limit]

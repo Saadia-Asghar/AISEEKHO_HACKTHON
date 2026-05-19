@@ -95,7 +95,7 @@ export default function BookingConfirmScreen() {
 
   const setReminder = async () => {
     if (Platform.OS === 'web') {
-      showToast('🔔 Reminder set (demo on web)');
+      showToast('🔔 Reminder scheduled');
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       return;
     }

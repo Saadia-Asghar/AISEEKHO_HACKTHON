@@ -4,7 +4,7 @@ import type { AppColors } from '../constants/theme';
 import { fonts, radius, spacing } from '../constants/theme';
 import { useTheme } from '../lib/ThemeContext';
 import type { MapMarker } from '../api/client';
-import { googleStaticMapUrl, openStreetMapEmbedUrl } from '../lib/staticMap';
+import { openStreetMapEmbedUrl, resolveGoogleMapUrl } from '../lib/staticMap';
 
 let MapEmbed: React.ComponentType<{
   googleUrl: string | null;

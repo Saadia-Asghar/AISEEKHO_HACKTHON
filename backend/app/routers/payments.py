@@ -7,7 +7,7 @@ from app.db import bookings_db, payments_db
 from app.db.database import _connect
 from app.models.schemas import ConfirmPaymentRequest, NotificationResult
 from app.services import notifications as notify
-from app.services.payments import confirm_payment
+from app.services.payments import confirm_payment, process_payment_credentials
 
 router = APIRouter(prefix="/api/payments", tags=["payments"])
 
@@ -41,6 +41,19 @@ def confirm_booking_payment(body: ConfirmPaymentRequest):
         providers = {p["id"]: p for p in json.load(f)}
     provider_phone = providers.get(row["provider_id"], {}).get("phone", "+92-300-0000000")
 
+    pay_row = payments_db.get_payment_by_booking(body.booking_id)
+    amount = int(pay_row["amount_pkr"]) if pay_row else 1500
+
+    try:
+        auth = process_payment_credentials(
+            body.method,
+            body.credentials,
+            amount,
+            body.payment_id,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=402, detail=str(e)) from e
+
     result = confirm_payment(
         body.payment_id,
         body.booking_id,
@@ -49,10 +62,9 @@ def confirm_booking_payment(body: ConfirmPaymentRequest):
     )
     if not result.get("paid"):
         raise HTTPException(status_code=402, detail="Payment not completed")
+    result["authorization"] = auth
 
     payments_db.mark_payment_paid(body.payment_id)
-    pay_row = payments_db.get_payment_by_booking(body.booking_id)
-    amount = int(pay_row["amount_pkr"]) if pay_row else 1500
     payments_db.update_booking_payment(body.booking_id, "paid", amount)
     bookings_db.confirm_booking(body.booking_id)
 

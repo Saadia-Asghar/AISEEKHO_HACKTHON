@@ -261,6 +261,16 @@ class SyncClerkRequest(BaseModel):
     phone: str | None = None
 
 
+class PaymentCredentials(BaseModel):
+    card_number: str | None = None
+    cardholder_name: str | None = None
+    expiry: str | None = None
+    cvv: str | None = None
+    phone: str | None = None
+    pin: str | None = None
+    cash_confirmed: bool | None = None
+
+
 class ConfirmPaymentRequest(BaseModel):
     payment_id: str
     booking_id: str
@@ -268,6 +278,7 @@ class ConfirmPaymentRequest(BaseModel):
     user_id: str | None = None
     customer_phone: str | None = None
     stripe_payment_intent_id: str | None = None
+    credentials: PaymentCredentials | None = None
     notify_channels: list[str] = Field(default_factory=lambda: ["sms", "whatsapp"])
 
 

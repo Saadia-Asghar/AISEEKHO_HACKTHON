@@ -16,10 +16,8 @@ def require_user_id(authorization: str | None = Header(None, alias="Authorizatio
 
 
 def optional_user_id(authorization: str | None = Header(None, alias="Authorization")) -> str | None:
+    """Invalid/expired Bearer is ignored (returns None) so discover still works for demo."""
     if not authorization or not authorization.startswith("Bearer "):
         return None
     token = authorization.removeprefix("Bearer ").strip()
-    uid = auth_db.get_user_by_token(token)
-    if authorization and not uid:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
-    return uid
+    return auth_db.get_user_by_token(token)

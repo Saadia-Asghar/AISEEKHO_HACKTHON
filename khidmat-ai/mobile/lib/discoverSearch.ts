@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { discover } from '../api/client';
-import { getSession } from './auth';
+import { clearSession, getSession } from './auth';
 import { getUserCoords } from './location';
 import { addRecentSearch } from './searchHistory';
 import { priceSortFromFilters } from '../components/SearchFilterDropdown';
@@ -69,7 +69,12 @@ export async function runDiscoverSearch(
     router.push('/results');
     return true;
   } catch (e) {
-    const msg = e instanceof Error ? e.message : 'Connection error — tap to retry';
+    let msg = e instanceof Error ? e.message : 'Connection error — tap to retry';
+    if (/invalid|expired token|401/i.test(msg)) {
+      await clearSession();
+      msg = t('auth_expired');
+      router.replace('/auth');
+    }
     setError(msg);
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     throw e;

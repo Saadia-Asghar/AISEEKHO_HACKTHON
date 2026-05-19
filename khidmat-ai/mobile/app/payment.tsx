@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import PaymentCredentialsSheet from '../components/PaymentCredentialsSheet';
+import type { PaymentCredentialsPayload } from '../lib/paymentCredentials';
 import { router } from 'expo-router';
 import type { AppColors } from '../constants/theme';
 import { fonts, radius, spacing } from '../constants/theme';
@@ -30,6 +32,7 @@ export default function PaymentScreen() {
   const { t } = useI18n();
   const [method, setMethod] = useState<PaymentMethod>('card');
   const [paying, setPaying] = useState(false);
+  const [credSheet, setCredSheet] = useState(false);
 
   const provider = getSelectedProvider();
 
@@ -117,9 +120,17 @@ export default function PaymentScreen() {
 
           <Button
             label={t('payment_confirm')}
-            onPress={onPay}
+            onPress={onPayPress}
             loading={paying}
             style={{ width: '100%', marginTop: spacing.md }}
+          />
+          <PaymentCredentialsSheet
+            visible={credSheet}
+            method={method}
+            amountLabel={estimate}
+            onClose={() => setCredSheet(false)}
+            onSubmit={onCredentialsSubmit}
+            processing={paying}
           />
           <Pressable onPress={() => router.back()} style={styles.backLink}>
             <Text style={styles.backText}>← {t('change_provider')}</Text>

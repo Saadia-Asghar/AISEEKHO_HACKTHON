@@ -1,0 +1,859 @@
+{
+  "session_id": "5ccc58e8-26a8-4dab-9751-b588c4fef453",
+  "intent": {
+    "raw_message": "Mujhe kal subah G-13 mein AC technician chahiye",
+    "language": "roman_urdu",
+    "service_type": "ac_technician",
+    "service_label": "AC Technician",
+    "location": "G-13",
+    "time_expression": "Tomorrow morning",
+    "parsed_datetime_hint": "tomorrow_morning",
+    "urgency": false
+  },
+  "candidates": [
+    {
+      "id": "h21",
+      "name": "\u0648\u0627\u0642\u0633 HVAC",
+      "category": "ac_technician",
+      "area": "G-9",
+      "distance_km": 0.5,
+      "rating": 4.95,
+      "reviews": 28,
+      "available_slots": [
+        "09:00",
+        "11:00",
+        "14:00",
+        "16:00"
+      ],
+      "phone": "+92-386-6438436",
+      "available_now": true,
+      "lat": 33.682,
+      "lng": 72.9826,
+      "price_min_pkr": 2200,
+      "price_max_pkr": 4086,
+      "verified": true,
+      "score": 9.56,
+      "rank_reason": "Total 9.56/10 \u2014 distance 0.5km \u2192 3.6 (40%), rating 4.95\u2605 \u2192 3.46 (35%), availability \u2192 2.5 (25%)",
+      "score_breakdown": {
+        "distance_40pct": 3.6,
+        "rating_35pct": 3.46,
+        "availability_25pct": 2.5
+      },
+      "effective_rating": 4.95,
+      "is_saved": false,
+      "your_rating": null,
+      "contacted_before": false
+    },
+    {
+      "id": "h27",
+      "name": "\u0639\u0627\u062f\u0644 AC \u0645\u0627\u0633\u0679\u0631",
+      "category": "ac_technician",
+      "area": "G-13",
+      "distance_km": 0.4,
+      "rating": 4.0,
+      "reviews": 70,
+      "available_slots": [
+        "09:00",
+        "11:00",
+        "14:00",
+        "16:00"
+      ],
+      "phone": "+92-385-4694634",
+      "available_now": true,
+      "lat": 33.6809,
+      "lng": 72.9766,
+      "price_min_pkr": 2200,
+      "price_max_pkr": 4134,
+      "verified": false,
+      "score": 8.98,
+      "rank_reason": "Total 8.98/10 \u2014 distance 0.4km \u2192 3.68 (40%), rating 4.0\u2605 \u2192 2.8 (35%), availability \u2192 2.5 (25%)",
+      "score_breakdown": {
+        "distance_40pct": 3.68,
+        "rating_35pct": 2.8,
+        "availability_25pct": 2.5
+      },
+      "effective_rating": 4.0,
+      "is_saved": false,
+      "your_rating": null,
+      "contacted_before": false
+    },
+    {
+      "id": "h9",
+      "name": "\u06a9\u0627\u0645\u0631\u0627\u0646 \u06a9\u0648\u0644\u0646\u06af",
+      "category": "ac_technician",
+      "area": "F-10",
+      "distance_km": 3.9,
+      "rating": 4.0,
+      "reviews": 102,
+      "available_slots": [
+        "09:00",
+        "11:00",
+        "14:00",
+        "16:00"
+      ],
+      "phone": "+92-336-5479144",
+      "available_now": true,
+      "lat": 33.6914,
+      "lng": 73.0202,
+      "price_min_pkr": 2200,
+      "price_max_pkr": 3758,
+      "verified": false,
+      "score": 6.18,
+      "rank_reason": "Total 6.18/10 \u2014 distance 3.9km \u2192 0.88 (40%), rating 4.0\u2605 \u2192 2.8 (35%), availability \u2192 2.5 (25%)",
+      "score_breakdown": {
+        "distance_40pct": 0.88,
+        "rating_35pct": 2.8,
+        "availability_25pct": 2.5
+      },
+      "effective_rating": 4.0,
+      "is_saved": false,
+      "your_rating": null,
+      "contacted_before": false
+    }
+  ],
+  "top_three": [
+    {
+      "id": "h21",
+      "name": "\u0648\u0627\u0642\u0633 HVAC",
+      "category": "ac_technician",
+      "area": "G-9",
+      "distance_km": 0.5,
+      "rating": 4.95,
+      "reviews": 28,
+      "available_slots": [
+        "09:00",
+        "11:00",
+        "14:00",
+        "16:00"
+      ],
+      "phone": "+92-386-6438436",
+      "available_now": true,
+      "lat": 33.682,
+      "lng": 72.9826,
+      "price_min_pkr": 2200,
+      "price_max_pkr": 4086,
+      "verified": true,
+      "score": 9.56,
+      "rank_reason": "Total 9.56/10 \u2014 distance 0.5km \u2192 3.6 (40%), rating 4.95\u2605 \u2192 3.46 (35%), availability \u2192 2.5 (25%)",
+      "score_breakdown": {
+        "distance_40pct": 3.6,
+        "rating_35pct": 3.46,
+        "availability_25pct": 2.5
+      },
+      "effective_rating": 4.95,
+      "is_saved": false,
+      "your_rating": null,
+      "contacted_before": false
+    },
+    {
+      "id": "h27",
+      "name": "\u0639\u0627\u062f\u0644 AC \u0645\u0627\u0633\u0679\u0631",
+      "category": "ac_technician",
+      "area": "G-13",
+      "distance_km": 0.4,
+      "rating": 4.0,
+      "reviews": 70,
+      "available_slots": [
+        "09:00",
+        "11:00",
+        "14:00",
+        "16:00"
+      ],
+      "phone": "+92-385-4694634",
+      "available_now": true,
+      "lat": 33.6809,
+      "lng": 72.9766,
+      "price_min_pkr": 2200,
+      "price_max_pkr": 4134,
+      "verified": false,
+      "score": 8.98,
+      "rank_reason": "Total 8.98/10 \u2014 distance 0.4km \u2192 3.68 (40%), rating 4.0\u2605 \u2192 2.8 (35%), availability \u2192 2.5 (25%)",
+      "score_breakdown": {
+        "distance_40pct": 3.68,
+        "rating_35pct": 2.8,
+        "availability_25pct": 2.5
+      },
+      "effective_rating": 4.0,
+      "is_saved": false,
+      "your_rating": null,
+      "contacted_before": false
+    },
+    {
+      "id": "h9",
+      "name": "\u06a9\u0627\u0645\u0631\u0627\u0646 \u06a9\u0648\u0644\u0646\u06af",
+      "category": "ac_technician",
+      "area": "F-10",
+      "distance_km": 3.9,
+      "rating": 4.0,
+      "reviews": 102,
+      "available_slots": [
+        "09:00",
+        "11:00",
+        "14:00",
+        "16:00"
+      ],
+      "phone": "+92-336-5479144",
+      "available_now": true,
+      "lat": 33.6914,
+      "lng": 73.0202,
+      "price_min_pkr": 2200,
+      "price_max_pkr": 3758,
+      "verified": false,
+      "score": 6.18,
+      "rank_reason": "Total 6.18/10 \u2014 distance 3.9km \u2192 0.88 (40%), rating 4.0\u2605 \u2192 2.8 (35%), availability \u2192 2.5 (25%)",
+      "score_breakdown": {
+        "distance_40pct": 0.88,
+        "rating_35pct": 2.8,
+        "availability_25pct": 2.5
+      },
+      "effective_rating": 4.0,
+      "is_saved": false,
+      "your_rating": null,
+      "contacted_before": false
+    }
+  ],
+  "top_rated": [
+    {
+      "id": "h21",
+      "name": "\u0648\u0627\u0642\u0633 HVAC",
+      "category": "ac_technician",
+      "area": "G-9",
+      "distance_km": 0.5,
+      "rating": 4.95,
+      "reviews": 28,
+      "available_slots": [
+        "09:00",
+        "11:00",
+        "14:00",
+        "16:00"
+      ],
+      "phone": "+92-386-6438436",
+      "available_now": true,
+      "lat": 33.682,
+      "lng": 72.9826,
+      "price_min_pkr": 2200,
+      "price_max_pkr": 4086,
+      "verified": true,
+      "score": 9.56,
+      "rank_reason": "Total 9.56/10 \u2014 distance 0.5km \u2192 3.6 (40%), rating 4.95\u2605 \u2192 3.46 (35%), availability \u2192 2.5 (25%)",
+      "score_breakdown": {
+        "distance_40pct": 3.6,
+        "rating_35pct": 3.46,
+        "availability_25pct": 2.5
+      },
+      "effective_rating": 4.95,
+      "is_saved": false,
+      "your_rating": null,
+      "contacted_before": false
+    },
+    {
+      "id": "h27",
+      "name": "\u0639\u0627\u062f\u0644 AC \u0645\u0627\u0633\u0679\u0631",
+      "category": "ac_technician",
+      "area": "G-13",
+      "distance_km": 0.4,
+      "rating": 4.0,
+      "reviews": 70,
+      "available_slots": [
+        "09:00",
+        "11:00",
+        "14:00",
+        "16:00"
+      ],
+      "phone": "+92-385-4694634",
+      "available_now": true,
+      "lat": 33.6809,
+      "lng": 72.9766,
+      "price_min_pkr": 2200,
+      "price_max_pkr": 4134,
+      "verified": false,
+      "score": 8.98,
+      "rank_reason": "Total 8.98/10 \u2014 distance 0.4km \u2192 3.68 (40%), rating 4.0\u2605 \u2192 2.8 (35%), availability \u2192 2.5 (25%)",
+      "score_breakdown": {
+        "distance_40pct": 3.68,
+        "rating_35pct": 2.8,
+        "availability_25pct": 2.5
+      },
+      "effective_rating": 4.0,
+      "is_saved": false,
+      "your_rating": null,
+      "contacted_before": false
+    },
+    {
+      "id": "h9",
+      "name": "\u06a9\u0627\u0645\u0631\u0627\u0646 \u06a9\u0648\u0644\u0646\u06af",
+      "category": "ac_technician",
+      "area": "F-10",
+      "distance_km": 3.9,
+      "rating": 4.0,
+      "reviews": 102,
+      "available_slots": [
+        "09:00",
+        "11:00",
+        "14:00",
+        "16:00"
+      ],
+      "phone": "+92-336-5479144",
+      "available_now": true,
+      "lat": 33.6914,
+      "lng": 73.0202,
+      "price_min_pkr": 2200,
+      "price_max_pkr": 3758,
+      "verified": false,
+      "score": 6.18,
+      "rank_reason": "Total 6.18/10 \u2014 distance 3.9km \u2192 0.88 (40%), rating 4.0\u2605 \u2192 2.8 (35%), availability \u2192 2.5 (25%)",
+      "score_breakdown": {
+        "distance_40pct": 0.88,
+        "rating_35pct": 2.8,
+        "availability_25pct": 2.5
+      },
+      "effective_rating": 4.0,
+      "is_saved": false,
+      "your_rating": null,
+      "contacted_before": false
+    }
+  ],
+  "recommended": {
+    "id": "h21",
+    "name": "\u0648\u0627\u0642\u0633 HVAC",
+    "category": "ac_technician",
+    "area": "G-9",
+    "distance_km": 0.5,
+    "rating": 4.95,
+    "reviews": 28,
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-386-6438436",
+    "available_now": true,
+    "lat": 33.682,
+    "lng": 72.9826,
+    "price_min_pkr": 2200,
+    "price_max_pkr": 4086,
+    "verified": true,
+    "score": 9.56,
+    "rank_reason": "Total 9.56/10 \u2014 distance 0.5km \u2192 3.6 (40%), rating 4.95\u2605 \u2192 3.46 (35%), availability \u2192 2.5 (25%)",
+    "score_breakdown": {
+      "distance_40pct": 3.6,
+      "rating_35pct": 3.46,
+      "availability_25pct": 2.5
+    },
+    "effective_rating": 4.95,
+    "is_saved": false,
+    "your_rating": null,
+    "contacted_before": false
+  },
+  "ranking": {
+    "top_provider": {
+      "id": "h21",
+      "name": "\u0648\u0627\u0642\u0633 HVAC",
+      "category": "ac_technician",
+      "area": "G-9",
+      "distance_km": 0.5,
+      "rating": 4.95,
+      "reviews": 28,
+      "available_slots": [
+        "09:00",
+        "11:00",
+        "14:00",
+        "16:00"
+      ],
+      "phone": "+92-386-6438436",
+      "available_now": true,
+      "lat": 33.682,
+      "lng": 72.9826,
+      "price_min_pkr": 2200,
+      "price_max_pkr": 4086,
+      "verified": true,
+      "score": 9.56,
+      "rank_reason": "Total 9.56/10 \u2014 distance 0.5km \u2192 3.6 (40%), rating 4.95\u2605 \u2192 3.46 (35%), availability \u2192 2.5 (25%)",
+      "score_breakdown": {
+        "distance_40pct": 3.6,
+        "rating_35pct": 3.46,
+        "availability_25pct": 2.5
+      },
+      "effective_rating": 4.95,
+      "is_saved": false,
+      "your_rating": null,
+      "contacted_before": false
+    },
+    "alternatives": [
+      {
+        "provider": {
+          "id": "h27",
+          "name": "\u0639\u0627\u062f\u0644 AC \u0645\u0627\u0633\u0679\u0631",
+          "category": "ac_technician",
+          "area": "G-13",
+          "distance_km": 0.4,
+          "rating": 4.0,
+          "reviews": 70,
+          "available_slots": [
+            "09:00",
+            "11:00",
+            "14:00",
+            "16:00"
+          ],
+          "phone": "+92-385-4694634",
+          "available_now": true,
+          "lat": 33.6809,
+          "lng": 72.9766,
+          "price_min_pkr": 2200,
+          "price_max_pkr": 4134,
+          "verified": false,
+          "score": 8.98,
+          "rank_reason": "Total 8.98/10 \u2014 distance 0.4km \u2192 3.68 (40%), rating 4.0\u2605 \u2192 2.8 (35%), availability \u2192 2.5 (25%)",
+          "score_breakdown": {
+            "distance_40pct": 3.68,
+            "rating_35pct": 2.8,
+            "availability_25pct": 2.5
+          },
+          "effective_rating": 4.0,
+          "is_saved": false,
+          "your_rating": null,
+          "contacted_before": false
+        },
+        "score": 8.98,
+        "distance_km": 0.4,
+        "rating": 4.0,
+        "availability": 10.0,
+        "score_breakdown": {
+          "distance_40pct": 3.68,
+          "rating_35pct": 2.8,
+          "availability_25pct": 2.5
+        }
+      },
+      {
+        "provider": {
+          "id": "h9",
+          "name": "\u06a9\u0627\u0645\u0631\u0627\u0646 \u06a9\u0648\u0644\u0646\u06af",
+          "category": "ac_technician",
+          "area": "F-10",
+          "distance_km": 3.9,
+          "rating": 4.0,
+          "reviews": 102,
+          "available_slots": [
+            "09:00",
+            "11:00",
+            "14:00",
+            "16:00"
+          ],
+          "phone": "+92-336-5479144",
+          "available_now": true,
+          "lat": 33.6914,
+          "lng": 73.0202,
+          "price_min_pkr": 2200,
+          "price_max_pkr": 3758,
+          "verified": false,
+          "score": 6.18,
+          "rank_reason": "Total 6.18/10 \u2014 distance 3.9km \u2192 0.88 (40%), rating 4.0\u2605 \u2192 2.8 (35%), availability \u2192 2.5 (25%)",
+          "score_breakdown": {
+            "distance_40pct": 0.88,
+            "rating_35pct": 2.8,
+            "availability_25pct": 2.5
+          },
+          "effective_rating": 4.0,
+          "is_saved": false,
+          "your_rating": null,
+          "contacted_before": false
+        },
+        "score": 6.18,
+        "distance_km": 3.9,
+        "rating": 4.0,
+        "availability": 10.0,
+        "score_breakdown": {
+          "distance_40pct": 0.88,
+          "rating_35pct": 2.8,
+          "availability_25pct": 2.5
+        }
+      }
+    ]
+  },
+  "alternatives": [
+    {
+      "name": "\u0639\u0627\u062f\u0644 AC \u0645\u0627\u0633\u0679\u0631",
+      "provider_id": "h27",
+      "score": 8.98,
+      "distance_score": 3.68,
+      "rating_score": 2.8,
+      "availability_score": 2.5,
+      "total_score": 8.98
+    },
+    {
+      "name": "\u06a9\u0627\u0645\u0631\u0627\u0646 \u06a9\u0648\u0644\u0646\u06af",
+      "provider_id": "h9",
+      "score": 6.18,
+      "distance_score": 0.88,
+      "rating_score": 2.8,
+      "availability_score": 2.5,
+      "total_score": 6.18
+    }
+  ],
+  "map_markers": [
+    {
+      "id": "h21",
+      "name": "\u0648\u0627\u0642\u0633 HVAC",
+      "lat": 33.682,
+      "lng": 72.9826,
+      "distance_km": 0.5,
+      "rating": 4.95,
+      "area": "G-9",
+      "category": "ac_technician",
+      "price_min_pkr": 2200,
+      "price_max_pkr": 4086,
+      "is_recommended": true,
+      "contacted_before": false
+    },
+    {
+      "id": "h27",
+      "name": "\u0639\u0627\u062f\u0644 AC \u0645\u0627\u0633\u0679\u0631",
+      "lat": 33.6809,
+      "lng": 72.9766,
+      "distance_km": 0.4,
+      "rating": 4.0,
+      "area": "G-13",
+      "category": "ac_technician",
+      "price_min_pkr": 2200,
+      "price_max_pkr": 4134,
+      "is_recommended": false,
+      "contacted_before": false
+    },
+    {
+      "id": "h9",
+      "name": "\u06a9\u0627\u0645\u0631\u0627\u0646 \u06a9\u0648\u0644\u0646\u06af",
+      "lat": 33.6914,
+      "lng": 73.0202,
+      "distance_km": 3.9,
+      "rating": 4.0,
+      "area": "F-10",
+      "category": "ac_technician",
+      "price_min_pkr": 2200,
+      "price_max_pkr": 3758,
+      "is_recommended": false,
+      "contacted_before": false
+    }
+  ],
+  "booking": {
+    "booking_id": "KHI-20260519-069",
+    "customer_name": "Demo",
+    "provider_id": "h21",
+    "provider_name": "\u0648\u0627\u0642\u0633 HVAC",
+    "service_type": "ac_technician",
+    "location": "G-13",
+    "slot": "09:00",
+    "slot_datetime": "2026-05-20T09:00:00Z",
+    "status": "PENDING",
+    "payment_status": "pending",
+    "amount_pkr": 2500,
+    "confirmation_message": "Booking reserved with \u0648\u0627\u0642\u0633 HVAC for AC Technician at G-13 on Tomorrow morning. Slot: 09:00. Complete payment of PKR 2500 to confirm. SMS/WhatsApp sent after payment.",
+    "receipt": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n         KHIDMATAI BOOKING RECEIPT\n\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\nBooking ID:    KHI-20260519-069\nIssued:        2026-05-19 21:47 UTC\nCustomer:      Demo\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nService:       AC Technician\nLocation:      G-13\nWhen:          Tomorrow morning\nSlot:          09:00 (2026-05-20T09:00:00Z)\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nProvider:      \u0648\u0627\u0642\u0633 HVAC\nContact:       +92-386-6438436\nStatus:        CONFIRMED\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nSimulated SMS/WhatsApp confirmation sent.\nReminder scheduled 1 hour before slot.\n\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"
+  },
+  "payment": {
+    "payment_id": "PAY-E05D547DB4",
+    "booking_id": "KHI-20260519-069",
+    "amount_pkr": 2500,
+    "method": "card",
+    "status": "pending",
+    "simulated": true,
+    "instructions": "Demo payment PKR 2500. Ref: PAY-E05D547DB4",
+    "stripe_client_secret": null,
+    "stripe_payment_intent_id": null
+  },
+  "follow_up": {
+    "reminder_scheduled": true,
+    "reminder_time": "2026-05-19 08:00 UTC",
+    "completion_check_time": "2026-05-19 10:30 UTC",
+    "status_update": "Reminder scheduled 1 hour before appointment (09:00) at 2026-05-19 08:00 UTC. Completion check at 2026-05-19 10:30 UTC. SMS/WhatsApp to customer and \u0648\u0627\u0642\u0633 HVAC fire after payment is confirmed.",
+    "booking_status": "REMINDER_SCHEDULED"
+  },
+  "trace": [
+    {
+      "agent": "IntentUnderstandingAgent",
+      "phase": "planning",
+      "action": "parse_natural_language",
+      "input": {
+        "message": "Mujhe kal subah G-13 mein AC technician chahiye",
+        "mode": "rule_based"
+      },
+      "output": {
+        "raw_message": "Mujhe kal subah G-13 mein AC technician chahiye",
+        "language": "roman_urdu",
+        "service_type": "ac_technician",
+        "service_label": "AC Technician",
+        "location": "G-13",
+        "time_expression": "Tomorrow morning",
+        "parsed_datetime_hint": "tomorrow_morning",
+        "urgency": false
+      },
+      "reasoning": "Intent parsed via rule_based. Language 'roman_urdu', service 'AC Technician', location 'G-13', time 'Tomorrow morning'.",
+      "timestamp": "2026-05-19T21:47:39.660142Z",
+      "workflow_id": "khidmatai_informal_economy_v1",
+      "node_id": "node_1_intent",
+      "orchestration_engine": "google_antigravity"
+    },
+    {
+      "agent": "ProviderDiscoveryAgent",
+      "phase": "planning",
+      "action": "discover_providers",
+      "input": {
+        "service_type": "ac_technician",
+        "location": "G-13",
+        "radius_km": 5.0,
+        "widened": false,
+        "user_lat": 33.6842,
+        "user_lng": 72.9784,
+        "location_source": "local"
+      },
+      "output": {
+        "count": 3,
+        "within_radius": [
+          "\u0639\u0627\u062f\u0644 AC \u0645\u0627\u0633\u0679\u0631",
+          "\u0648\u0627\u0642\u0633 HVAC",
+          "\u06a9\u0627\u0645\u0631\u0627\u0646 \u06a9\u0648\u0644\u0646\u06af"
+        ],
+        "tool": "local_sectors"
+      },
+      "reasoning": "Found 3 providers within 5.0 km using local (33.6842, 72.9784). Default 5 km.",
+      "timestamp": "2026-05-19T21:47:39.664132Z",
+      "workflow_id": "khidmatai_informal_economy_v1",
+      "node_id": "node_2_discovery",
+      "orchestration_engine": "google_antigravity"
+    },
+    {
+      "agent": "RankingAgent",
+      "phase": "decision",
+      "action": "rank_and_select",
+      "input": {
+        "candidate_count": 3,
+        "user_id": null,
+        "saved_count": 0
+      },
+      "output": {
+        "recommended_id": "h21",
+        "recommended_name": "\u0648\u0627\u0642\u0633 HVAC",
+        "effective_rating": 4.95,
+        "top_3": [
+          {
+            "name": "\u0648\u0627\u0642\u0633 HVAC",
+            "score": 9.56,
+            "is_saved": false,
+            "breakdown": {
+              "distance_40pct": 3.6,
+              "rating_35pct": 3.46,
+              "availability_25pct": 2.5
+            }
+          },
+          {
+            "name": "\u0639\u0627\u062f\u0644 AC \u0645\u0627\u0633\u0679\u0631",
+            "score": 8.98,
+            "is_saved": false,
+            "breakdown": {
+              "distance_40pct": 3.68,
+              "rating_35pct": 2.8,
+              "availability_25pct": 2.5
+            }
+          },
+          {
+            "name": "\u06a9\u0627\u0645\u0631\u0627\u0646 \u06a9\u0648\u0644\u0646\u06af",
+            "score": 6.18,
+            "is_saved": false,
+            "breakdown": {
+              "distance_40pct": 0.88,
+              "rating_35pct": 2.8,
+              "availability_25pct": 2.5
+            }
+          }
+        ]
+      },
+      "reasoning": "Selected '\u0648\u0627\u0642\u0633 HVAC' at 0.5 km, score 9.56. Total 9.56/10 \u2014 distance 0.5km \u2192 3.6 (40%), rating 4.95\u2605 \u2192 3.46 (35%), availability \u2192 2.5 (25%)",
+      "timestamp": "2026-05-19T21:47:39.697278Z",
+      "workflow_id": "khidmatai_informal_economy_v1",
+      "node_id": "node_3_ranking",
+      "orchestration_engine": "google_antigravity"
+    },
+    {
+      "agent": "TraceAgent",
+      "phase": "follow_up",
+      "action": "compile_workflow_trace",
+      "input": {
+        "trace_steps": 3
+      },
+      "output": {
+        "steps": 3,
+        "outcome": "Booked \u0648\u0627\u0642\u0633 HVAC (N/A) for AC Technician.",
+        "agents": [
+          "IntentUnderstandingAgent",
+          "ProviderDiscoveryAgent",
+          "RankingAgent"
+        ],
+        "human_readable": "HazirAI \u2014 Agent Workflow Trace\nSession: 5ccc58e8-26a8-4dab-9751-b588c4fef453\n\n1. [IntentUnderstandingAgent] parse_natural_language\n   Phase: planning | 2026-05-19T21:47:39.660142Z\n   Reasoning: Intent parsed via rule_based. Language 'roman_urdu', service 'AC Technician', location 'G-13', time 'Tomorrow morning'.\n\n2. [ProviderDiscoveryAgent] discover_providers\n   Phase: planning | 2026-05-19T21:47:39.664132Z\n   Reasoning: Found 3 providers within 5.0 km using local (33.6842, 72.9784). Default 5 km.\n\n3. [RankingAgent] rank_and_select\n   Phase: decision | 2026-05-19T21:47:39.697278Z\n   Reasoning: Selected '\u0648\u0627\u0642\u0633 HVAC' at 0.5 km, score 9.56. Total 9.56/10 \u2014 distance 0.5km \u2192 3.6 (40%), rating 4.95\u2605 \u2192 3.46 (35%), availability \u2192 2.5 (25%)\n\nOutcome: Booked \u0648\u0627\u0642\u0633 HVAC (N/A) for AC Technician."
+      },
+      "reasoning": "Compiled human-readable Antigravity trace for judges and demo export.",
+      "timestamp": "2026-05-19T21:47:39.697506Z",
+      "workflow_id": "khidmatai_informal_economy_v1",
+      "node_id": "node_6_trace",
+      "orchestration_engine": "google_antigravity"
+    },
+    {
+      "agent": "BookingAgent",
+      "phase": "action",
+      "action": "simulate_booking",
+      "input": {
+        "provider_id": "h21",
+        "slot": "09:00",
+        "state": "PENDING"
+      },
+      "output": {
+        "booking_id": "KHI-20260519-069",
+        "customer_name": "Demo",
+        "provider_id": "h21",
+        "provider_name": "\u0648\u0627\u0642\u0633 HVAC",
+        "service_type": "ac_technician",
+        "location": "G-13",
+        "slot": "09:00",
+        "slot_datetime": "2026-05-20T09:00:00Z",
+        "status": "PENDING",
+        "payment_status": "pending",
+        "amount_pkr": 2500,
+        "confirmation_message": "Booking reserved with \u0648\u0627\u0642\u0633 HVAC for AC Technician at G-13 on Tomorrow morning. Slot: 09:00. Complete payment of PKR 2500 to confirm. SMS/WhatsApp sent after payment.",
+        "receipt": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n         KHIDMATAI BOOKING RECEIPT\n\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\nBooking ID:    KHI-20260519-069\nIssued:        2026-05-19 21:47 UTC\nCustomer:      Demo\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nService:       AC Technician\nLocation:      G-13\nWhen:          Tomorrow morning\nSlot:          09:00 (2026-05-20T09:00:00Z)\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nProvider:      \u0648\u0627\u0642\u0633 HVAC\nContact:       +92-386-6438436\nStatus:        CONFIRMED\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nSimulated SMS/WhatsApp confirmation sent.\nReminder scheduled 1 hour before slot.\n\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+        "artifact": "booking_receipt"
+      },
+      "reasoning": "Booking KHI-20260519-069 persisted (PENDING, PKR 2500). Receipt generated; awaiting payment confirmation.",
+      "timestamp": "2026-05-19T21:47:39.743021Z",
+      "workflow_id": "khidmatai_informal_economy_v1",
+      "node_id": "node_4_booking",
+      "orchestration_engine": "google_antigravity"
+    },
+    {
+      "agent": "FollowUpAgent",
+      "phase": "follow_up",
+      "action": "schedule_follow_up",
+      "input": {
+        "booking_id": "KHI-20260519-069",
+        "state": "CONFIRMED\u2192REMINDER_SCHEDULED",
+        "channels": [
+          "fcm_simulated",
+          "whatsapp_deep_link"
+        ]
+      },
+      "output": {
+        "reminder_scheduled": true,
+        "reminder_time": "2026-05-19 08:00 UTC",
+        "completion_check_time": "2026-05-19 10:30 UTC",
+        "status_update": "Reminder scheduled 1 hour before appointment (09:00) at 2026-05-19 08:00 UTC. Completion check at 2026-05-19 10:30 UTC. SMS/WhatsApp to customer and \u0648\u0627\u0642\u0633 HVAC fire after payment is confirmed.",
+        "booking_status": "REMINDER_SCHEDULED",
+        "scheduled_notifications": [
+          {
+            "channel": "fcm",
+            "to": "customer_device",
+            "status": "simulated",
+            "provider": "mock",
+            "preview": "KhidmatAI Reminder: Reminder: \u0648\u0627\u0642\u0633 HVAC arrives in 1 hour (slot 09:00). Booking KHI-20260519-069.",
+            "scheduled_at": "2026-05-19 08:00 UTC"
+          },
+          {
+            "channel": "fcm",
+            "to": "customer_device",
+            "status": "simulated",
+            "provider": "mock",
+            "preview": "Service completed?: Was your service with \u0648\u0627\u0642\u0633 HVAC completed? Tap to rate on KhidmatAI. KHI-20260519-069",
+            "scheduled_at": "2026-05-19 10:30 UTC"
+          },
+          {
+            "channel": "whatsapp",
+            "to": "+92-386-6438436",
+            "status": "simulated",
+            "provider": "mock",
+            "preview": "Job reminder: KHI-20260519-069 at 09:00 with customer via KhidmatAI.",
+            "deep_link": "https://wa.me/923866438436?text=Job%20reminder%3A%20KHI-20260519-069%20at%2009%3A00%20with%20customer%20via%20KhidmatAI.",
+            "scheduled_at": "2026-05-19 08:00 UTC"
+          }
+        ]
+      },
+      "reasoning": "FCM reminder + completion check scheduled; WhatsApp deep links generated. Logged to Antigravity Node 5 (FollowUpAgent).",
+      "timestamp": "2026-05-19T21:47:39.756525Z",
+      "workflow_id": "khidmatai_informal_economy_v1",
+      "node_id": "node_5_followup",
+      "orchestration_engine": "google_antigravity"
+    },
+    {
+      "agent": "TraceAgent",
+      "phase": "follow_up",
+      "action": "compile_workflow_trace",
+      "input": {
+        "trace_steps": 6
+      },
+      "output": {
+        "steps": 6,
+        "outcome": "Booked \u0648\u0627\u0642\u0633 HVAC (KHI-20260519-069) for AC Technician.",
+        "agents": [
+          "IntentUnderstandingAgent",
+          "ProviderDiscoveryAgent",
+          "RankingAgent",
+          "TraceAgent",
+          "BookingAgent",
+          "FollowUpAgent"
+        ],
+        "human_readable": "HazirAI \u2014 Agent Workflow Trace\nSession: 5ccc58e8-26a8-4dab-9751-b588c4fef453\n\n1. [IntentUnderstandingAgent] parse_natural_language\n   Phase: planning | 2026-05-19T21:47:39.660142Z\n   Reasoning: Intent parsed via rule_based. Language 'roman_urdu', service 'AC Technician', location 'G-13', time 'Tomorrow morning'.\n\n2. [ProviderDiscoveryAgent] discover_providers\n   Phase: planning | 2026-05-19T21:47:39.664132Z\n   Reasoning: Found 3 providers within 5.0 km using local (33.6842, 72.9784). Default 5 km.\n\n3. [RankingAgent] rank_and_select\n   Phase: decision | 2026-05-19T21:47:39.697278Z\n   Reasoning: Selected '\u0648\u0627\u0642\u0633 HVAC' at 0.5 km, score 9.56. Total 9.56/10 \u2014 distance 0.5km \u2192 3.6 (40%), rating 4.95\u2605 \u2192 3.46 (35%), availability \u2192 2.5 (25%)\n\n4. [TraceAgent] compile_workflow_trace\n   Phase: follow_up | 2026-05-19T21:47:39.697506Z\n   Reasoning: Compiled human-readable Antigravity trace for judges and demo export.\n\n5. [BookingAgent] simulate_booking\n   Phase: action | 2026-05-19T21:47:39.743021Z\n   Reasoning: Booking KHI-20260519-069 persisted (PENDING, PKR 2500). Receipt generated; awaiting payment confirmation.\n\n6. [FollowUpAgent] schedule_follow_up\n   Phase: follow_up | 2026-05-19T21:47:39.756525Z\n   Reasoning: FCM reminder + completion check scheduled; WhatsApp deep links generated. Logged to Antigravity Node 5 (FollowUpAgent).\n\nOutcome: Booked \u0648\u0627\u0642\u0633 HVAC (KHI-20260519-069) for AC Technician."
+      },
+      "reasoning": "Compiled human-readable Antigravity trace for judges and demo export.",
+      "timestamp": "2026-05-19T21:47:39.756714Z",
+      "workflow_id": "khidmatai_informal_economy_v1",
+      "node_id": "node_6_trace",
+      "orchestration_engine": "google_antigravity"
+    }
+  ],
+  "trace_summary": {
+    "steps": 6,
+    "outcome": "Booked \u0648\u0627\u0642\u0633 HVAC (KHI-20260519-069) for AC Technician.",
+    "agents": [
+      "IntentUnderstandingAgent",
+      "ProviderDiscoveryAgent",
+      "RankingAgent",
+      "TraceAgent",
+      "BookingAgent",
+      "FollowUpAgent"
+    ],
+    "human_readable": "HazirAI \u2014 Agent Workflow Trace\nSession: 5ccc58e8-26a8-4dab-9751-b588c4fef453\n\n1. [IntentUnderstandingAgent] parse_natural_language\n   Phase: planning | 2026-05-19T21:47:39.660142Z\n   Reasoning: Intent parsed via rule_based. Language 'roman_urdu', service 'AC Technician', location 'G-13', time 'Tomorrow morning'.\n\n2. [ProviderDiscoveryAgent] discover_providers\n   Phase: planning | 2026-05-19T21:47:39.664132Z\n   Reasoning: Found 3 providers within 5.0 km using local (33.6842, 72.9784). Default 5 km.\n\n3. [RankingAgent] rank_and_select\n   Phase: decision | 2026-05-19T21:47:39.697278Z\n   Reasoning: Selected '\u0648\u0627\u0642\u0633 HVAC' at 0.5 km, score 9.56. Total 9.56/10 \u2014 distance 0.5km \u2192 3.6 (40%), rating 4.95\u2605 \u2192 3.46 (35%), availability \u2192 2.5 (25%)\n\n4. [TraceAgent] compile_workflow_trace\n   Phase: follow_up | 2026-05-19T21:47:39.697506Z\n   Reasoning: Compiled human-readable Antigravity trace for judges and demo export.\n\n5. [BookingAgent] simulate_booking\n   Phase: action | 2026-05-19T21:47:39.743021Z\n   Reasoning: Booking KHI-20260519-069 persisted (PENDING, PKR 2500). Receipt generated; awaiting payment confirmation.\n\n6. [FollowUpAgent] schedule_follow_up\n   Phase: follow_up | 2026-05-19T21:47:39.756525Z\n   Reasoning: FCM reminder + completion check scheduled; WhatsApp deep links generated. Logged to Antigravity Node 5 (FollowUpAgent).\n\nOutcome: Booked \u0648\u0627\u0642\u0633 HVAC (KHI-20260519-069) for AC Technician."
+  },
+  "personalization": null,
+  "rate_booking": false,
+  "user_location": {
+    "lat": 33.6842,
+    "lng": 72.9784,
+    "source": "local"
+  },
+  "notifications": [
+    {
+      "channel": "fcm",
+      "to": "customer_device",
+      "status": "simulated",
+      "provider": "mock",
+      "preview": "KhidmatAI Reminder: Reminder: \u0648\u0627\u0642\u0633 HVAC arrives in 1 hour (slot 09:00). Booking KHI-20260519-069.",
+      "deep_link": null,
+      "scheduled_at": "2026-05-19 08:00 UTC"
+    },
+    {
+      "channel": "fcm",
+      "to": "customer_device",
+      "status": "simulated",
+      "provider": "mock",
+      "preview": "Service completed?: Was your service with \u0648\u0627\u0642\u0633 HVAC completed? Tap to rate on KhidmatAI. KHI-20260519-069",
+      "deep_link": null,
+      "scheduled_at": "2026-05-19 10:30 UTC"
+    },
+    {
+      "channel": "whatsapp",
+      "to": "+92-386-6438436",
+      "status": "simulated",
+      "provider": "mock",
+      "preview": "Job reminder: KHI-20260519-069 at 09:00 with customer via KhidmatAI.",
+      "deep_link": "https://wa.me/923866438436?text=Job%20reminder%3A%20KHI-20260519-069%20at%2009%3A00%20with%20customer%20via%20KhidmatAI.",
+      "scheduled_at": "2026-05-19 08:00 UTC"
+    }
+  ],
+  "price_sort": "smart"
+}
