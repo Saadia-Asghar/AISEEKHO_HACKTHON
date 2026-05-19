@@ -112,6 +112,14 @@ export default function ProviderScreen() {
     Linking.openURL(`tel:${tel.startsWith('+') ? tel : tel}`);
   };
 
+  const messageWhatsApp = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    const cleanPhone = phone.replace(/[^0-9+]/g, '');
+    const waPhone = cleanPhone.startsWith('+') ? cleanPhone.replace('+', '') : `92${cleanPhone.replace(/^0/, '')}`;
+    const msg = encodeURIComponent(`Assalam-o-Alaikum ${name}, I found your ${category} profile on KhidmatAI!`);
+    Linking.openURL(`https://wa.me/${waPhone}?text=${msg}`);
+  };
+
   const openMaps = () => {
     if (lat && lng) {
       Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`);
@@ -244,7 +252,8 @@ export default function ProviderScreen() {
           style={{ width: '100%', marginBottom: 10 }}
         />
         <Button label={t('open_maps')} variant="outline" onPress={openMaps} style={{ width: '100%', marginBottom: 10 }} />
-        <Button label={`📞 ${t('call_provider')}`} variant="outline" onPress={callProvider} style={{ width: '100%' }} />
+        <Button label={`📞 ${t('call_provider')}`} variant="outline" onPress={callProvider} style={{ width: '100%', marginBottom: 10 }} />
+        <Button label={`💬 ${t('whatsapp_provider') || 'WhatsApp Provider'}`} variant="jade" onPress={messageWhatsApp} style={{ width: '100%' }} />
         <GoogleBadge />
       </ScrollView>
     </ThemedSafeArea>
