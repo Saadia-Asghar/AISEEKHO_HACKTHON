@@ -20,33 +20,33 @@ KhidmatAI is architected around **Google Antigravity** as the central brain. Eve
 
 ```mermaid
 graph TD
-    User([🗣️ Multilingual User Request]) --> IntentNode[🧠 Node 1: Intent Understanding Agent]
+    User(["🗣️ Multilingual User Request"]) --> IntentNode["🧠 Node 1: Intent Understanding Agent"]
     
     %% Intent NLU
-    IntentNode -->|Parses Urdu/Roman/EN| IntentJSON[📄 Structured Intent JSON]
+    IntentNode -->|Parses Urdu/Roman/EN| IntentJSON["📄 Structured Intent JSON"]
     
     %% Discovery Loop
-    IntentJSON --> DiscoverNode[🔍 Node 2: Provider Discovery Agent]
-    DiscoverNode -->|Calls Maps Geocoding API| DiscoveryFilter{Nearby Providers Found?}
-    DiscoveryFilter -->|Yes| MatcherNode[⚖️ Node 3: Matching & Ranking Agent]
-    DiscoveryFilter -->|No: < 3 Candidates| RadiusWiden[🔄 Multi-Step Loop: Widen Radius +5km]
+    IntentJSON --> DiscoverNode["🔍 Node 2: Provider Discovery Agent"]
+    DiscoverNode -->|Calls Maps Geocoding API| DiscoveryFilter{"Nearby Providers Found?"}
+    DiscoveryFilter -->|Yes| MatcherNode["⚖️ Node 3: Matching & Ranking Agent"]
+    DiscoveryFilter -->|No: < 3 Candidates| RadiusWiden["🔄 Widen Radius by 5km"]
     RadiusWiden --> DiscoverNode
     
     %% Matcher Scoring
-    MatcherNode -->|Weighted Scoring 40/35/25| TopCandidate[🏆 Top Recommended Candidate]
+    MatcherNode -->|Weighted Scoring 40/35/25| TopCandidate["🏆 Top Recommended Candidate"]
     
     %% Booking & Action Simulation
-    TopCandidate --> BookingNode[📅 Node 4: Booking Simulation Agent]
-    BookingNode -->|Write to SQLite / data/khidmat.db| BookingReceipt[🧾 Digital Booking Receipt]
+    TopCandidate --> BookingNode["📅 Node 4: Booking Simulation Agent"]
+    BookingNode -->|Write to SQLite| BookingReceipt["🧾 Digital Booking Receipt"]
     
     %% Follow-Up Automation
-    BookingReceipt --> FollowUpNode[🔔 Node 5: Follow-Up Agent]
-    FollowUpNode -->|1hr Alert & WhatsApp Deep-Link| ScheduledTask[📅 Scheduled Notifications Log]
+    BookingReceipt --> FollowUpNode["🔔 Node 5: Follow-Up Agent"]
+    FollowUpNode -->|1hr Alert & WhatsApp Deep-Link| ScheduledTask["📅 Scheduled Notifications Log"]
     
     %% Telemetry Compiled
-    context[💼 Shared Session Context] --> TraceNode[📋 Node 6: Trace & Telemetry Agent]
-    TraceNode -->|Formats Decision Log| WebApp[🌐 Web Evaluator Dashboard]
-    TraceNode -->|Renders Collapsible planning nodes| MobileApp[📲 Mobile App Trace Tab]
+    context["💼 Shared Session Context"] --> TraceNode["📋 Node 6: Trace & Telemetry Agent"]
+    TraceNode -->|Formats Decision Log| WebApp["🌐 Web Evaluator Dashboard"]
+    TraceNode -->|Renders Collapsible nodes| MobileApp["📲 Mobile App Trace Tab"]
 
     style IntentNode fill:#7C3AED,stroke:#fff,stroke-width:2px,color:#fff
     style DiscoverNode fill:#7C3AED,stroke:#fff,stroke-width:2px,color:#fff
