@@ -233,6 +233,13 @@ export default function ProfileScreen() {
             border
           />
           <SettingRow
+            icon="🔔"
+            iconBg="rgba(236, 106, 6, 0.2)"
+            label="Notifications"
+            onPress={() => router.push('/notifications')}
+            border
+          />
+          <SettingRow
             icon="💳"
             iconBg="rgba(124, 58, 237, 0.2)"
             label="Payment Methods"

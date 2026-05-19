@@ -12,6 +12,7 @@ import { completeCheckout, getSelectedProvider } from '../lib/bookingFlow';
 import type { PaymentMethod } from '../api/client';
 import Button from '../components/ui/Button';
 import StitchAppHeader from '../components/stitch/StitchAppHeader';
+import { HeaderActions } from '../components/NotificationBell';
 import StitchGlassCard from '../components/stitch/StitchGlassCard';
 import Avatar from '../components/Avatar';
 import TransparentPricing from '../components/TransparentPricing';
@@ -73,8 +74,7 @@ export default function PaymentScreen() {
       const ok = await completeCheckout(method, credentials, { navigate: false });
       if (!ok) return;
       setCredSheet(false);
-      showToast(t('payment_success'));
-      setTimeout(() => router.replace('/booking-confirm'), 600);
+      router.replace('/payment-success');
     } catch (e) {
       showToast(e instanceof Error ? e.message : t('payment_failed'));
     } finally {
@@ -84,7 +84,7 @@ export default function PaymentScreen() {
 
   return (
     <ThemedSafeArea edges={['top', 'bottom']}>
-      <StitchAppHeader onBack={() => router.back()} />
+      <StitchAppHeader onBack={() => router.back()} right={<HeaderActions />} />
       <View style={styles.head}>
         <Text style={styles.headTitle}>{t('payment_title')}</Text>
         <Text style={styles.headSub}>

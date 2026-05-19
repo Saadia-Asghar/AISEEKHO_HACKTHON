@@ -92,6 +92,8 @@ function ThemedRoot({ authed: _authed }: { authed: boolean }) {
         <Stack.Screen name="workers" options={{ title: 'Workers', headerShown: false }} />
         <Stack.Screen name="results" options={{ title: 'Results', headerShown: false }} />
         <Stack.Screen name="payment" options={{ title: 'Payment', headerShown: false }} />
+        <Stack.Screen name="payment-success" options={{ title: 'Payment successful', headerShown: false }} />
+        <Stack.Screen name="notifications" options={{ title: 'Notifications', headerShown: false }} />
         <Stack.Screen name="payment-methods" options={{ title: 'Payment Methods', headerShown: false }} />
         <Stack.Screen name="add-card" options={{ title: 'Add Card', headerShown: false }} />
         <Stack.Screen name="booking-confirm" options={{ title: 'Confirmed', headerShown: false }} />

@@ -21,6 +21,7 @@ import { postReview } from '../api/client';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import StitchAppHeader from '../components/stitch/StitchAppHeader';
+import { HeaderActions } from '../components/NotificationBell';
 import InputField from '../components/ui/InputField';
 import ReviewTagPicker from '../components/ReviewTagPicker';
 import TransparentPricing from '../components/TransparentPricing';
@@ -40,6 +41,7 @@ export default function BookingConfirmScreen() {
   const [reviewDone, setReviewDone] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
+  const { items: inAppNotifs, markRead } = useAppNotifications();
 
   useEffect(() => {
     if (!result) {
@@ -136,6 +138,10 @@ export default function BookingConfirmScreen() {
           <Pressable style={styles.quickBtn} onPress={() => router.push('/(tabs)/trace')}>
             <Text style={styles.quickIcon}>🎯</Text>
             <Text style={styles.quickLabel}>{t('view_trace')}</Text>
+          </Pressable>
+          <Pressable style={styles.quickBtn} onPress={() => router.push('/notifications')}>
+            <Text style={styles.quickIcon}>🔔</Text>
+            <Text style={styles.quickLabel}>{t('notifications_title')}</Text>
           </Pressable>
         </View>
 
