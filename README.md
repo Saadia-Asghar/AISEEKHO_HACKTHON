@@ -87,6 +87,26 @@ d:\project
 
 ---
 
+## 🔌 APIs & Tools Used
+
+To deliver premium agentic performance, KhidmatAI registers and leverages the following industry-grade services:
+*   **Gemini 2.0 Flash (`gemini-2.0-flash`)**: Drives the `IntentAgent` multilingual NLU engine, resolving Urdu script, Roman Urdu, and English instantly.
+*   **Google Maps Geocoding API**: Resolves human-typed geographic areas (like G-13 or DHA) into coordinates to calculate exact worker distances.
+*   **SQLite Database Client**: Used by `BookingAgent` to write mock persistent booking transactions, ensuring high-speed local data persistence.
+*   **WhatsApp Web Redirect API**: Powering `FollowUpAgent` to orchestrate 100% free, real-time message routing directly from customer profiles.
+*   **Pytest Testing Engine**: Drives end-to-end multi-agent assertions (including radius widening and NLU parsing).
+
+---
+
+## 💡 Architectural Assumptions
+
+*   **Geographic Context**: The initial demo scope centers around sectors of Islamabad, Pakistan.
+*   **Dynamic Radius Widening**: If the initial search radius (< 5 km) returns fewer than 3 providers, the system automatically expands the search radius by +5 km per iteration (up to a maximum of 20 km) to find suitable candidates.
+*   **Conditional Native Pipelines**: Firebase phone authentication triggers dynamically evaluate compilation states (falling back to custom sandbox validation when run in Simulated mode).
+*   **Shared Session Context**: The multi-agent orchestrator passes state across nodes via a shared Python context dictionary, persisting traces to SQLite telemetry tables for evaluator visibility.
+
+---
+
 ## 🚀 One-Click Developer Setup
 
 Ensure you have your active keys configured in `backend/.env`:
