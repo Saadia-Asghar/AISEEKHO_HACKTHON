@@ -61,12 +61,20 @@ export default function PaymentScreen() {
       ? `PKR ${estimateMin.toLocaleString()}–${estimateMax.toLocaleString()}`
       : 'Quote on visit';
 
-  const onPay = async () => {
+  const onPayPress = () => {
+    if (paying) return;
+    setCredSheet(true);
+  };
+
+  const onCredentialsSubmit = async (credentials: PaymentCredentialsPayload) => {
     if (paying) return;
     setPaying(true);
     try {
-      await completeCheckout(method);
+      const ok = await completeCheckout(method, credentials, { navigate: false });
+      if (!ok) return;
+      setCredSheet(false);
       showToast(t('payment_success'));
+      setTimeout(() => router.replace('/booking-confirm'), 800);
     } catch (e) {
       showToast(e instanceof Error ? e.message : t('payment_failed'));
     } finally {

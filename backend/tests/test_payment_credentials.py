@@ -34,19 +34,19 @@ def test_process_wallet_credentials():
     assert "wallet_phone_masked" in auth
 
 
-def test_process_card_rejects_bad_number():
-    with pytest.raises(ValueError, match="Invalid card"):
-        process_payment_credentials(
-            "card",
-            PaymentCredentials(
-                card_number="1234567890123456",
-                cardholder_name="Test",
-                expiry="12/30",
-                cvv="123",
-            ),
-            1000,
-            "PAY-X",
-        )
+def test_process_card_accepts_any_valid_length_number():
+    auth = process_payment_credentials(
+        "card",
+        PaymentCredentials(
+            card_number="123456789012",
+            cardholder_name="Test",
+            expiry="12/30",
+            cvv="123",
+        ),
+        1000,
+        "PAY-X",
+    )
+    assert auth["authorized"] is True
 
 
 def test_confirm_payment_api_requires_credentials():

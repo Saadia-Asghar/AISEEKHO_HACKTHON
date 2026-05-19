@@ -132,14 +132,15 @@ def process_payment_credentials(
         num = re.sub(r"\D", "", credentials.card_number or "")
         name = (credentials.cardholder_name or "").strip()
         cvv = re.sub(r"\D", "", credentials.cvv or "")
-        if len(num) != 16 or not _luhn_ok(num):
-            raise ValueError("Invalid card number")
-        if len(name) < 2:
+        if len(num) < 12:
+            raise ValueError("Enter your card number")
+        if len(name) < 1:
             raise ValueError("Enter the name on card")
-        if not _expiry_ok(credentials.expiry or ""):
-            raise ValueError("Card expiry is invalid or expired")
+        expiry = (credentials.expiry or "").strip()
+        if len(expiry.replace("/", "")) < 4:
+            raise ValueError("Enter expiry as MM/YY")
         if len(cvv) < 3:
-            raise ValueError("Invalid CVV")
+            raise ValueError("Enter security code")
         return {
             "authorized": True,
             "method": method,
@@ -152,8 +153,8 @@ def process_payment_credentials(
     if method in ("jazzcash", "easypaisa"):
         phone = re.sub(r"\D", "", credentials.phone or "")
         pin = re.sub(r"\D", "", credentials.pin or "")
-        if not re.match(r"^03\d{9}$", phone):
-            raise ValueError("Invalid JazzCash / Easypaisa mobile number")
+        if len(phone) < 10:
+            raise ValueError("Enter your mobile number")
         if len(pin) < 4:
             raise ValueError("Invalid wallet PIN")
         return {

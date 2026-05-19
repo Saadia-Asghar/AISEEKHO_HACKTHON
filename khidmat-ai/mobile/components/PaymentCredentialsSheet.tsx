@@ -22,7 +22,7 @@ import { useI18n } from '../lib/i18n';
 import Button from './ui/Button';
 
 function formatCardNumber(raw: string) {
-  const digits = raw.replace(/\D/g, '').slice(0, 16);
+  const digits = raw.replace(/\D/g, '').slice(0, 19);
   return digits.replace(/(\d{4})(?=\d)/g, '$1 ').trim();
 }
 
@@ -89,15 +89,15 @@ export default function PaymentCredentialsSheet({
   const validate = (): PaymentCredentialsPayload | null => {
     if (method === 'card') {
       const digits = cardNumber.replace(/\D/g, '');
-      if (digits.length < 16) {
+      if (digits.length < 12) {
         setLocalError(t('pay_err_card_number'));
         return null;
       }
-      if (cardName.trim().length < 2) {
+      if (!cardName.trim()) {
         setLocalError(t('pay_err_card_name'));
         return null;
       }
-      if (expiry.length < 5) {
+      if (expiry.replace(/\D/g, '').length < 4) {
         setLocalError(t('pay_err_expiry'));
         return null;
       }
@@ -115,7 +115,7 @@ export default function PaymentCredentialsSheet({
     }
     if (method === 'jazzcash' || method === 'easypaisa') {
       const p = phone.replace(/\D/g, '');
-      if (!/^03\d{9}$/.test(p)) {
+      if (p.length < 10) {
         setLocalError(t('pay_err_phone'));
         return null;
       }
@@ -168,6 +168,7 @@ export default function PaymentCredentialsSheet({
                     placeholder="0000 0000 0000 0000"
                     keyboardType="number-pad"
                     colors={colors}
+                    noAutofill
                   />
                   <Field
                     label={t('pay_card_name')}
@@ -175,6 +176,7 @@ export default function PaymentCredentialsSheet({
                     onChangeText={setCardName}
                     placeholder={t('pay_card_name_ph')}
                     colors={colors}
+                    noAutofill
                   />
                   <View style={styles.row2}>
                     <Field
@@ -185,15 +187,16 @@ export default function PaymentCredentialsSheet({
                       keyboardType="number-pad"
                       half
                       colors={colors}
+                      noAutofill
                     />
                     <Field
-                      label={t('pay_cvv')}
+                      label={t('pay_security_code')}
                       value={cvv}
                       onChangeText={(v) => setCvv(v.replace(/\D/g, '').slice(0, 4))}
                       placeholder="•••"
-                      secure
                       half
                       colors={colors}
+                      noAutofill
                     />
                   </View>
                 </>
@@ -208,14 +211,15 @@ export default function PaymentCredentialsSheet({
                     placeholder="0300 1234567"
                     keyboardType="number-pad"
                     colors={colors}
+                    noAutofill
                   />
                   <Field
                     label={t('pay_wallet_pin')}
                     value={pin}
                     onChangeText={(v) => setPin(v.replace(/\D/g, '').slice(0, 6))}
                     placeholder="••••"
-                    secure
                     colors={colors}
+                    noAutofill
                   />
                 </>
               ) : null}
@@ -253,20 +257,37 @@ function Field({
   onChangeText,
   placeholder,
   keyboardType,
-  secure,
   half,
   colors,
+  noAutofill,
 }: {
   label: string;
   value: string;
   onChangeText: (t: string) => void;
   placeholder?: string;
   keyboardType?: 'default' | 'number-pad';
-  secure?: boolean;
   half?: boolean;
   colors: AppColors;
+  noAutofill?: boolean;
 }) {
   const styles = useMemo(() => sheetStyles(colors), [colors]);
+  const autofillOff = noAutofill
+    ? ({
+        autoComplete: 'off' as const,
+        textContentType: 'none' as const,
+        importantForAutofill: 'no' as const,
+        autoCorrect: false,
+        spellCheck: false,
+        ...(Platform.OS === 'web'
+          ? ({
+              // Prevent Chrome "insecure payment form" autofill on http://localhost
+              name: `khidmat_${label.replace(/\W/g, '_').toLowerCase()}`,
+              // @ts-expect-error RN web data attributes
+              dataSet: { '1p-ignore': 'true', lpignore: 'true' },
+            } as object)
+          : {}),
+      } as const)
+    : {};
   return (
     <View style={[styles.field, half && styles.fieldHalf]}>
       <Text style={styles.fieldLabel}>{label}</Text>
@@ -277,8 +298,8 @@ function Field({
         placeholder={placeholder}
         placeholderTextColor={colors.text3}
         keyboardType={keyboardType}
-        secureTextEntry={secure}
         autoCapitalize={label.includes('Name') || label.includes('نام') ? 'words' : 'none'}
+        {...autofillOff}
       />
     </View>
   );

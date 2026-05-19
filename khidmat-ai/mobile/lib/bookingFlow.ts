@@ -52,8 +52,27 @@ export function goToCheckout(): boolean {
   return true;
 }
 
+function toApiCredentials(creds: PaymentCredentialsPayload): PaymentCredentialsBody {
+  if (creds.kind === 'card') {
+    return {
+      card_number: creds.card_number,
+      cardholder_name: creds.cardholder_name,
+      expiry: creds.expiry,
+      cvv: creds.cvv,
+    };
+  }
+  if (creds.kind === 'wallet') {
+    return { phone: creds.phone, pin: creds.pin };
+  }
+  return { cash_confirmed: creds.confirmed };
+}
+
 /** Payment screen — create booking + confirm payment in one step. */
-export async function completeCheckout(method: PaymentMethod): Promise<boolean> {
+export async function completeCheckout(
+  method: PaymentMethod,
+  credentials: PaymentCredentialsPayload,
+  options?: { navigate?: boolean }
+): Promise<boolean> {
   const { result, selectedProviderId, setResult } = useBookingStore.getState();
   const providerId = selectedProviderId || result?.recommended?.id;
   if (!result?.session_id || !providerId) {
@@ -110,7 +129,7 @@ export async function completeCheckout(method: PaymentMethod): Promise<boolean> 
     payment: { ...full.payment, status: 'paid' },
     notifications: mergedNotifications.length ? mergedNotifications : full.notifications,
   });
-  router.replace('/booking-confirm');
+  if (options?.navigate !== false) router.replace('/booking-confirm');
   return true;
 }
 
