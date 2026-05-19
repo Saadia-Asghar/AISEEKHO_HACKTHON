@@ -26,7 +26,13 @@ import { getRecentSearches } from '../../lib/searchHistory';
 import { getPriceSort, setPriceSort as persistPriceSort, type PriceSort } from '../../lib/bookingPrefs';
 import ShimmerOverlay from '../../components/ShimmerOverlay';
 import OnboardingModal from '../../components/OnboardingModal';
-import { isRecording, startRecording, stopRecordingBase64 } from '../../lib/voice';
+import {
+  cancelRecording,
+  isRecording,
+  startRecording,
+  stopRecordingBase64,
+} from '../../lib/voice';
+import VoiceWaveform from '../../components/VoiceWaveform';
 import { hasSeenOnboarding } from '../../lib/onboarding';
 import { showToast } from '../../lib/toastStore';
 import StitchAppHeader from '../../components/stitch/StitchAppHeader';
@@ -61,11 +67,13 @@ export default function HomeScreen() {
   const { loading, setError, error, priceSort, setPriceSort, searchFilters, setSearchFilters } =
     useBookingStore();
   const submitting = useRef(false);
-  const [recording, setRecording] = useState(false);
+  const [voicePhase, setVoicePhase] = useState<'idle' | 'listening' | 'transcribing'>('idle');
   const [showGuide, setShowGuide] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [contacted, setContacted] = useState<ContactedWorker[]>([]);
   const { t, lang } = useI18n();
+
+  useEffect(() => () => cancelRecording(), []);
 
   useEffect(() => {
     hasSeenOnboarding().then((seen) => {
@@ -90,13 +98,15 @@ export default function HomeScreen() {
     getSuggestions(new Date().getHours()).then((sug) =>
       setHighlight(new Set(sug.map((x) => x.service_type.replace(/_/g, ' '))))
     );
-    Animated.loop(
+    const loop = Animated.loop(
       Animated.sequence([
-        Animated.timing(pulse, { toValue: 1.06, duration: 1400, useNativeDriver: true }),
-        Animated.timing(pulse, { toValue: 1, duration: 1400, useNativeDriver: true }),
+        Animated.timing(pulse, { toValue: 1.12, duration: voicePhase === 'listening' ? 700 : 1400, useNativeDriver: true }),
+        Animated.timing(pulse, { toValue: 1, duration: voicePhase === 'listening' ? 700 : 1400, useNativeDriver: true }),
       ])
-    ).start();
-  }, []);
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [voicePhase, pulse]);
 
   const runSearch = useCallback(
     async (text: string) => {
@@ -125,25 +135,56 @@ export default function HomeScreen() {
   };
 
   const onMicPress = async () => {
-    if (loading) return;
-    if (Platform.OS === 'web') {
-      setError('Voice works on phone — type or use Try Demo');
+    if (loading || voicePhase === 'transcribing') return;
+
+    if (voicePhase === 'listening' || isRecording()) {
+      setVoicePhase('transcribing');
+      try {
+        const { base64, mimeType, fallbackText } = await stopRecordingBase64();
+        let text = fallbackText?.trim() ?? '';
+
+        if (base64 && base64.length > 50) {
+          try {
+            const res = await transcribeSpeech(base64, mimeType);
+            if (res.text?.trim()) text = res.text.trim();
+          } catch (apiErr) {
+            if (!text) {
+              const msg =
+                apiErr instanceof Error ? apiErr.message : 'Speech API unavailable';
+              if (!msg.includes('503') && !msg.includes('unavailable')) throw apiErr;
+            }
+          }
+        }
+
+        if (!text) {
+          throw new Error(t('voice_failed'));
+        }
+
+        setInput(text);
+        setVoicePhase('idle');
+        setError(null);
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        await runSearch(text);
+      } catch (e) {
+        setVoicePhase('idle');
+        cancelRecording();
+        setError(e instanceof Error ? e.message : t('voice_failed'));
+      }
       return;
     }
+
     try {
-      if (!recording) {
-        await startRecording();
-        setRecording(true);
-        return;
-      }
-      setRecording(false);
-      const { base64, mimeType } = await stopRecordingBase64();
-      const { text } = await transcribeSpeech(base64, mimeType);
-      setInput(text);
-      await runSearch(text);
+      setError(null);
+      setVoicePhase('listening');
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      await startRecording((live) => {
+        if (live.trim()) setInput(live);
+      });
     } catch (e) {
-      setRecording(false);
-      setError(e instanceof Error ? e.message : 'Voice failed');
+      setVoicePhase('idle');
+      cancelRecording();
+      const msg = e instanceof Error ? e.message : t('voice_failed');
+      setError(msg.includes('permission') ? t('voice_permission') : msg);
     }
   };
 
@@ -171,13 +212,42 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.micSection}>
-            <Animated.View style={[styles.pulseRing, { transform: [{ scale: pulse }] }]} />
-            <Pressable onPress={onMicPress} disabled={loading} style={styles.micBtn}>
-              <Text style={styles.micIcon}>{recording ? '⏹' : '🎤'}</Text>
+            <Animated.View
+              style={[
+                styles.pulseRing,
+                voicePhase === 'listening' && styles.pulseRingActive,
+                { transform: [{ scale: pulse }] },
+              ]}
+            />
+            <Pressable
+              onPress={onMicPress}
+              disabled={loading || voicePhase === 'transcribing'}
+              style={[
+                styles.micBtn,
+                voicePhase === 'listening' && styles.micBtnListening,
+                voicePhase === 'transcribing' && styles.micBtnBusy,
+              ]}
+            >
+              <Text style={styles.micIcon}>
+                {voicePhase === 'transcribing' ? '⏳' : voicePhase === 'listening' ? '⏹' : '🎤'}
+              </Text>
             </Pressable>
-            <Text style={styles.micCaption}>
-              {recording ? t('listening') : t('mic_hint')}
+            <Text
+              style={[
+                styles.micCaption,
+                voicePhase === 'listening' && styles.micCaptionActive,
+              ]}
+            >
+              {voicePhase === 'transcribing'
+                ? t('transcribing')
+                : voicePhase === 'listening'
+                  ? t('listening')
+                  : t('mic_hint')}
             </Text>
+            {voicePhase === 'listening' ? (
+              <Text style={styles.micSub}>{t('tap_to_stop')}</Text>
+            ) : null}
+            <VoiceWaveform active={voicePhase === 'listening'} />
             <GoogleBadge compact />
           </View>
 
@@ -295,6 +365,9 @@ function homeStyles(colors: AppColors) {
     borderRadius: 60,
     backgroundColor: 'rgba(124,58,237,0.15)',
   },
+  pulseRingActive: {
+    backgroundColor: 'rgba(0,118,80,0.2)',
+  },
   micBtn: {
     width: 96,
     height: 96,
@@ -308,8 +381,15 @@ function homeStyles(colors: AppColors) {
     shadowRadius: 20,
     elevation: 8,
   },
+  micBtnListening: {
+    backgroundColor: colors.jade,
+    shadowColor: colors.jade,
+  },
+  micBtnBusy: { opacity: 0.75 },
   micIcon: { fontSize: 40 },
   micCaption: { fontSize: 14, color: colors.primaryText, marginTop: 12, fontFamily: fonts.body },
+  micCaptionActive: { color: colors.jade, fontWeight: '700' },
+  micSub: { fontSize: 12, color: colors.text2, marginTop: 4, fontFamily: fonts.body },
   block: { paddingHorizontal: spacing.lg },
   recentWrap: {
     flexDirection: 'row',

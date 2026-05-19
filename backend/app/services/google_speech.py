@@ -12,7 +12,7 @@ def transcribe_audio_base64(audio_b64: str, mime_type: str = "audio/webm") -> tu
     """
     api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
     if not api_key:
-        return "", "unavailable"
+        return "", "unavailable"  # client may use browser SpeechRecognition fallback
 
     try:
         raw = base64.b64decode(audio_b64, validate=True)
