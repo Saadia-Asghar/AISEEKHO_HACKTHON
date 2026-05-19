@@ -15,6 +15,8 @@ import GoogleBadge from '../../components/GoogleBadge';
 import OnboardingModal from '../../components/OnboardingModal';
 import { getUserReviews } from '../../api/client';
 import { HOW_TO_SECTIONS } from '../../constants/guide';
+import NavShortcuts from '../../components/NavShortcuts';
+import GoogleStatusBanner from '../../components/GoogleStatusBanner';
 
 type Review = { rating: number; comment?: string; provider_name?: string };
 
@@ -75,12 +77,14 @@ export default function ProfileScreen() {
       </LinearGradient>
       <CurvedSheet style={styles.sheet}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <GoogleStatusBanner />
+        <NavShortcuts />
         <View style={styles.navCard}>
-          <Text style={styles.navTitle}>App navigation</Text>
-          <Text style={styles.navRow}>🏠 Home — book services</Text>
-          <Text style={styles.navRow}>📋 Bookings — your jobs</Text>
-          <Text style={styles.navRow}>🧠 Trace — AI reasoning</Text>
-          <Text style={styles.navRow}>👤 Profile — you are here</Text>
+          <Text style={styles.navTitle}>{t('profile_nav')}</Text>
+          <Text style={styles.navRow}>🏠 {t('profile_home')}</Text>
+          <Text style={styles.navRow}>📋 {t('profile_bookings')}</Text>
+          <Text style={styles.navRow}>🧠 {t('profile_trace')}</Text>
+          <Text style={styles.navRow}>👤 {t('profile_account')}</Text>
         </View>
 
         <View style={styles.divider} />

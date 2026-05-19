@@ -45,8 +45,9 @@ export default function AuthScreen() {
     setLoading(true);
     setError(null);
     try {
-      await sendOtp(phone);
+      const res = await sendOtp(phone);
       setTab('otp');
+      showToast(res.twilio ? t('otp_sent_sms') : `${t('demo_code')} 1234`);
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not send OTP');

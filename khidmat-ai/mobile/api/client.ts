@@ -274,7 +274,7 @@ export async function getProvider(id: string, userId?: string) {
 }
 
 export async function sendOtp(phone: string) {
-  const { data } = await api.post<{ phone: string; message: string; demo_otp?: string }>(
+  const { data } = await api.post<{ phone: string; message: string; demo_otp?: string; twilio?: boolean }>(
     '/api/auth/send-otp',
     { phone }
   );

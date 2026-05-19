@@ -13,6 +13,7 @@ import GoogleBadge from '../../components/GoogleBadge';
 import ScreenGuide from '../../components/ScreenGuide';
 import TipCard from '../../components/TipCard';
 import CurvedSheet from '../../components/ui/CurvedSheet';
+import { useI18n } from '../../lib/i18n';
 
 const ICONS: Record<string, { icon: string; tone: 'jade' | 'violet' | 'amber' | 'gray' }> = {
   intent: { icon: '🎤', tone: 'jade' },
@@ -37,6 +38,7 @@ function matchStep(agent: string) {
 }
 
 export default function TraceScreen() {
+  const { t } = useI18n();
   const { result } = useBookingStore();
   const [trace, setTrace] = useState<OrchestrateResult['trace']>([]);
   const [loading, setLoading] = useState(false);
@@ -82,8 +84,8 @@ export default function TraceScreen() {
             key: 'empty',
             icon: '🧠',
             tone: 'gray' as const,
-            title: 'No trace yet',
-            body: 'Run a search from Home to see agent steps.',
+            title: t('trace_empty'),
+            body: t('trace_sub'),
             time: '—',
             done: false,
           },
@@ -91,10 +93,7 @@ export default function TraceScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <ScreenGuide
-        title="Agent Trace"
-        subtitle="See how AI understood your request, found providers, and ranked them. Run a search from Home first."
-      />
+      <ScreenGuide title={t('trace_title')} subtitle={t('trace_sub')} />
       <CurvedSheet style={styles.sheet}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.tipPad}>

@@ -291,7 +291,7 @@ export default function HomeScreen() {
                 variant="ghost"
                 onPress={() => {
                   setInput(DEMO);
-                  setTimeout(() => submit(DEMO), 400);
+                  setTimeout(() => runSearch(DEMO), 400);
                 }}
                 disabled={loading}
                 style={{ flex: 1 }}
