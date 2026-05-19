@@ -38,6 +38,7 @@ export default function AuthScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const otpRefs = [useRef<TextInput>(null), useRef<TextInput>(null), useRef<TextInput>(null), useRef<TextInput>(null)];
+  const confirmationRef = useRef<any>(null);
   const phone = `+92${phoneDigits}`;
 
   const requestOtp = async () => {
@@ -48,9 +49,19 @@ export default function AuthScreen() {
     setLoading(true);
     setError(null);
     try {
-      const res = await sendOtp(phone);
-      setStep('otp');
-      showToast(res.twilio ? t('otp_sent_sms') : `${t('demo_code')} 1234`);
+      // 1. Try real native Firebase Phone Authentication first
+      try {
+        const firebaseAuth = require('@react-native-firebase/auth').default;
+        const confirmation = await firebaseAuth().signInWithPhoneNumber(phone);
+        confirmationRef.current = confirmation;
+        setStep('otp');
+        showToast('SMS verification sent via Firebase!');
+      } catch (fbError) {
+        // 2. Gracefully fall back to backend simulated OTP to avoid Expo Go/Web crashes
+        const res = await sendOtp(phone);
+        setStep('otp');
+        showToast(res.twilio ? t('otp_sent_sms') : `${t('demo_code')} 1234`);
+      }
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not send OTP');
@@ -68,14 +79,28 @@ export default function AuthScreen() {
     setLoading(true);
     setError(null);
     try {
-      const data = await verifyAuth(phone, otp, 'Guest');
-      await persistSession({
-        token: data.token,
-        userId: data.user_id,
-        name: data.name || 'Guest',
-        phone,
-      });
-      showToast(`Welcome, ${data.name || 'Guest'}!`);
+      if (confirmationRef.current) {
+        // 1. Verify OTP securely via Firebase
+        const userCredential = await confirmationRef.current.confirm(otp);
+        const fbUser = userCredential.user;
+        const data = await verifyAuth(phone, otp, fbUser.displayName || 'Guest');
+        await persistSession({
+          token: data.token,
+          userId: data.user_id,
+          name: data.name || 'Guest',
+          phone,
+        });
+      } else {
+        // 2. Standard simulated verification fallback
+        const data = await verifyAuth(phone, otp, 'Guest');
+        await persistSession({
+          token: data.token,
+          userId: data.user_id,
+          name: data.name || 'Guest',
+          phone,
+        });
+      }
+      showToast(`Welcome!`);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       router.replace('/');
     } catch (e) {

@@ -28,6 +28,7 @@ import ShimmerOverlay from '../../components/ShimmerOverlay';
 import OnboardingModal from '../../components/OnboardingModal';
 import {
   cancelRecording,
+  getLiveTranscript,
   isRecording,
   startRecording,
   stopRecordingBase64,
@@ -67,6 +68,7 @@ export default function HomeScreen() {
   const { loading, setError, error, priceSort, setPriceSort, searchFilters, setSearchFilters } =
     useBookingStore();
   const submitting = useRef(false);
+  const voiceDraftRef = useRef('');
   const [voicePhase, setVoicePhase] = useState<'idle' | 'listening' | 'transcribing'>('idle');
   const [showGuide, setShowGuide] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
@@ -141,18 +143,31 @@ export default function HomeScreen() {
       setVoicePhase('transcribing');
       try {
         const { base64, mimeType, fallbackText } = await stopRecordingBase64();
-        let text = fallbackText?.trim() ?? '';
+        let text =
+          fallbackText?.trim() ||
+          voiceDraftRef.current.trim() ||
+          getLiveTranscript().trim() ||
+          input.trim();
+
+        // Show browser transcript in the search box immediately
+        if (text) {
+          setInput(text);
+          voiceDraftRef.current = text;
+        }
 
         if (base64 && base64.length > 50) {
           try {
             const res = await transcribeSpeech(base64, mimeType);
-            if (res.text?.trim()) text = res.text.trim();
-          } catch (apiErr) {
-            if (!text) {
-              const msg =
-                apiErr instanceof Error ? apiErr.message : 'Speech API unavailable';
-              if (!msg.includes('503') && !msg.includes('unavailable')) throw apiErr;
+            if (res.text?.trim()) {
+              text = res.text.trim();
+              setInput(text);
+              voiceDraftRef.current = text;
             }
+          } catch (apiErr) {
+            const msg = apiErr instanceof Error ? apiErr.message : '';
+            const apiUnavailable =
+              /unavailable|503|GOOGLE_API_KEY|speech/i.test(msg);
+            if (!text && !apiUnavailable) throw apiErr;
           }
         }
 
@@ -164,7 +179,7 @@ export default function HomeScreen() {
         setVoicePhase('idle');
         setError(null);
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        await runSearch(text);
+        // Text is in the search box — tap Book Now to search (or edit first)
       } catch (e) {
         setVoicePhase('idle');
         cancelRecording();
@@ -175,10 +190,14 @@ export default function HomeScreen() {
 
     try {
       setError(null);
+      voiceDraftRef.current = '';
       setVoicePhase('listening');
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       await startRecording((live) => {
-        if (live.trim()) setInput(live);
+        if (live.trim()) {
+          voiceDraftRef.current = live;
+          setInput(live);
+        }
       });
     } catch (e) {
       setVoicePhase('idle');

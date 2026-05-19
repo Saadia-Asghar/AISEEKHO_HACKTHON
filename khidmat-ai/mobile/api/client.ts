@@ -365,11 +365,15 @@ export async function verifyAuth(phone: string, otp: string, name?: string) {
 }
 
 export async function transcribeSpeech(audioBase64: string, mimeType: string) {
-  const { data } = await api.post<{ text: string; mode: string; provider: string }>(
-    '/api/speech/transcribe',
-    { audio_base64: audioBase64, mime_type: mimeType }
-  );
-  return data;
+  try {
+    const { data } = await api.post<{ text: string; mode: string; provider: string }>(
+      '/api/speech/transcribe',
+      { audio_base64: audioBase64, mime_type: mimeType }
+    );
+    return data;
+  } catch (err) {
+    throw new Error(parseErr(err));
+  }
 }
 
 export async function getSessionTrace(sessionId: string) {

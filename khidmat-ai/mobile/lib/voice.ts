@@ -11,13 +11,12 @@ export type VoiceStopResult = {
 let nativeRecording: { stopAndUnloadAsync: () => Promise<unknown>; getURI: () => string | null } | null =
   null;
 
-// —— Web (MediaRecorder + optional SpeechRecognition for live text) ——
 let webStream: MediaStream | null = null;
 let webRecorder: MediaRecorder | null = null;
 let webChunks: Blob[] = [];
 let webRecognition: SpeechRecognition | null = null;
-let webInterimText = '';
-let webFinalText = '';
+/** Full transcript built from SpeechRecognition */
+let webTranscript = '';
 let onInterimCb: ((text: string) => void) | null = null;
 
 function getSpeechRecognitionCtor(): (new () => SpeechRecognition) | null {
@@ -29,13 +28,30 @@ function getSpeechRecognitionCtor(): (new () => SpeechRecognition) | null {
   return w.SpeechRecognition || w.webkitSpeechRecognition || null;
 }
 
+function rebuildTranscriptFromEvent(event: SpeechRecognitionEvent): string {
+  let combined = '';
+  for (let i = 0; i < event.results.length; i++) {
+    const part = event.results[i][0]?.transcript ?? '';
+    combined += part;
+  }
+  return combined.trim();
+}
+
+function emitLiveTranscript(text: string) {
+  webTranscript = text;
+  if (text && onInterimCb) onInterimCb(text);
+}
+
+function getWebTranscript(): string {
+  return webTranscript.trim();
+}
+
 async function startWeb(onInterim?: (text: string) => void): Promise<void> {
   if (!navigator.mediaDevices?.getUserMedia) {
     throw new Error('Microphone not available in this browser');
   }
   onInterimCb = onInterim ?? null;
-  webInterimText = '';
-  webFinalText = '';
+  webTranscript = '';
 
   webStream = await navigator.mediaDevices.getUserMedia({ audio: true });
   const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
@@ -49,29 +65,23 @@ async function startWeb(onInterim?: (text: string) => void): Promise<void> {
   webRecorder.ondataavailable = (e) => {
     if (e.data.size > 0) webChunks.push(e.data);
   };
-  webRecorder.start(250);
+  webRecorder.start(200);
 
   const Ctor = getSpeechRecognitionCtor();
   if (Ctor) {
     webRecognition = new Ctor();
     webRecognition.continuous = true;
     webRecognition.interimResults = true;
-    webRecognition.lang = 'ur-PK';
+    // en-US is most reliable in Chrome; still picks up Urdu/Roman Urdu reasonably well
+    webRecognition.lang = 'en-US';
+    webRecognition.maxAlternatives = 1;
     webRecognition.onresult = (event: SpeechRecognitionEvent) => {
-      let interim = '';
-      let fin = '';
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const r = event.results[i];
-        const t = r[0]?.transcript ?? '';
-        if (r.isFinal) fin += t;
-        else interim += t;
-      }
-      if (fin) webFinalText = (webFinalText + fin).trim();
-      webInterimText = interim.trim();
-      const live = [webFinalText, webInterimText].filter(Boolean).join(' ').trim();
-      if (live && onInterimCb) onInterimCb(live);
+      const text = rebuildTranscriptFromEvent(event);
+      if (text) emitLiveTranscript(text);
     };
-    webRecognition.onerror = () => {};
+    webRecognition.onerror = () => {
+      /* no-op; permission errors surface from getUserMedia */
+    };
     try {
       webRecognition.start();
     } catch {
@@ -93,41 +103,46 @@ function blobToBase64(blob: Blob): Promise<string> {
   });
 }
 
-async function stopWeb(): Promise<VoiceStopResult> {
-  const fallbackText = [webFinalText, webInterimText].filter(Boolean).join(' ').trim();
-
-  if (webRecognition) {
+function waitForRecognitionEnd(rec: SpeechRecognition, timeoutMs = 1500): Promise<void> {
+  return new Promise((resolve) => {
+    const done = () => {
+      clearTimeout(timer);
+      resolve();
+    };
+    const timer = setTimeout(done, timeoutMs);
+    rec.onend = done;
     try {
-      webRecognition.stop();
+      rec.stop();
     } catch {
-      /* ignore */
+      done();
     }
-    webRecognition = null;
-  }
+  });
+}
 
+async function stopMediaRecorder(mime: string, fallbackText: string): Promise<VoiceStopResult> {
   if (!webRecorder || webRecorder.state === 'inactive') {
     webStream?.getTracks().forEach((t) => t.stop());
     webStream = null;
-    return { base64: '', mimeType: 'audio/webm', fallbackText };
+    return { base64: '', mimeType: mime, fallbackText };
   }
 
   return new Promise((resolve, reject) => {
     const recorder = webRecorder!;
-    const mime = recorder.mimeType || 'audio/webm';
+    const mimeType = recorder.mimeType || mime;
 
     recorder.onstop = async () => {
       try {
         webStream?.getTracks().forEach((t) => t.stop());
         webStream = null;
         webRecorder = null;
-        const blob = new Blob(webChunks, { type: mime });
+        const blob = new Blob(webChunks, { type: mimeType });
         webChunks = [];
         if (blob.size < 100) {
-          resolve({ base64: '', mimeType: mime, fallbackText });
+          resolve({ base64: '', mimeType, fallbackText });
           return;
         }
         const base64 = await blobToBase64(blob);
-        resolve({ base64, mimeType: mime, fallbackText });
+        resolve({ base64, mimeType, fallbackText });
       } catch (e) {
         reject(e);
       }
@@ -135,11 +150,27 @@ async function stopWeb(): Promise<VoiceStopResult> {
 
     recorder.onerror = () => reject(new Error('Recording failed'));
     try {
+      if (recorder.state === 'recording') recorder.requestData();
       recorder.stop();
     } catch (e) {
       reject(e);
     }
   });
+}
+
+async function stopWeb(): Promise<VoiceStopResult> {
+  let fallbackText = getWebTranscript();
+
+  if (webRecognition) {
+    const rec = webRecognition;
+    webRecognition = null;
+    await waitForRecognitionEnd(rec);
+    fallbackText = getWebTranscript() || fallbackText;
+  }
+
+  onInterimCb = null;
+  const mime = webRecorder?.mimeType || 'audio/webm';
+  return stopMediaRecorder(mime, fallbackText);
 }
 
 function cancelWeb(): void {
@@ -162,12 +193,10 @@ function cancelWeb(): void {
   webChunks = [];
   webStream?.getTracks().forEach((t) => t.stop());
   webStream = null;
-  webInterimText = '';
-  webFinalText = '';
+  webTranscript = '';
   onInterimCb = null;
 }
 
-// —— Native (expo-av, loaded only on iOS/Android) ——
 async function startNative(): Promise<void> {
   const { Audio } = await import('expo-av');
   const perm = await Audio.requestPermissionsAsync();
@@ -206,7 +235,6 @@ function cancelNative(): void {
   }
 }
 
-/** Start mic — optional callback receives live transcript on web */
 export async function startRecording(onInterim?: (text: string) => void): Promise<void> {
   if (isRecording()) return;
   if (Platform.OS === 'web') {
@@ -216,7 +244,6 @@ export async function startRecording(onInterim?: (text: string) => void): Promis
   await startNative();
 }
 
-/** Stop mic and return audio for API + optional browser fallback text */
 export async function stopRecordingBase64(): Promise<VoiceStopResult> {
   if (Platform.OS === 'web') {
     return stopWeb();
@@ -226,7 +253,9 @@ export async function stopRecordingBase64(): Promise<VoiceStopResult> {
 
 export function isRecording(): boolean {
   if (Platform.OS === 'web') {
-    return webRecorder != null && webRecorder.state === 'recording';
+    return (
+      (webRecorder != null && webRecorder.state === 'recording') || webRecognition != null
+    );
   }
   return nativeRecording != null;
 }
@@ -237,4 +266,9 @@ export function cancelRecording(): void {
     return;
   }
   cancelNative();
+}
+
+/** Current browser transcript while listening (web only) */
+export function getLiveTranscript(): string {
+  return getWebTranscript();
 }
