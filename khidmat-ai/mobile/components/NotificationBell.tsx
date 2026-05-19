@@ -8,17 +8,24 @@ import { useAppNotifications } from '../lib/appNotifications';
 export default function NotificationBell({ size = 'md' }: { size?: 'sm' | 'md' }) {
   const { colors } = useTheme();
   const styles = useMemo(() => bellStyles(colors, size), [colors, size]);
-  const { items, hydrated, hydrate, unreadCount } = useAppNotifications();
+  const items = useAppNotifications((s) => s.items);
+  const hydrated = useAppNotifications((s) => s.hydrated);
+  const hydrate = useAppNotifications((s) => s.hydrate);
 
   useEffect(() => {
     if (!hydrated) void hydrate();
   }, [hydrated, hydrate]);
 
-  const unread = unreadCount();
+  const unread = items.filter((n) => !n.read).length;
+
+  const openNotifications = () => {
+    void hydrate();
+    router.push('/notifications');
+  };
 
   return (
     <Pressable
-      onPress={() => router.push('/notifications')}
+      onPress={openNotifications}
       style={styles.btn}
       accessibilityLabel="Notifications"
       hitSlop={8}
@@ -26,7 +33,7 @@ export default function NotificationBell({ size = 'md' }: { size?: 'sm' | 'md' }
       <Text style={styles.icon}>🔔</Text>
       {unread > 0 ? (
         <View style={styles.badge}>
-          <Text style={styles.badgeText}>{unread > 9 ? '9+' : unread}</Text>
+          <Text style={styles.badgeText}>{unread > 9 ? '9+' : String(unread)}</Text>
         </View>
       ) : null}
     </Pressable>
@@ -35,7 +42,6 @@ export default function NotificationBell({ size = 'md' }: { size?: 'sm' | 'md' }
 
 /** Bell + optional settings for app headers */
 export function HeaderActions({ onSettings }: { onSettings?: () => void }) {
-  const { colors } = useTheme();
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
       <NotificationBell />

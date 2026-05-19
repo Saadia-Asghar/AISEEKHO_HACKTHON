@@ -18,6 +18,8 @@ type NotificationState = {
   add: (n: Omit<AppNotification, 'id' | 'createdAt' | 'read'> & { id?: string }) => void;
   markRead: (id: string) => void;
   markAllRead: () => void;
+  remove: (id: string) => void;
+  clearAll: () => void;
   hydrate: () => Promise<void>;
   unreadCount: () => number;
 };
@@ -59,6 +61,15 @@ export const useAppNotifications = create<NotificationState>((set, get) => ({
     const items = get().items.map((x) => ({ ...x, read: true }));
     set({ items });
     void persist(items);
+  },
+  remove: (id) => {
+    const items = get().items.filter((x) => x.id !== id);
+    set({ items });
+    void persist(items);
+  },
+  clearAll: () => {
+    set({ items: [] });
+    void persist([]);
   },
   hydrate: async () => {
     try {
