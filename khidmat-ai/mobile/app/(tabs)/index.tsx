@@ -36,6 +36,7 @@ import StitchSectionLabel from '../../components/stitch/StitchSectionLabel';
 import StitchFeaturedCard from '../../components/stitch/StitchFeaturedCard';
 import SearchSuggestionsPanel from '../../components/SearchSuggestionsPanel';
 import GoogleBadge from '../../components/GoogleBadge';
+import ContactedWorkersSection from '../../components/ContactedWorkersSection';
 
 const DEMO = 'Mujhe kal subah G-13 mein AC technician chahiye';
 
@@ -246,6 +247,12 @@ export default function HomeScreen() {
               </View>
             </>
           ) : null}
+
+          <ContactedWorkersSection
+            workers={contacted}
+            onBook={bookContacted}
+            onProfile={(id) => router.push(`/provider/${id}`)}
+          />
 
           <StitchFeaturedCard />
 

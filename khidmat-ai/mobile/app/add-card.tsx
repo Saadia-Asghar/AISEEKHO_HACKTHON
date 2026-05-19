@@ -9,10 +9,12 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { colors, fonts, radius, spacing } from '../constants/theme';
+import type { AppColors } from '../constants/theme';
+import { fonts, gradients, radius, spacing } from '../constants/theme';
+import { useTheme } from '../lib/ThemeContext';
+import ThemedSafeArea from '../components/ThemedSafeArea';
 import StitchAppHeader from '../components/stitch/StitchAppHeader';
 import { addSavedCard } from '../lib/paymentMethods';
 import { showToast } from '../lib/toastStore';
@@ -29,6 +31,8 @@ function formatExpiry(raw: string) {
 }
 
 export default function AddCardScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => addCardStyles(colors), [colors]);
   const [number, setNumber] = useState('');
   const [name, setName] = useState('');
   const [expiry, setExpiry] = useState('');
@@ -66,7 +70,7 @@ export default function AddCardScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <ThemedSafeArea edges={['top', 'bottom']}>
       <StitchAppHeader title="Add New Card" onBack={() => router.back()} />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
@@ -123,7 +127,7 @@ export default function AddCardScreen() {
           <Text style={styles.footer}>Powered by Google</Text>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </ThemedSafeArea>
   );
 }
 
@@ -144,11 +148,13 @@ function Field({
   secure?: boolean;
   half?: boolean;
 }) {
+  const { colors } = useTheme();
+  const fieldStyles = useMemo(() => addCardStyles(colors), [colors]);
   return (
-    <View style={[styles.field, half && styles.fieldHalf]}>
-      <Text style={styles.fieldLabel}>{label}</Text>
+    <View style={[fieldStyles.field, half && fieldStyles.fieldHalf]}>
+      <Text style={fieldStyles.fieldLabel}>{label}</Text>
       <TextInput
-        style={styles.input}
+        style={fieldStyles.input}
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
@@ -161,7 +167,8 @@ function Field({
   );
 }
 
-const styles = StyleSheet.create({
+function addCardStyles(colors: AppColors) {
+  return StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { padding: spacing.lg, paddingBottom: spacing.xl },
   cardPreview: {
@@ -284,4 +291,5 @@ const styles = StyleSheet.create({
     marginTop: spacing.lg,
     fontFamily: fonts.body,
   },
-});
+  });
+}

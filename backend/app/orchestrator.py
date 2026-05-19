@@ -332,6 +332,8 @@ class KhidmatOrchestrator:
                     lng=p.lng,
                     distance_km=p.distance_km,
                     rating=p.effective_rating or p.rating,
+                    area=p.area or "",
+                    category=p.category or "",
                     price_min_pkr=p.price_min_pkr,
                     price_max_pkr=p.price_max_pkr,
                     is_recommended=p.id == recommended_id,

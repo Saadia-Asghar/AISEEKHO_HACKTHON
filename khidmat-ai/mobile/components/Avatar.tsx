@@ -1,5 +1,8 @@
+import { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, fonts, radius } from '../constants/theme';
+import type { AppColors } from '../constants/theme';
+import { fonts, radius } from '../constants/theme';
+import { useTheme } from '../lib/ThemeContext';
 
 export function initials(name: string) {
   return name
@@ -17,12 +20,6 @@ function variantFor(name: string): Variant {
   return n === 0 ? 'violet' : n === 1 ? 'teal' : 'amber';
 }
 
-const variantBg: Record<Variant, string> = {
-  violet: colors.violet,
-  teal: colors.jade,
-  amber: colors.amber,
-};
-
 export default function Avatar({
   name,
   size = 48,
@@ -34,6 +31,16 @@ export default function Avatar({
   variant?: Variant;
   square?: boolean;
 }) {
+  const { colors } = useTheme();
+  const variantBg = useMemo(
+    (): Record<Variant, string> => ({
+      violet: colors.violet,
+      teal: colors.jade,
+      amber: colors.amber,
+    }),
+    [colors]
+  );
+  const styles = useMemo(() => avatarStyles(colors), [colors]);
   const v = variant ?? variantFor(name);
   const br = square ? radius.md : size / 2;
   return (
@@ -53,7 +60,9 @@ export default function Avatar({
   );
 }
 
-const styles = StyleSheet.create({
-  circle: { alignItems: 'center', justifyContent: 'center' },
-  text: { color: colors.text, fontWeight: '700', fontFamily: fonts.display },
-});
+function avatarStyles(colors: AppColors) {
+  return StyleSheet.create({
+    circle: { alignItems: 'center', justifyContent: 'center' },
+    text: { color: colors.onPrimaryContainer, fontWeight: '700', fontFamily: fonts.display },
+  });
+}

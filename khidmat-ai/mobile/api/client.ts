@@ -69,6 +69,8 @@ export type MapMarker = {
   lng: number;
   distance_km: number;
   rating: number;
+  area?: string;
+  category?: string;
   price_min_pkr?: number;
   price_max_pkr?: number;
   is_recommended?: boolean;
@@ -233,6 +235,11 @@ export async function getContactedWorkers(userId: string) {
     `/api/users/${userId}/contacted`
   );
   return data.contacted;
+}
+
+export async function deleteUserAccount(userId: string) {
+  const { data } = await api.delete<{ status: string; user_id: string }>(`/api/users/${userId}`);
+  return data;
 }
 
 export type ServiceCategory = {

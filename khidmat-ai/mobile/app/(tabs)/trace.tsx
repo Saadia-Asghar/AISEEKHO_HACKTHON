@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
@@ -45,17 +45,30 @@ export default function TraceScreen() {
   const [loading, setLoading] = useState(false);
   const [live, setLive] = useState(true);
 
+  const fetchTrace = useCallback(async (silent = false) => {
+    if (!result?.session_id) return;
+    if (!silent) setLoading(true);
+    try {
+      const data = await getSessionTrace(result.session_id);
+      if (data.trace?.length) setTrace(data.trace);
+      else if (result.trace?.length) setTrace(result.trace);
+    } catch {
+      if (result.trace?.length) setTrace(result.trace);
+    } finally {
+      if (!silent) setLoading(false);
+    }
+  }, [result?.session_id, result?.trace]);
+
   useEffect(() => {
     setTrace(result?.trace ?? []);
-    if (!result?.session_id) return;
-    setLoading(true);
-    getSessionTrace(result.session_id)
-      .then((data) => {
-        if (data.trace?.length) setTrace(data.trace);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [result?.session_id, result?.trace]);
+    fetchTrace();
+  }, [fetchTrace]);
+
+  useEffect(() => {
+    if (!live || !result?.session_id) return;
+    const id = setInterval(() => fetchTrace(true), 3000);
+    return () => clearInterval(id);
+  }, [live, result?.session_id, fetchTrace]);
 
   const timeline = useMemo(() => {
     return trace.map((entry, i) => {

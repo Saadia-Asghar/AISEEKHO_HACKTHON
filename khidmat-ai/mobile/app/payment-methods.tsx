@@ -1,8 +1,10 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useFocusEffect } from 'expo-router';
-import { colors, fonts, radius, spacing } from '../constants/theme';
+import type { AppColors } from '../constants/theme';
+import { fonts, radius, spacing } from '../constants/theme';
+import { useTheme } from '../lib/ThemeContext';
+import ThemedSafeArea from '../components/ThemedSafeArea';
 import StitchAppHeader from '../components/stitch/StitchAppHeader';
 import StitchGlassCard from '../components/stitch/StitchGlassCard';
 import {
@@ -15,15 +17,17 @@ import {
 } from '../lib/paymentMethods';
 import { showToast } from '../lib/toastStore';
 
-function CardBrandIcon({ brand }: { brand: SavedCard['brand'] }) {
+function CardBrandIcon({ brand, boxStyle }: { brand: SavedCard['brand']; boxStyle: object }) {
   return (
-    <View style={styles.brandBox}>
-      <Text style={styles.brandEmoji}>{brand === 'visa' ? '💳' : '🔴'}</Text>
+    <View style={boxStyle}>
+      <Text style={{ fontSize: 18 }}>{brand === 'visa' ? '💳' : '🔴'}</Text>
     </View>
   );
 }
 
 export default function PaymentMethodsScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => pmStyles(colors), [colors]);
   const [cards, setCards] = useState<SavedCard[]>([]);
   const [wallets, setWallets] = useState<SavedWallet[]>([]);
   const [selected, setSelected] = useState('visa-1');
@@ -47,7 +51,7 @@ export default function PaymentMethodsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <ThemedSafeArea edges={['top']}>
       <StitchAppHeader title="Payment Methods" onBack={() => router.back()} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Text style={styles.sectionLabel}>Saved Methods</Text>
@@ -58,7 +62,7 @@ export default function PaymentMethodsScreen() {
               <Pressable key={card.id} onPress={() => select(card.id)}>
                 <StitchGlassCard style={styles.row}>
                   <View style={styles.rowLeft}>
-                    <CardBrandIcon brand={card.brand} />
+                    <CardBrandIcon brand={card.brand} boxStyle={styles.brandBox} />
                     <View>
                       <Text style={styles.rowTitle}>
                         {card.brand === 'visa' ? 'Visa' : 'Mastercard'} ending in {card.last4}
@@ -80,7 +84,7 @@ export default function PaymentMethodsScreen() {
           {wallets.map((w) => (
             <Pressable
               key={w.id}
-              onPress={() => showToast(`${w.type === 'jazzcash' ? 'JazzCash' : 'EasyPaisa'} settings coming soon`)}
+              onPress={() => select(w.id)}
             >
               <StitchGlassCard style={styles.row}>
                 <View style={styles.rowLeft}>
@@ -123,11 +127,12 @@ export default function PaymentMethodsScreen() {
 
         <Text style={styles.footer}>Powered by Google</Text>
       </ScrollView>
-    </SafeAreaView>
+    </ThemedSafeArea>
   );
 }
 
-const styles = StyleSheet.create({
+function pmStyles(colors: AppColors) {
+  return StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { padding: spacing.lg, paddingBottom: 48 },
   sectionLabel: {
@@ -208,4 +213,5 @@ const styles = StyleSheet.create({
     marginTop: spacing.lg,
     fontFamily: fonts.body,
   },
-});
+  });
+}

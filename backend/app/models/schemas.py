@@ -65,6 +65,8 @@ class MapMarker(BaseModel):
     lng: float
     distance_km: float
     rating: float
+    area: str = ""
+    category: str = ""
     price_min_pkr: int | None = None
     price_max_pkr: int | None = None
     is_recommended: bool = False

@@ -44,7 +44,7 @@ Guest login: **+923000000000** / OTP **1234**
 - **Profile → Dark Mode** toggle: ON = dark, OFF = light (Stitch light `#f8f9fb` background)
 - Themed: Home, Profile, tab bar, headers, glass cards, search box, chips, loading overlay, filters
 
-Screens still on static dark styles until migrated: some of Results, Payment, Bookings, Auth (toggle still updates page background on web).
+Themed screens include Bookings, Trace, Results, Auth, Payment, Browse, booking-confirm, provider, payment-methods, add-card.
 
 ---
 

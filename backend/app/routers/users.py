@@ -71,6 +71,14 @@ def list_bookings(user_id: str):
     return {"bookings": user_data.list_user_bookings(user_id)}
 
 
+@router.delete("/{user_id}")
+def delete_account(user_id: str):
+    try:
+        return user_data.delete_user_account(user_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e
+
+
 @router.post("/ratings")
 def submit_rating(body: SubmitRatingRequest):
     try:

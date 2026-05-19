@@ -1,7 +1,9 @@
 import { useMemo } from 'react';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useI18n } from '../lib/i18n';
-import { colors, fonts, radius, spacing } from '../constants/theme';
+import type { AppColors } from '../constants/theme';
+import { fonts, radius, spacing } from '../constants/theme';
+import { useTheme } from '../lib/ThemeContext';
 import type { MapMarker } from '../api/client';
 
 const MAP_W = 320;
@@ -22,6 +24,11 @@ function project(
   };
 }
 
+function sectorLabel(m: MapMarker) {
+  if (m.area) return m.area;
+  return m.category?.replace(/_/g, ' ') || '';
+}
+
 export default function NearbyMap({
   markers,
   userLat,
@@ -34,6 +41,9 @@ export default function NearbyMap({
   onMarkerPress?: (id: string) => void;
 }) {
   const { t } = useI18n();
+  const { colors } = useTheme();
+  const styles = useMemo(() => mapStyles(colors), [colors]);
+
   const layout = useMemo(() => {
     if (!markers.length) return null;
     const centerLat = userLat ?? markers[0].lat;
@@ -57,6 +67,20 @@ export default function NearbyMap({
     };
   }, [markers, userLat, userLng]);
 
+  const sectors = useMemo(() => {
+    const set = new Set<string>();
+    markers.forEach((m) => {
+      const s = sectorLabel(m);
+      if (s) set.add(s);
+    });
+    return [...set].slice(0, 6);
+  }, [markers]);
+
+  const openMaps = (m: MapMarker) => {
+    const url = `https://www.google.com/maps/search/?api=1&query=${m.lat},${m.lng}`;
+    Linking.openURL(url).catch(() => {});
+  };
+
   if (!layout) {
     return (
       <View style={styles.empty}>
@@ -67,7 +91,16 @@ export default function NearbyMap({
 
   return (
     <View style={styles.wrap}>
-      <Text style={styles.title}>📍 Nearby on map</Text>
+      <Text style={styles.title}>📍 Nearby by sector</Text>
+      {sectors.length > 0 ? (
+        <View style={styles.sectorRow}>
+          {sectors.map((s) => (
+            <View key={s} style={styles.sectorChip}>
+              <Text style={styles.sectorText}>{s}</Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
       <View style={[styles.map, { width: '100%', height: MAP_H }]}>
         <View style={styles.gridH} />
         <View style={styles.gridV} />
@@ -92,18 +125,24 @@ export default function NearbyMap({
       <View style={styles.legend}>
         <Text style={styles.legendItem}>● You</Text>
         <Text style={styles.legendItem}>⭐ Top match</Text>
-        <Text style={styles.legendItem}>👷 Contacted before</Text>
+        <Text style={styles.legendItem}>👷 Contacted</Text>
       </View>
       <View style={styles.list}>
-        {markers.slice(0, 4).map((m) => (
+        {markers.slice(0, 5).map((m) => (
           <Pressable key={m.id} style={styles.listRow} onPress={() => onMarkerPress?.(m.id)}>
-            <Text style={styles.listName} numberOfLines={1}>
-              {m.name}
-            </Text>
-            <Text style={styles.listMeta}>
-              {m.distance_km.toFixed(1)} km · ★ {m.rating.toFixed(1)}
-              {m.price_min_pkr ? ` · from ${m.price_min_pkr.toLocaleString()} PKR` : ''}
-            </Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.listName} numberOfLines={1}>
+                {m.name}
+              </Text>
+              <Text style={styles.listMeta}>
+                {sectorLabel(m) ? `${sectorLabel(m)} · ` : ''}
+                {m.distance_km.toFixed(1)} km · ★ {m.rating.toFixed(1)}
+                {m.price_min_pkr ? ` · from ${m.price_min_pkr.toLocaleString()} PKR` : ''}
+              </Text>
+            </View>
+            <Pressable style={styles.mapsLink} onPress={() => openMaps(m)} hitSlop={8}>
+              <Text style={styles.mapsLinkText}>Maps</Text>
+            </Pressable>
           </Pressable>
         ))}
       </View>
@@ -111,82 +150,96 @@ export default function NearbyMap({
   );
 }
 
-const styles = StyleSheet.create({
-  wrap: { marginHorizontal: spacing.lg, marginBottom: spacing.md },
-  title: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: 8,
-    fontFamily: fonts.body,
-  },
-  map: {
-    backgroundColor: 'rgba(46,196,169,0.08)',
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: 'rgba(46,196,169,0.25)',
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  gridH: {
-    position: 'absolute',
-    left: '20%',
-    right: '20%',
-    top: '50%',
-    height: 1,
-    backgroundColor: 'rgba(255,255,255,0.06)',
-  },
-  gridV: {
-    position: 'absolute',
-    top: '20%',
-    bottom: '20%',
-    left: '50%',
-    width: 1,
-    backgroundColor: 'rgba(255,255,255,0.06)',
-  },
-  userPin: { position: 'absolute', alignItems: 'center', zIndex: 3 },
-  userDot: { color: colors.jade, fontSize: 22 },
-  userLabel: { fontSize: 9, color: colors.jade, fontWeight: '700', fontFamily: fonts.body },
-  pin: {
-    position: 'absolute',
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: colors.card,
-    borderWidth: 2,
-    borderColor: colors.violet,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 2,
-  },
-  pinRec: { borderColor: colors.amber, backgroundColor: colors.amberSoft },
-  pinEmoji: { fontSize: 14 },
-  legend: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 8 },
-  legendItem: { fontSize: 10, color: colors.text3, fontFamily: fonts.body },
-  mapsBtn: {
-    marginTop: 8,
-    paddingVertical: 10,
-    alignItems: 'center',
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.jade,
-  },
-  mapsBtnText: { color: colors.jade, fontWeight: '600', fontSize: 12, fontFamily: fonts.body },
-  list: { marginTop: 10, gap: 6 },
-  listRow: {
-    padding: 10,
-    backgroundColor: colors.card,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  listName: { fontSize: 13, fontWeight: '600', color: colors.text, fontFamily: fonts.body },
-  listMeta: { fontSize: 11, color: colors.text2, marginTop: 2, fontFamily: fonts.body },
-  empty: {
-    marginHorizontal: spacing.lg,
-    padding: spacing.md,
-    backgroundColor: colors.card,
-    borderRadius: radius.lg,
-  },
-  emptyText: { color: colors.text3, fontSize: 12, textAlign: 'center', fontFamily: fonts.body },
-});
+function mapStyles(colors: AppColors) {
+  return StyleSheet.create({
+    wrap: { marginHorizontal: spacing.lg, marginBottom: spacing.md },
+    title: {
+      fontSize: 13,
+      fontWeight: '700',
+      color: colors.text,
+      marginBottom: 8,
+      fontFamily: fonts.body,
+    },
+    sectorRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 8 },
+    sectorChip: {
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: radius.pill,
+      backgroundColor: colors.violetSoft,
+      borderWidth: 1,
+      borderColor: colors.border2,
+    },
+    sectorText: { fontSize: 11, fontWeight: '600', color: colors.primaryText, fontFamily: fonts.body },
+    map: {
+      backgroundColor: colors.jadeSoft,
+      borderRadius: radius.lg,
+      borderWidth: 1,
+      borderColor: colors.border,
+      overflow: 'hidden',
+      position: 'relative',
+    },
+    gridH: {
+      position: 'absolute',
+      left: '20%',
+      right: '20%',
+      top: '50%',
+      height: 1,
+      backgroundColor: colors.border,
+    },
+    gridV: {
+      position: 'absolute',
+      top: '20%',
+      bottom: '20%',
+      left: '50%',
+      width: 1,
+      backgroundColor: colors.border,
+    },
+    userPin: { position: 'absolute', alignItems: 'center', zIndex: 3 },
+    userDot: { color: colors.jade, fontSize: 22 },
+    userLabel: { fontSize: 9, color: colors.jade, fontWeight: '700', fontFamily: fonts.body },
+    pin: {
+      position: 'absolute',
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      backgroundColor: colors.card,
+      borderWidth: 2,
+      borderColor: colors.violet,
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 2,
+    },
+    pinRec: { borderColor: colors.amber, backgroundColor: colors.amberSoft },
+    pinEmoji: { fontSize: 14 },
+    legend: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 8 },
+    legendItem: { fontSize: 10, color: colors.text3, fontFamily: fonts.body },
+    list: { marginTop: 10, gap: 6 },
+    listRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 10,
+      backgroundColor: colors.card,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      gap: 8,
+    },
+    listName: { fontSize: 13, fontWeight: '600', color: colors.text, fontFamily: fonts.body },
+    listMeta: { fontSize: 11, color: colors.text2, marginTop: 2, fontFamily: fonts.body },
+    mapsLink: {
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.jade,
+    },
+    mapsLinkText: { color: colors.jade, fontWeight: '600', fontSize: 11, fontFamily: fonts.body },
+    empty: {
+      marginHorizontal: spacing.lg,
+      padding: spacing.md,
+      backgroundColor: colors.card,
+      borderRadius: radius.lg,
+    },
+    emptyText: { color: colors.text3, fontSize: 12, textAlign: 'center', fontFamily: fonts.body },
+  });
+}

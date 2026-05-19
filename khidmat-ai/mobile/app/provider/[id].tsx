@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Linking,
@@ -8,10 +8,12 @@ import {
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { colors, fonts, radius, spacing } from '../../constants/theme';
+import type { AppColors } from '../../constants/theme';
+import { fonts, radius, spacing } from '../../constants/theme';
+import { useTheme } from '../../lib/ThemeContext';
+import ThemedSafeArea from '../../components/ThemedSafeArea';
 import Avatar from '../../components/Avatar';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
@@ -45,6 +47,8 @@ function categoryLabel(cat: string) {
 }
 
 export default function ProviderScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => providerStyles(colors), [colors]);
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t } = useI18n();
   const [data, setData] = useState<Record<string, unknown> | null>(null);
@@ -75,9 +79,9 @@ export default function ProviderScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.safe}>
+      <ThemedSafeArea>
         <ActivityIndicator color={colors.violet} style={{ marginTop: spacing.xl }} />
-      </SafeAreaView>
+      </ThemedSafeArea>
     );
   }
 
@@ -147,7 +151,7 @@ export default function ProviderScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <ThemedSafeArea edges={['top', 'bottom']}>
       <StitchAppHeader
         onBack={() => router.back()}
         right={<Badge label={`✓ ${t('verified')}`} variant="jade" />}
@@ -243,11 +247,12 @@ export default function ProviderScreen() {
         <Button label={`📞 ${t('call_provider')}`} variant="outline" onPress={callProvider} style={{ width: '100%' }} />
         <GoogleBadge />
       </ScrollView>
-    </SafeAreaView>
+    </ThemedSafeArea>
   );
 }
 
-const styles = StyleSheet.create({
+function providerStyles(colors: AppColors) {
+  return StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { paddingBottom: spacing.xl, paddingTop: spacing.sm },
   screenTitle: {
@@ -321,5 +326,6 @@ const styles = StyleSheet.create({
   revStars: { color: colors.amber, fontSize: 13 },
   revText: { fontSize: 13, color: colors.text2, lineHeight: 20, fontFamily: fonts.body },
   sectorReview: { backgroundColor: colors.violetSoft, borderRadius: radius.md, padding: spacing.md, marginBottom: 8 },
-  sectorBadge: { fontSize: 10, fontWeight: '700', color: colors.violetBright, marginBottom: 6, fontFamily: fonts.body },
-});
+  sectorBadge: { fontSize: 10, fontWeight: '700', color: colors.primaryText, marginBottom: 6, fontFamily: fonts.body },
+  });
+}

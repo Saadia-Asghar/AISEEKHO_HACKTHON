@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
   Platform,
@@ -8,10 +8,12 @@ import {
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { colors, fonts, radius, shadows, spacing } from '../constants/theme';
+import type { AppColors } from '../constants/theme';
+import { fonts, radius, shadows, spacing } from '../constants/theme';
+import { useTheme } from '../lib/ThemeContext';
+import ThemedSafeArea from '../components/ThemedSafeArea';
 import { useBookingStore } from '../lib/store';
 import { getSession } from '../lib/auth';
 import { postReview } from '../api/client';
@@ -36,6 +38,8 @@ if (Platform.OS !== 'web') {
 }
 
 export default function BookingConfirmScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => confirmStyles(colors), [colors]);
   const { result } = useBookingStore();
   const { t } = useI18n();
   const scale = useRef(new Animated.Value(0)).current;
@@ -122,7 +126,7 @@ export default function BookingConfirmScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <ThemedSafeArea edges={['top', 'bottom']}>
       <StitchAppHeader onBack={() => router.back()} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Text style={styles.confirmTitle}>{t('confirm_title')}</Text>
@@ -198,11 +202,12 @@ export default function BookingConfirmScreen() {
           style={{ width: '100%', marginTop: spacing.md }}
         />
       </ScrollView>
-    </SafeAreaView>
+    </ThemedSafeArea>
   );
 }
 
-const styles = StyleSheet.create({
+function confirmStyles(colors: AppColors) {
+  return StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { padding: spacing.lg, paddingBottom: spacing.xl },
   confirmTitle: {
@@ -250,4 +255,5 @@ const styles = StyleSheet.create({
   starRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
   starPick: { fontSize: 30, color: colors.text3 },
   starOn: { color: colors.amber },
-});
+  });
+}

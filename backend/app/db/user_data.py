@@ -398,6 +398,23 @@ def is_provider_saved(user_id: str | None, provider_id: str) -> bool:
     return row is not None
 
 
+def delete_user_account(user_id: str) -> dict[str, str]:
+    """Remove user profile and linked prefs (demo-safe; bookings kept anonymized)."""
+    with _connect() as conn:
+        user = conn.execute("SELECT id FROM users WHERE id = ?", (user_id,)).fetchone()
+        if not user:
+            raise ValueError("User not found")
+        conn.execute("DELETE FROM saved_providers WHERE user_id = ?", (user_id,))
+        conn.execute("DELETE FROM provider_ratings WHERE user_id = ?", (user_id,))
+        conn.execute("DELETE FROM auth_tokens WHERE user_id = ?", (user_id,))
+        conn.execute(
+            "UPDATE bookings SET user_id = NULL, customer_name = 'Deleted User' WHERE user_id = ?",
+            (user_id,),
+        )
+        conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
+    return {"status": "deleted", "user_id": user_id}
+
+
 def get_rating_for_booking(user_id: str, booking_id: str) -> dict[str, Any] | None:
     with _connect() as conn:
         row = conn.execute(

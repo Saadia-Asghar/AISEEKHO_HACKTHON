@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
+  Linking,
   Modal,
   Pressable,
   ScrollView,
@@ -17,7 +18,7 @@ import type { AppColors } from '../../constants/theme';
 import { fonts, gradients, radius, spacing } from '../../constants/theme';
 import { useTheme } from '../../lib/ThemeContext';
 import { clearSession, getSession, type Session } from '../../lib/auth';
-import { getBookings, getUserReviews } from '../../api/client';
+import { deleteUserAccount, getBookings, getUserReviews } from '../../api/client';
 import { useI18n } from '../../lib/i18n';
 import type { Lang } from '../../constants/i18n';
 import { showToast } from '../../lib/toastStore';
@@ -131,8 +132,6 @@ export default function ProfileScreen() {
 
   const bookingsDisplay = bookingsCount !== null ? String(bookingsCount) : '—';
 
-  const stub = (msg: string) => () => showToast(msg);
-
   const confirmLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
       { text: 'Cancel', style: 'cancel' },
@@ -212,20 +211,6 @@ export default function ProfileScreen() {
             border
           />
           <SettingRow
-            icon="🔔"
-            iconBg="rgba(124, 58, 237, 0.2)"
-            label="Notifications"
-            onPress={stub('Notification settings coming soon')}
-            border
-          />
-          <SettingRow
-            icon="🛡️"
-            iconBg="rgba(124, 58, 237, 0.2)"
-            label="Privacy & Security"
-            onPress={stub('Privacy settings coming soon')}
-            border
-          />
-          <SettingRow
             icon="💳"
             iconBg="rgba(124, 58, 237, 0.2)"
             label="Payment Methods"
@@ -251,7 +236,7 @@ export default function ProfileScreen() {
             icon="📄"
             iconBg="rgba(124, 58, 237, 0.2)"
             label="Terms of Service"
-            onPress={stub('Terms of service — khidmat.ai')}
+            onPress={() => Linking.openURL('https://khidmat.ai').catch(() => showToast('khidmat.ai'))}
           />
         </StitchGlassCard>
 
@@ -308,9 +293,17 @@ export default function ProfileScreen() {
             </Text>
             <Pressable
               style={styles.modalDeleteBtn}
-              onPress={() => {
+              onPress={async () => {
+                if (!session) return;
                 setShowDeleteModal(false);
-                showToast('Account deletion is not enabled in this build.');
+                try {
+                  await deleteUserAccount(session.userId);
+                  await clearSession();
+                  showToast('Account deleted');
+                  router.replace('/auth');
+                } catch {
+                  showToast('Could not delete account');
+                }
               }}
             >
               <Text style={styles.modalDeleteLabel}>Delete</Text>
