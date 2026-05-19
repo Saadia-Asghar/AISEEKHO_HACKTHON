@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
+  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -25,6 +26,7 @@ import ReviewTagPicker from '../components/ReviewTagPicker';
 import TransparentPricing from '../components/TransparentPricing';
 import { showToast } from '../lib/toastStore';
 import { useI18n } from '../lib/i18n';
+import { buildWhatsAppUrl } from '../lib/whatsapp';
 
 if (Platform.OS !== 'web') {
   const Notifications = require('expo-notifications');
@@ -78,6 +80,15 @@ export default function BookingConfirmScreen() {
   if (!paid) return null;
 
   const b = result.booking;
+  const notifications = result.notifications ?? [];
+  const providerPhone = result.recommended?.phone ?? '';
+
+  const openProviderWhatsApp = () => {
+    if (!providerPhone) return;
+    const msg = `Assalam-o-Alaikum ${b.provider_name}, my KhidmatAI booking ${b.booking_id} is confirmed for ${b.slot}.`;
+    Linking.openURL(buildWhatsAppUrl(providerPhone, msg));
+  };
+
   const code = b.booking_id?.startsWith('KHI')
     ? b.booking_id
     : `KHI-${(b.booking_id || '000000').slice(-6).toUpperCase()}`;
@@ -139,11 +150,37 @@ export default function BookingConfirmScreen() {
             <Text style={styles.quickIcon}>🔔</Text>
             <Text style={styles.quickLabel}>{t('set_reminder')}</Text>
           </Pressable>
+          <Pressable style={styles.quickBtn} onPress={openProviderWhatsApp}>
+            <Text style={styles.quickIcon}>💬</Text>
+            <Text style={styles.quickLabel}>WhatsApp</Text>
+          </Pressable>
           <Pressable style={styles.quickBtn} onPress={() => router.push('/(tabs)/trace')}>
             <Text style={styles.quickIcon}>🎯</Text>
             <Text style={styles.quickLabel}>{t('view_trace')}</Text>
           </Pressable>
         </View>
+
+        {notifications.length > 0 ? (
+          <View style={styles.card}>
+            <Text style={styles.reviewTitle}>{t('payment_notify_hint')}</Text>
+            {notifications.slice(0, 6).map((n, i) => (
+              <Pressable
+                key={`${n.channel}-${i}`}
+                style={styles.notifyRow}
+                onPress={() => n.deep_link && Linking.openURL(n.deep_link)}
+                disabled={!n.deep_link}
+              >
+                <Text style={styles.notifyChannel}>
+                  {n.channel === 'fcm' ? '🔔 FCM' : n.channel === 'whatsapp' ? '💬 WhatsApp' : '📱 SMS'}
+                </Text>
+                <Text style={styles.notifyStatus}>
+                  {n.status}
+                  {n.scheduled_at ? ` · ${n.scheduled_at}` : ''}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        ) : null}
 
         <View style={styles.card}>
           <View style={styles.detailRow}>
@@ -218,9 +255,17 @@ function confirmStyles(colors: AppColors) {
     marginBottom: 8,
   },
   bookingRef: { fontSize: 15, color: colors.text2, marginBottom: spacing.lg, fontFamily: fonts.body },
-  quickGrid: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg },
+  quickGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.lg },
+  notifyRow: {
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  notifyChannel: { fontFamily: fonts.body, fontSize: 14, color: colors.text },
+  notifyStatus: { fontFamily: fonts.body, fontSize: 12, color: colors.text3, marginTop: 2 },
   quickBtn: {
     flex: 1,
+    minWidth: '30%',
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
     borderWidth: 1,

@@ -3,6 +3,7 @@ from typing import Any
 from app.agents.base import BaseAgent
 from app.db import database
 from app.models.schemas import AgentPhase, FollowUpResult
+from app.services.notifications import schedule_follow_up_notifications
 
 
 class FollowUpAgent(BaseAgent):
@@ -25,11 +26,29 @@ class FollowUpAgent(BaseAgent):
             message=message,
         )
         follow_up = FollowUpResult(**raw)
+        provider_phone = context.get("provider_phone", "+92-300-0000000")
+        scheduled = schedule_follow_up_notifications(
+            booking.booking_id,
+            booking.provider_name,
+            booking.slot,
+            reminder_time,
+            completion_time,
+            customer_phone=context.get("customer_phone"),
+            provider_phone=provider_phone,
+        )
         context["follow_up"] = follow_up
+        context["scheduled_notifications"] = scheduled
         context["last_trace"] = self.trace(
             "schedule_follow_up",
-            {"booking_id": booking.booking_id, "state": "CONFIRMED→REMINDER_SCHEDULED"},
-            follow_up.model_dump(),
-            "Post-booking automation: reminder + service-completed prompt logged to Antigravity trace.",
+            {
+                "booking_id": booking.booking_id,
+                "state": "CONFIRMED→REMINDER_SCHEDULED",
+                "channels": ["fcm_simulated", "whatsapp_deep_link"],
+            },
+            {**follow_up.model_dump(), "scheduled_notifications": scheduled},
+            (
+                "FCM reminder + completion check scheduled; WhatsApp deep links generated. "
+                "Logged to Antigravity Node 5 (FollowUpAgent)."
+            ),
         )
         return context

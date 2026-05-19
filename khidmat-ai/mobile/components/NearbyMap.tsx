@@ -1,10 +1,19 @@
-import { useMemo } from 'react';
-import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useI18n } from '../lib/i18n';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Image, Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { AppColors } from '../constants/theme';
 import { fonts, radius, spacing } from '../constants/theme';
 import { useTheme } from '../lib/ThemeContext';
 import type { MapMarker } from '../api/client';
+import { googleStaticMapUrl, openStreetMapEmbedUrl } from '../lib/staticMap';
+
+let MapEmbed: React.ComponentType<{
+  googleUrl: string | null;
+  osmUrl: string | null;
+  height: number;
+}> | null = null;
+if (Platform.OS === 'web') {
+  MapEmbed = require('./MapEmbed.web').default;
+}
 
 const MAP_W = 320;
 const MAP_H = 200;
@@ -40,11 +49,29 @@ export default function NearbyMap({
   userLng?: number;
   onMarkerPress?: (id: string) => void;
 }) {
-  const { t } = useI18n();
   const { colors } = useTheme();
   const styles = useMemo(() => mapStyles(colors), [colors]);
 
+  const [googleMapUrl, setGoogleMapUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    resolveGoogleMapUrl(markers, userLat, userLng).then((url) => {
+      if (!cancelled) setGoogleMapUrl(url);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [markers, userLat, userLng]);
+
+  const osmEmbedUrl = useMemo(
+    () => openStreetMapEmbedUrl(markers, userLat, userLng),
+    [markers, userLat, userLng]
+  );
+  const useRealMap = Boolean(googleMapUrl || (Platform.OS === 'web' && osmEmbedUrl));
+
   const layout = useMemo(() => {
+    if (useRealMap) return null;
     if (!markers.length) return null;
     const centerLat = userLat ?? markers[0].lat;
     const centerLng = userLng ?? markers[0].lng;
@@ -65,7 +92,7 @@ export default function NearbyMap({
       })),
       user: project(centerLat, centerLng, centerLat, centerLng, span),
     };
-  }, [markers, userLat, userLng]);
+  }, [markers, userLat, userLng, useRealMap]);
 
   const sectors = useMemo(() => {
     const set = new Set<string>();
@@ -81,7 +108,7 @@ export default function NearbyMap({
     Linking.openURL(url).catch(() => {});
   };
 
-  if (!layout) {
+  if (!markers.length) {
     return (
       <View style={styles.empty}>
         <Text style={styles.emptyText}>No map data for this search</Text>
@@ -102,26 +129,48 @@ export default function NearbyMap({
         </View>
       ) : null}
       <View style={[styles.map, { width: '100%', height: MAP_H }]}>
-        <View style={styles.gridH} />
-        <View style={styles.gridV} />
-        <View style={[styles.userPin, { left: layout.user.x - 10, top: layout.user.y - 10 }]}>
-          <Text style={styles.userDot}>●</Text>
-          <Text style={styles.userLabel}>You</Text>
-        </View>
-        {layout.pins.map((p) => (
-          <Pressable
-            key={p.id}
-            style={[
-              styles.pin,
-              p.is_recommended && styles.pinRec,
-              { left: p.x - 14, top: p.y - 14 },
-            ]}
-            onPress={() => onMarkerPress?.(p.id)}
-          >
-            <Text style={styles.pinEmoji}>{p.is_recommended ? '⭐' : p.contacted_before ? '👷' : '📍'}</Text>
-          </Pressable>
-        ))}
+        {useRealMap && Platform.OS === 'web' && MapEmbed ? (
+          <MapEmbed googleUrl={googleMapUrl} osmUrl={osmEmbedUrl} height={MAP_H} />
+        ) : useRealMap && googleMapUrl ? (
+          <Image
+            source={{ uri: googleMapUrl }}
+            style={styles.mapImage}
+            resizeMode="cover"
+            accessibilityLabel="Nearby providers on map"
+          />
+        ) : layout ? (
+          <>
+            <View style={styles.gridH} />
+            <View style={styles.gridV} />
+            <View style={[styles.userPin, { left: layout.user.x - 10, top: layout.user.y - 10 }]}>
+              <Text style={styles.userDot}>●</Text>
+              <Text style={styles.userLabel}>You</Text>
+            </View>
+            {layout.pins.map((p) => (
+              <Pressable
+                key={p.id}
+                style={[
+                  styles.pin,
+                  p.is_recommended && styles.pinRec,
+                  { left: p.x - 14, top: p.y - 14 },
+                ]}
+                onPress={() => onMarkerPress?.(p.id)}
+              >
+                <Text style={styles.pinEmoji}>
+                  {p.is_recommended ? '⭐' : p.contacted_before ? '👷' : '📍'}
+                </Text>
+              </Pressable>
+            ))}
+          </>
+        ) : null}
       </View>
+      {useRealMap ? (
+        <Text style={styles.mapHint}>
+          {googleMapUrl
+            ? 'Google Maps · tap a provider below for details'
+            : 'OpenStreetMap · tap a provider below for details'}
+        </Text>
+      ) : null}
       <View style={styles.legend}>
         <Text style={styles.legendItem}>● You</Text>
         <Text style={styles.legendItem}>⭐ Top match</Text>
@@ -177,6 +226,17 @@ function mapStyles(colors: AppColors) {
       borderColor: colors.border,
       overflow: 'hidden',
       position: 'relative',
+    },
+    mapImage: {
+      ...StyleSheet.absoluteFillObject,
+      width: '100%',
+      height: '100%',
+    },
+    mapHint: {
+      fontSize: 10,
+      color: colors.text3,
+      marginTop: 6,
+      fontFamily: fonts.body,
     },
     gridH: {
       position: 'absolute',

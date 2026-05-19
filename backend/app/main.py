@@ -7,15 +7,17 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.db.database import get_trace, init_db
 from app.deps.auth import optional_user_id
-from app.models.schemas import DiscoverResponse, OrchestrationResponse, ServiceRequest
+from app.models.schemas import OrchestrationResponse, ServiceRequest
 from app.orchestrator import KhidmatOrchestrator
 from app.routers import (
     admin,
+    antigravity,
     auth,
     auth_api,
     bookings_router,
     discover,
     google_services,
+    maps_router,
     otp_auth,
     payments,
     pricing_router,
@@ -63,6 +65,7 @@ app.include_router(providers_router.router)
 app.include_router(bookings_router.router)
 app.include_router(suggestions.router)
 app.include_router(google_services.router)
+app.include_router(maps_router.router)
 app.include_router(discover.router)
 app.include_router(pricing_router.router)
 app.include_router(services_router.router)
@@ -87,16 +90,17 @@ def health():
     }
 
 
-@app.post("/api/orchestrate", response_model=DiscoverResponse)
+@app.post("/api/orchestrate", response_model=OrchestrationResponse)
 def orchestrate(
     request: ServiceRequest,
     token_user_id: str | None = Depends(optional_user_id),
 ):
+    """Full 6-node Antigravity pipeline (alias for POST /api/antigravity/run)."""
     user_id = request.user_id or token_user_id
     if token_user_id and request.user_id and request.user_id != token_user_id:
         raise HTTPException(status_code=403, detail="user_id does not match token")
     try:
-        return orchestrator.discover(
+        return orchestrator.run(
             request.message,
             request.session_id,
             request.customer_name,

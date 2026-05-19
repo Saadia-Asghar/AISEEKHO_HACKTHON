@@ -20,6 +20,9 @@ class TraceEntry(BaseModel):
     output: dict[str, Any] = Field(default_factory=dict)
     reasoning: str
     timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat() + "Z")
+    workflow_id: str | None = None
+    node_id: str | None = None
+    orchestration_engine: str | None = None
 
 
 class ServiceIntent(BaseModel):
@@ -126,6 +129,8 @@ class NotificationResult(BaseModel):
     status: str
     provider: str = "mock"
     preview: str | None = None
+    deep_link: str | None = None
+    scheduled_at: str | None = None
 
     model_config = {"extra": "ignore"}
 

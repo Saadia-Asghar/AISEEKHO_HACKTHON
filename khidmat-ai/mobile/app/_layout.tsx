@@ -91,6 +91,7 @@ function ThemedRoot({ authed: _authed }: { authed: boolean }) {
         <Stack.Screen name="add-card" options={{ title: 'Add Card', headerShown: false }} />
         <Stack.Screen name="booking-confirm" options={{ title: 'Confirmed', headerShown: false }} />
         <Stack.Screen name="provider/[id]" options={{ title: 'Provider', headerShown: false }} />
+        <Stack.Screen name="legal/terms" options={{ title: 'Terms of Service', headerShown: false }} />
         <Stack.Screen name="+not-found" options={{ headerShown: false }} />
       </Stack>
     </>

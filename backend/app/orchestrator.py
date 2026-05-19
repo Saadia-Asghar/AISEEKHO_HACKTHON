@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from app.antigravity.workflow import enrich_trace
 from app.agents.booking_agent import BookingAgent
 from app.agents.discovery_agent import ProviderDiscoveryAgent
 from app.agents.followup_agent import FollowUpAgent
@@ -13,6 +14,7 @@ from app.models.schemas import (
     DiscoverResponse,
     LocationInfo,
     MapMarker,
+    NotificationResult,
     OrchestrationResponse,
     PaymentInfo,
     PersonalizationSummary,
@@ -86,7 +88,7 @@ class KhidmatOrchestrator:
         traces: list[TraceEntry] = []
         for agent in agents:
             context = agent.run(context)
-            traces.append(context.pop("last_trace"))
+            traces.append(enrich_trace(context.pop("last_trace")))
         return context, traces
 
     def discover(
@@ -123,7 +125,7 @@ class KhidmatOrchestrator:
         context, traces = self._run_agents(context, self.search_pipeline)
         context["all_traces"] = traces
         context = self.trace_agent.run(context)
-        traces.append(context.pop("last_trace"))
+        traces.append(enrich_trace(context.pop("last_trace")))
 
         summary: TraceSummary = context["trace_summary"]
         database.save_trace(sid, [t.model_dump() for t in traces], summary.model_dump())
@@ -199,6 +201,7 @@ class KhidmatOrchestrator:
         if not provider:
             raise ValueError("Provider not found in this search.")
 
+        context_provider_phone = provider.phone
         prior_traces = [TraceEntry(**t) for t in payload.get("search_traces", [])]
         loc = payload.get("user_location")
 
@@ -211,6 +214,7 @@ class KhidmatOrchestrator:
             "customer_name": customer_name or payload.get("customer_name") or "Guest",
             "user_id": user_id,
             "customer_phone": customer_phone or payload.get("customer_phone"),
+            "provider_phone": context_provider_phone,
             "price_sort": payload.get("price_sort", "smart"),
             "user_location": loc,
         }
@@ -221,7 +225,7 @@ class KhidmatOrchestrator:
 
         context["all_traces"] = traces
         context = self.trace_agent.run(context)
-        traces.append(context.pop("last_trace"))
+        traces.append(enrich_trace(context.pop("last_trace")))
 
         summary: TraceSummary = context["trace_summary"]
         database.save_trace(session_id, [t.model_dump() for t in traces], summary.model_dump())
@@ -231,6 +235,10 @@ class KhidmatOrchestrator:
         ranking = self._build_ranking(recommended, top_three)
         alternatives = self._build_alternatives(top_three)
         personalization = context.get("personalization")
+
+        scheduled_notifs = [
+            NotificationResult(**n) for n in context.get("scheduled_notifications", [])
+        ]
 
         booking = context["booking"]
         amount = booking.amount_pkr or 1500
@@ -278,7 +286,7 @@ class KhidmatOrchestrator:
             personalization=personalization,
             rate_booking=False,
             user_location=user_location,
-            notifications=[],
+            notifications=scheduled_notifs,
             price_sort=payload.get("price_sort", "smart"),
         )
 

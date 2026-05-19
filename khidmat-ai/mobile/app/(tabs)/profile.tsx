@@ -236,7 +236,7 @@ export default function ProfileScreen() {
             icon="📄"
             iconBg="rgba(124, 58, 237, 0.2)"
             label="Terms of Service"
-            onPress={() => Linking.openURL('https://khidmat.ai').catch(() => showToast('khidmat.ai'))}
+            onPress={() => router.push('/legal/terms')}
           />
         </StitchGlassCard>
 

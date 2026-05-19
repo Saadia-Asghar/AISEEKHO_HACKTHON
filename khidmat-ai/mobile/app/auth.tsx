@@ -231,6 +231,13 @@ export default function AuthScreen() {
             <Image source={{ uri: stitchAssets.authHero }} style={styles.heroImage} resizeMode="cover" />
           </View>
           <GoogleBadge />
+          <Text style={styles.termsLine}>
+            By continuing, you agree to our{' '}
+            <Text style={styles.termsLink} onPress={() => router.push('/legal/terms')}>
+              Terms of Service
+            </Text>
+            .
+          </Text>
         </ScrollView>
       </KeyboardAvoidingView>
     </ThemedSafeArea>
@@ -318,5 +325,14 @@ function authStyles(colors: AppColors) {
   linkBtn: { alignItems: 'center', padding: spacing.sm },
   linkText: { color: colors.primaryText, fontSize: 14, fontWeight: '600', fontFamily: fonts.body },
   error: { color: colors.rose, textAlign: 'center', marginTop: spacing.md, fontFamily: fonts.body },
+  termsLine: {
+    textAlign: 'center',
+    fontSize: 12,
+    color: colors.text3,
+    marginTop: spacing.md,
+    lineHeight: 18,
+    fontFamily: fonts.body,
+  },
+  termsLink: { color: colors.primaryText, fontWeight: '600', textDecorationLine: 'underline' },
   });
 }

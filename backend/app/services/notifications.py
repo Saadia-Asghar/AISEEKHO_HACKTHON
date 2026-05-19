@@ -1,23 +1,62 @@
-"""SMS (Twilio) and WhatsApp (Meta Cloud API) with demo simulation fallback."""
+"""SMS (Twilio), WhatsApp (Meta Cloud API), and FCM-style simulated push with deep links."""
 
 import logging
 import os
 from typing import Any
+from urllib.parse import quote
 
 import httpx
 
 logger = logging.getLogger(__name__)
 
 
-def _simulated(channel: str, to: str, body: str) -> dict[str, Any]:
+def whatsapp_deep_link(phone: str, message: str) -> str:
+    """wa.me deep link — opens WhatsApp with pre-filled text (PRD mock guidance)."""
+    digits = phone.replace(" ", "").lstrip("+").replace("-", "")
+    if digits.startswith("0"):
+        digits = "92" + digits[1:]
+    elif not digits.startswith("92") and len(digits) <= 11:
+        digits = "92" + digits
+    return f"https://wa.me/{digits}?text={quote(message)}"
+
+
+def _simulated(
+    channel: str,
+    to: str,
+    body: str,
+    *,
+    deep_link: str | None = None,
+    scheduled_at: str | None = None,
+) -> dict[str, Any]:
     logger.info("[NOTIFY:%s] to=%s body=%s", channel, to, body[:80])
-    return {
+    out: dict[str, Any] = {
         "channel": channel,
         "to": to,
         "status": "simulated",
         "provider": "mock",
         "preview": body[:200],
     }
+    if deep_link:
+        out["deep_link"] = deep_link
+    if scheduled_at:
+        out["scheduled_at"] = scheduled_at
+    return out
+
+
+def send_fcm_simulated(
+    device_label: str,
+    title: str,
+    body: str,
+    *,
+    scheduled_at: str | None = None,
+) -> dict[str, Any]:
+    """Simulated Firebase Cloud Messaging push (PRD allows mock notifications)."""
+    return _simulated(
+        "fcm",
+        device_label,
+        f"{title}: {body}",
+        scheduled_at=scheduled_at,
+    )
 
 
 def send_sms(to_phone: str, body: str) -> dict[str, Any]:
@@ -112,13 +151,66 @@ def send_booking_notifications(
         if "sms" in channels:
             results.append(send_sms(customer_phone, customer_msg))
         if "whatsapp" in channels:
-            results.append(send_whatsapp(customer_phone, customer_msg))
+            wa = send_whatsapp(customer_phone, customer_msg)
+            wa["deep_link"] = whatsapp_deep_link(customer_phone, customer_msg)
+            results.append(wa)
     else:
         results.append(_simulated("sms", "customer-missing", customer_msg))
 
     if "sms" in channels:
         results.append(send_sms(provider_phone, provider_msg))
     if "whatsapp" in channels:
-        results.append(send_whatsapp(provider_phone, provider_msg))
+        wa = send_whatsapp(provider_phone, provider_msg)
+        wa["deep_link"] = whatsapp_deep_link(provider_phone, provider_msg)
+        results.append(wa)
 
     return results
+
+
+def schedule_follow_up_notifications(
+    booking_id: str,
+    provider_name: str,
+    slot: str,
+    reminder_time: str,
+    completion_time: str,
+    customer_phone: str | None = None,
+    provider_phone: str | None = None,
+) -> list[dict[str, Any]]:
+    """FCM-simulated reminder + completion prompts (logged to Antigravity trace)."""
+    reminder_body = (
+        f"Reminder: {provider_name} arrives in 1 hour (slot {slot}). Booking {booking_id}."
+    )
+    completion_body = (
+        f"Was your service with {provider_name} completed? Tap to rate on KhidmatAI. {booking_id}"
+    )
+    scheduled: list[dict[str, Any]] = [
+        send_fcm_simulated("customer_device", "KhidmatAI Reminder", reminder_body, scheduled_at=reminder_time),
+        send_fcm_simulated(
+            "customer_device",
+            "Service completed?",
+            completion_body,
+            scheduled_at=completion_time,
+        ),
+    ]
+    if customer_phone:
+        scheduled.append(
+            _simulated(
+                "whatsapp",
+                customer_phone,
+                reminder_body,
+                deep_link=whatsapp_deep_link(customer_phone, reminder_body),
+                scheduled_at=reminder_time,
+            )
+        )
+    if provider_phone:
+        job_msg = f"Job reminder: {booking_id} at {slot} with customer via KhidmatAI."
+        scheduled.append(
+            _simulated(
+                "whatsapp",
+                provider_phone,
+                job_msg,
+                deep_link=whatsapp_deep_link(provider_phone, job_msg),
+                scheduled_at=reminder_time,
+            )
+        )
+    return scheduled

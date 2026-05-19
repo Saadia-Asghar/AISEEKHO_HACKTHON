@@ -87,7 +87,7 @@ export async function completeCheckout(method: PaymentMethod): Promise<boolean> 
     return false;
   }
 
-  await confirmPayment({
+  const payConfirm = await confirmPayment({
     payment_id: full.payment.payment_id,
     booking_id: full.booking.booking_id,
     method,
@@ -96,10 +96,16 @@ export async function completeCheckout(method: PaymentMethod): Promise<boolean> 
     stripe_payment_intent_id: full.payment.stripe_payment_intent_id,
   });
 
+  const mergedNotifications = [
+    ...(full.notifications ?? []),
+    ...(payConfirm.notifications ?? []),
+  ];
+
   setResult({
     ...full,
     booking: { ...full.booking, status: 'CONFIRMED', payment_status: 'paid' },
     payment: { ...full.payment, status: 'paid' },
+    notifications: mergedNotifications.length ? mergedNotifications : full.notifications,
   });
   router.replace('/booking-confirm');
   return true;

@@ -139,6 +139,14 @@ export type DiscoverResult = {
     stripe_payment_intent_id?: string;
     stripe_client_secret?: string;
   };
+  notifications?: Array<{
+    channel: string;
+    to?: string;
+    status: string;
+    preview?: string;
+    deep_link?: string;
+    scheduled_at?: string;
+  }>;
 };
 
 export type OrchestrateResult = DiscoverResult & {
@@ -300,7 +308,14 @@ export async function confirmPayment(body: {
     const { data } = await api.post<{
       booking_id: string;
       status: string;
-      notifications?: Array<{ channel: string; status: string }>;
+      notifications?: Array<{
+        channel: string;
+        status: string;
+        to?: string;
+        preview?: string;
+        deep_link?: string;
+        scheduled_at?: string;
+      }>;
       rate_booking?: boolean;
     }>('/api/payments/confirm', {
       ...body,
