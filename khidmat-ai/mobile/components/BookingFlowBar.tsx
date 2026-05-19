@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { colors, fonts, spacing } from '../constants/theme';
 import { BOOKING_FLOW } from '../constants/guide';
 
-export default function BookingFlowBar({ step }: { step: 0 | 1 | 2 }) {
+export default function BookingFlowBar({ step }: { step: 0 | 1 | 2 | 3 }) {
   const current = BOOKING_FLOW[step];
   return (
     <View style={styles.wrap}>

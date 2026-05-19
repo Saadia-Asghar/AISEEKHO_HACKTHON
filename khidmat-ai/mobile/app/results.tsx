@@ -18,7 +18,8 @@ import PriceSortChips from '../components/PriceSortChips';
 import SecLabel from '../components/ui/SecLabel';
 import { showToast } from '../lib/toastStore';
 import type { ProviderSummary, PriceSort } from '../api/client';
-import { confirmBooking, createBookingFromDiscover, discover } from '../api/client';
+import { discover } from '../api/client';
+import { bookSelectedProvider } from '../lib/bookingFlow';
 import TransparentPricing from '../components/TransparentPricing';
 import { getSession } from '../lib/auth';
 import { getUserCoords } from '../lib/location';
@@ -86,7 +87,8 @@ function ProviderCard({
 }
 
 export default function ResultsScreen() {
-  const { result, priceSort, setPriceSort, setResult, lastSearchText } = useBookingStore();
+  const { result, priceSort, setPriceSort, setResult, lastSearchText, searchFilters } =
+    useBookingStore();
   const { t, lang } = useI18n();
   const [booking, setBooking] = useState(false);
   const [resorting, setResorting] = useState(false);
@@ -113,6 +115,10 @@ export default function ResultsScreen() {
           userLat: coords.lat,
           userLng: coords.lng,
           priceSort: sort,
+          maxDistanceKm: searchFilters.maxDistanceKm,
+          minRating: searchFilters.minRating,
+          verifiedOnly: searchFilters.verifiedOnly,
+          availableToday: searchFilters.availableToday,
           lang,
         });
         setResult(data);
@@ -123,7 +129,7 @@ export default function ResultsScreen() {
         setResorting(false);
       }
     },
-    [lastSearchText, resorting, setPriceSort, setResult, lang]
+    [lastSearchText, resorting, setPriceSort, setResult, lang, searchFilters]
   );
 
   useEffect(() => {
@@ -152,26 +158,9 @@ export default function ResultsScreen() {
     if (booking || !selectedId) return;
     setBooking(true);
     try {
-      const session = await getSession();
-      if (!session) {
-        router.replace('/auth');
-        return;
-      }
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-      let full = result;
-      if (!result.booking?.booking_id) {
-        full = await createBookingFromDiscover(
-          result.session_id,
-          selectedId,
-          session.userId,
-          session.name,
-          session.phone
-        );
-        setResult(full);
-      }
-      if (full.booking?.booking_id) await confirmBooking(full.booking.booking_id);
-      showToast('✓ Booking confirmed!');
-      router.push('/booking-confirm');
+      await bookSelectedProvider(selectedId);
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Booking failed');
     } finally {
       setBooking(false);
     }

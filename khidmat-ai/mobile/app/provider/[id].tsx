@@ -19,9 +19,11 @@ import SecLabel from '../../components/ui/SecLabel';
 import GoogleBadge from '../../components/GoogleBadge';
 import TipCard from '../../components/TipCard';
 import { showToast } from '../../lib/toastStore';
-import { api, getProvider, saveProvider } from '../../api/client';
+import { api, getProvider, saveProvider, unsaveProvider } from '../../api/client';
 import { getSession } from '../../lib/auth';
 import { useI18n } from '../../lib/i18n';
+import { bookSelectedProvider } from '../../lib/bookingFlow';
+import { useBookingStore } from '../../lib/store';
 
 type ReviewItem = {
   rating: number;
@@ -47,6 +49,8 @@ export default function ProviderScreen() {
   const [reviews, setReviews] = useState<ReviewItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
+  const [booking, setBooking] = useState(false);
+  const { result } = useBookingStore();
 
   useEffect(() => {
     (async () => {
@@ -113,9 +117,32 @@ export default function ProviderScreen() {
   const onSave = async () => {
     const session = await getSession();
     if (!session) return;
-    await saveProvider(session.userId, id!);
-    setSaved(true);
-    showToast(t('save_worker'));
+    if (saved) {
+      await unsaveProvider(session.userId, id!);
+      setSaved(false);
+      showToast(t('unsave_worker'));
+    } else {
+      await saveProvider(session.userId, id!);
+      setSaved(true);
+      showToast(t('save_worker'));
+    }
+  };
+
+  const onBook = async () => {
+    if (!result?.session_id) {
+      showToast(t('search_first'));
+      router.replace('/');
+      return;
+    }
+    if (booking) return;
+    setBooking(true);
+    try {
+      await bookSelectedProvider(id!);
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Booking failed');
+    } finally {
+      setBooking(false);
+    }
   };
 
   return (
@@ -125,8 +152,8 @@ export default function ProviderScreen() {
           <Pressable style={styles.backBtn} onPress={() => router.back()}>
             <Text style={styles.backArrow}>←</Text>
           </Pressable>
-          <Text style={styles.pageTitle}>Provider Profile</Text>
-          <Badge label="✓ Verified" variant="jade" />
+          <Text style={styles.pageTitle}>{t('provider_profile')}</Text>
+          <Badge label={`✓ ${t('verified')}`} variant="jade" />
         </View>
 
         <View style={styles.provHero}>
@@ -161,13 +188,13 @@ export default function ProviderScreen() {
         <View style={{ paddingHorizontal: spacing.lg }}>
           <TipCard
             tipId="provider_book"
-            title="Ready to book?"
-            message="Check reviews and stats below, then tap Book to confirm. You can call the provider anytime."
+            title={t('provider_ready')}
+            message={t('provider_ready_msg')}
           />
         </View>
 
         <View style={styles.skills}>
-          <SecLabel>Skills</SecLabel>
+          <SecLabel>{t('skills')}</SecLabel>
           <View style={styles.skillRow}>
             {['❄️ Split AC', '🔧 Window AC', '⚙️ Gas Refill', '🔌 Wiring'].map((s) => (
               <View key={s} style={styles.skillChip}>
@@ -203,19 +230,19 @@ export default function ProviderScreen() {
         </View>
 
         <Button
-          label={saved ? '✓ Saved' : t('save_worker')}
+          label={saved ? t('unsave_worker') : t('save_worker')}
           variant="outline"
           onPress={onSave}
-          disabled={saved}
           style={{ width: '100%', marginBottom: 10 }}
         />
         <Button
-          label={`Book ${name}`}
-          onPress={() => router.back()}
+          label={`${t('provider_book')}: ${name}`}
+          onPress={onBook}
+          loading={booking}
           style={{ width: '100%', marginBottom: 10 }}
         />
         <Button label={t('open_maps')} variant="outline" onPress={openMaps} style={{ width: '100%', marginBottom: 10 }} />
-        <Button label="📞 Call Provider" variant="outline" onPress={callProvider} style={{ width: '100%' }} />
+        <Button label={`📞 ${t('call_provider')}`} variant="outline" onPress={callProvider} style={{ width: '100%' }} />
         <GoogleBadge />
       </ScrollView>
     </SafeAreaView>

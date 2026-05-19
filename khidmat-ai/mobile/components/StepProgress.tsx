@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { colors, fonts } from '../constants/theme';
 import { BOOKING_FLOW } from '../constants/guide';
 
-export default function StepProgress({ active = 0 }: { active?: 0 | 1 | 2 }) {
+export default function StepProgress({ active = 0 }: { active?: 0 | 1 | 2 | 3 }) {
   return (
     <View style={styles.wrap}>
       {BOOKING_FLOW.map((item, i) => {

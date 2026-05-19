@@ -92,8 +92,9 @@ export const NAV_SHORTCUTS = [
 
 export const BOOKING_FLOW = [
   { step: 'Request', hint: 'Describe your need — voice, text, or Try Demo' },
-  { step: 'Match', hint: 'AI ranks providers — pick ⭐ Top Match or view profile' },
-  { step: 'Book', hint: 'Confirm booking, rate provider, set reminder' },
+  { step: 'Match', hint: 'AI ranks providers — pick one and continue' },
+  { step: 'Pay', hint: 'Pay securely — SMS & WhatsApp alerts after payment' },
+  { step: 'Done', hint: 'Rate your provider and track in Bookings' },
 ] as const;
 
 export const HOW_TO_SECTIONS = [
