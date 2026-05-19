@@ -954,5 +954,239 @@
       "19:00"
     ],
     "phone": "+92-366-7772233"
+  },
+  {
+    "id": "h41",
+    "name": "زبیر خان الیکٹریشن",
+    "category": "electrician",
+    "categories": [
+      "electrician"
+    ],
+    "area": "DHA",
+    "lat": 33.5284,
+    "lng": 73.1362,
+    "rating": 4.8,
+    "reviews": 32,
+    "verified": true,
+    "price_min_pkr": 2500,
+    "price_max_pkr": 4500,
+    "bio": "Certified industrial and residential electrician in DHA, Islamabad",
+    "available_slots": [
+      "09:00",
+      "12:00",
+      "15:00",
+      "18:00"
+    ],
+    "phone": "+92-333-1114455"
+  },
+  {
+    "id": "h42",
+    "name": "شازیہ بیوٹیشن",
+    "category": "beautician",
+    "categories": [
+      "beautician"
+    ],
+    "area": "F-11",
+    "lat": 33.6844,
+    "lng": 72.9866,
+    "rating": 4.7,
+    "reviews": 56,
+    "verified": true,
+    "price_min_pkr": 3000,
+    "price_max_pkr": 8000,
+    "bio": "Premium home salon services for female clients in F-11",
+    "available_slots": [
+      "10:00",
+      "13:00",
+      "16:00"
+    ],
+    "phone": "+92-321-2225566"
+  },
+  {
+    "id": "h43",
+    "name": "محمد اسلم پلمبر",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "G-11",
+    "lat": 33.6766,
+    "lng": 72.9944,
+    "rating": 4.5,
+    "reviews": 29,
+    "verified": false,
+    "price_min_pkr": 1200,
+    "price_max_pkr": 3000,
+    "bio": "Expert plumbing repairs, bathroom fittings & leak fixes in G-11",
+    "available_slots": [
+      "08:00",
+      "11:00",
+      "14:00",
+      "17:00"
+    ],
+    "phone": "+92-300-3336677"
+  },
+  {
+    "id": "h44",
+    "name": "کاشف کمپیوٹر سروسز",
+    "category": "laptop_repair",
+    "categories": [
+      "laptop_repair"
+    ],
+    "area": "I-8",
+    "lat": 33.6688,
+    "lng": 73.0844,
+    "rating": 4.4,
+    "reviews": 18,
+    "verified": false,
+    "price_min_pkr": 1500,
+    "price_max_pkr": 5000,
+    "bio": "Home IT support, OS installation & laptop hardware repairs in I-8",
+    "available_slots": [
+      "11:00",
+      "14:00",
+      "17:00"
+    ],
+    "phone": "+92-345-4447788"
+  },
+  {
+    "id": "h45",
+    "name": "آمنہ ہوم ٹیوٹر",
+    "category": "tutor",
+    "categories": [
+      "tutor"
+    ],
+    "area": "F-7",
+    "lat": 33.722,
+    "lng": 73.0555,
+    "rating": 4.9,
+    "reviews": 42,
+    "verified": true,
+    "price_min_pkr": 5000,
+    "price_max_pkr": 10000,
+    "bio": "Qualified science & English home tutor for grades 5-10 in F-7",
+    "available_slots": [
+      "14:00",
+      "16:00",
+      "18:00"
+    ],
+    "phone": "+92-312-5558899"
+  },
+  {
+    "id": "h46",
+    "name": "عرفان پینٹنگ سروسز",
+    "category": "painter",
+    "categories": [
+      "painter"
+    ],
+    "area": "G-9",
+    "lat": 33.6862,
+    "lng": 72.9804,
+    "rating": 4.2,
+    "reviews": 15,
+    "verified": false,
+    "price_min_pkr": 5000,
+    "price_max_pkr": 25000,
+    "bio": "Professional wall painting and polishing service in G-9",
+    "available_slots": [
+      "09:00",
+      "13:00",
+      "17:00"
+    ],
+    "phone": "+92-323-6669900"
+  },
+  {
+    "id": "h47",
+    "name": "بلال کارپینٹر",
+    "category": "carpenter",
+    "categories": [
+      "carpenter"
+    ],
+    "area": "H-13",
+    "lat": 33.6711,
+    "lng": 72.9555,
+    "rating": 4.3,
+    "reviews": 23,
+    "verified": false,
+    "price_min_pkr": 1000,
+    "price_max_pkr": 6000,
+    "bio": "Wooden furniture repair, door fixing, and carpentry in H-13",
+    "available_slots": [
+      "09:00",
+      "12:00",
+      "15:00",
+      "18:00"
+    ],
+    "phone": "+92-300-7770011"
+  },
+  {
+    "id": "h48",
+    "name": "سدرہ ہاؤس کلینر",
+    "category": "cleaner",
+    "categories": [
+      "cleaner"
+    ],
+    "area": "E-7",
+    "lat": 33.7333,
+    "lng": 73.0444,
+    "rating": 4.6,
+    "reviews": 38,
+    "verified": true,
+    "price_min_pkr": 2000,
+    "price_max_pkr": 4500,
+    "bio": "Deep cleaning, dusting, and home organization in E-7",
+    "available_slots": [
+      "09:00",
+      "12:00",
+      "15:00"
+    ],
+    "phone": "+92-333-8881122"
+  },
+  {
+    "id": "h49",
+    "name": "طارق کار میکینک",
+    "category": "car_mechanic",
+    "categories": [
+      "car_mechanic"
+    ],
+    "area": "G-13",
+    "lat": 33.6884,
+    "lng": 72.9735,
+    "rating": 4.7,
+    "reviews": 61,
+    "verified": true,
+    "price_min_pkr": 1500,
+    "price_max_pkr": 10000,
+    "bio": "On-site car battery, electrical, & engine mechanical tuning in G-13",
+    "available_slots": [
+      "08:00",
+      "12:00",
+      "16:00"
+    ],
+    "phone": "+92-321-9992233"
+  },
+  {
+    "id": "h50",
+    "name": "سلیم گیس چولہا سروس",
+    "category": "appliance_repair",
+    "categories": [
+      "appliance_repair"
+    ],
+    "area": "F-10",
+    "lat": 33.7,
+    "lng": 73.0101,
+    "rating": 4.1,
+    "reviews": 12,
+    "verified": false,
+    "price_min_pkr": 800,
+    "price_max_pkr": 2500,
+    "bio": "Gas stove, geyser, and oven cleaning and repairs in F-10",
+    "available_slots": [
+      "10:00",
+      "12:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-8883344"
   }
 ]

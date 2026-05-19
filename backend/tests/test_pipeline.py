@@ -39,3 +39,18 @@ def test_cleaner_i8():
     r = _run("I need a cleaner in I-8 tomorrow")
     assert r.intent.service_label == "Cleaner"
     assert r.intent.location == "I-8"
+
+
+def test_urdu_tutor_i8():
+    r = _run("مجھے ایک میتھ کا ٹیوٹر چاہیے ایٹھویں میں")
+    assert r.recommended.category == "tutor"
+    assert r.intent.location == "I-8"
+
+
+def test_electrician_dha_phase_9():
+    # DHA has our newly added electrician (h41)
+    r = _run("Electrician in DHA Phase 9 right now")
+    assert r.intent.service_label == "Electrician"
+    assert r.recommended.area == "DHA"
+    assert r.recommended.distance_km <= 20
+
