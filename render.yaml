@@ -1,0 +1,20 @@
+# Render.com — one-click backend for judges (free tier).
+# Dashboard: New → Blueprint → connect this repo → add env vars from backend/.env.example
+
+services:
+  - type: web
+    name: khidmatai-api
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.0"
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: GOOGLE_MAPS_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
