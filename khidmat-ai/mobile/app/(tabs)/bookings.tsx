@@ -69,6 +69,8 @@ export default function BookingsScreen() {
   const [rows, setRows] = useState<BookingRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [rescheduleTarget, setRescheduleTarget] = useState<BookingRow | null>(null);
+  const [rescheduling, setRescheduling] = useState(false);
 
   const load = useCallback(async () => {
     const session = await getSession();

@@ -24,6 +24,18 @@
 
 **Real SMS OTP (optional):** [CLERK_OTP_SETUP.md](./CLERK_OTP_SETUP.md) — set Clerk keys on Vercel + Render; otherwise demo `1234`.
 
+## App flow (after auth changes)
+
+| Step | Expected |
+|------|----------|
+| Cold open (logged out) | Splash → **Sign-in** (`/auth`) |
+| Clerk keys set | Phone → SMS (6 digits) → home |
+| No Clerk keys | Phone → demo `1234` → home |
+| Guest / judges | **Skip** or `3000000000` / `1234` |
+| First login | Home → optional **onboarding** modal |
+| Logout (Profile) | **Sign-in** again (Clerk session cleared) |
+| Bookings reschedule | Modal works (upcoming tab) |
+
 ---
 
 ## Fix Vercel 404 (if you see NOT_FOUND)

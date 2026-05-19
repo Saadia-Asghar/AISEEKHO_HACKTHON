@@ -50,6 +50,15 @@ export async function clearSession() {
 export async function logout() {
   const { router } = await import('expo-router');
   const { useBookingStore } = await import('./store');
+  const { isClerkConfigured } = await import('./clerkConfig');
+  if (isClerkConfigured()) {
+    try {
+      const { getClerkInstance } = await import('@clerk/clerk-expo');
+      await getClerkInstance()?.signOut();
+    } catch {
+      /* Clerk may not be mounted */
+    }
+  }
   await clearSession();
   useBookingStore.getState().reset();
   router.replace('/auth');
