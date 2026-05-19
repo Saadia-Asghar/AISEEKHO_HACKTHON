@@ -74,7 +74,7 @@ export default function PaymentScreen() {
       if (!ok) return;
       setCredSheet(false);
       showToast(t('payment_success'));
-      setTimeout(() => router.replace('/booking-confirm'), 800);
+      setTimeout(() => router.replace('/booking-confirm'), 600);
     } catch (e) {
       showToast(e instanceof Error ? e.message : t('payment_failed'));
     } finally {

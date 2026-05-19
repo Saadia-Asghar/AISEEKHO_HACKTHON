@@ -9,6 +9,8 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { getSession } from '../lib/auth';
 import AppToast from '../components/AppToast';
+import AppNotificationBanner from '../components/AppNotificationBanner';
+import { initAppNotifications } from '../lib/appNotifications';
 import { I18nProvider } from '../lib/i18n';
 import { ThemeProvider, useTheme } from '../lib/ThemeContext';
 
@@ -19,6 +21,7 @@ export default function RootLayout() {
   const router = useRouter();
 
   useEffect(() => {
+    initAppNotifications();
     getSession().then((s) => {
       setAuthed(!!s);
       setReady(true);
@@ -75,6 +78,7 @@ function ThemedRoot({ authed: _authed }: { authed: boolean }) {
     <>
       <StatusBar style={isDark ? 'light' : 'dark'} />
       <AppToast />
+      <AppNotificationBanner />
       <Stack
         screenOptions={{
           headerStyle: { backgroundColor: colors.bg },

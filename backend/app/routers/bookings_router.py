@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query
 
 from app.db import bookings_db
+from app.models.schemas import RescheduleBookingRequest
 
 router = APIRouter(prefix="/api/bookings", tags=["bookings"])
 
@@ -36,6 +37,19 @@ def start_booking_route(booking_id: str):
     """Demo: worker on the way."""
     try:
         return bookings_db.start_booking(booking_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+
+
+@router.patch("/{booking_id}/reschedule")
+def reschedule_booking(booking_id: str, body: RescheduleBookingRequest):
+    try:
+        return bookings_db.reschedule_booking(
+            booking_id,
+            body.slot,
+            body.user_id,
+            body.when,
+        )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
 

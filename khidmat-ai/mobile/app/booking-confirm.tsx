@@ -27,17 +27,7 @@ import TransparentPricing from '../components/TransparentPricing';
 import { showToast } from '../lib/toastStore';
 import { useI18n } from '../lib/i18n';
 import { buildWhatsAppUrl } from '../lib/whatsapp';
-
-if (Platform.OS !== 'web') {
-  const Notifications = require('expo-notifications');
-  Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldShowAlert: true,
-      shouldPlaySound: true,
-      shouldSetBadge: false,
-    }),
-  });
-}
+import { scheduleVisitReminder, useAppNotifications } from '../lib/appNotifications';
 
 export default function BookingConfirmScreen() {
   const { colors } = useTheme();
@@ -94,23 +84,12 @@ export default function BookingConfirmScreen() {
     : `KHI-${(b.booking_id || '000000').slice(-6).toUpperCase()}`;
 
   const setReminder = async () => {
-    if (Platform.OS === 'web') {
-      showToast('🔔 Reminder scheduled');
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      return;
-    }
-    const Notifications = require('expo-notifications');
-    const { status } = await Notifications.requestPermissionsAsync();
-    if (status !== 'granted') return;
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: 'KhidmatAI reminder',
-        body: `Your ${result.intent.service_label} with ${b.provider_name} is in 1 hour`,
-      },
-      trigger: { seconds: 3600 },
+    const ok = await scheduleVisitReminder({
+      serviceLabel: result.intent.service_label,
+      providerName: b.provider_name,
+      slot: b.slot,
     });
-    showToast('🔔 Reminder set for 1 hour before');
-    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    if (ok) await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   };
 
   const submitReview = async () => {
@@ -160,21 +139,31 @@ export default function BookingConfirmScreen() {
           </Pressable>
         </View>
 
-        {notifications.length > 0 ? (
+        {(notifications.length > 0 || inAppNotifs.length > 0) ? (
           <View style={styles.card}>
-            <Text style={styles.reviewTitle}>{t('payment_notify_hint')}</Text>
-            {notifications.slice(0, 6).map((n, i) => (
+            <Text style={styles.reviewTitle}>{t('app_notifications')}</Text>
+            {inAppNotifs.slice(0, 4).map((n) => (
+              <Pressable key={n.id} style={styles.notifyRow} onPress={() => markRead(n.id)}>
+                <Text style={styles.notifyChannel}>🔔 {n.title}</Text>
+                <Text style={styles.notifyStatus}>{n.body}</Text>
+              </Pressable>
+            ))}
+            {notifications.slice(0, 4).map((n, i) => (
               <Pressable
-                key={`${n.channel}-${i}`}
+                key={`api-${n.channel}-${i}`}
                 style={styles.notifyRow}
                 onPress={() => n.deep_link && Linking.openURL(n.deep_link)}
                 disabled={!n.deep_link}
               >
                 <Text style={styles.notifyChannel}>
-                  {n.channel === 'fcm' ? '🔔 FCM' : n.channel === 'whatsapp' ? '💬 WhatsApp' : '📱 SMS'}
+                  {n.channel === 'fcm' || n.channel === 'fcm_simulated'
+                    ? '🔔 Push'
+                    : n.channel === 'whatsapp'
+                      ? '💬 WhatsApp'
+                      : '📱 SMS'}
                 </Text>
                 <Text style={styles.notifyStatus}>
-                  {n.status}
+                  {n.preview || n.status}
                   {n.scheduled_at ? ` · ${n.scheduled_at}` : ''}
                 </Text>
               </Pressable>

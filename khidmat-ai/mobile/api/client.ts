@@ -319,6 +319,26 @@ export async function cancelBooking(id: string, userId: string) {
   return data;
 }
 
+export async function rescheduleBooking(
+  id: string,
+  userId: string,
+  slot: string,
+  when: 'today' | 'tomorrow' = 'tomorrow'
+) {
+  const { data } = await api.patch<{
+    booking_id: string;
+    slot: string;
+    slot_datetime: string;
+    when: string;
+    message: string;
+  }>(`/api/bookings/${id}/reschedule`, {
+    slot,
+    when,
+    user_id: userId,
+  });
+  return data;
+}
+
 export async function confirmBooking(id: string) {
   const { data } = await api.post(`/api/bookings/${id}/confirm`);
   return data;

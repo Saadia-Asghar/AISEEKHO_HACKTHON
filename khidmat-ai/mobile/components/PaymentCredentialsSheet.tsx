@@ -20,11 +20,7 @@ import { fonts, radius, spacing } from '../constants/theme';
 import { useTheme } from '../lib/ThemeContext';
 import { useI18n } from '../lib/i18n';
 import Button from './ui/Button';
-
-function formatCardNumber(raw: string) {
-  const digits = raw.replace(/\D/g, '').slice(0, 19);
-  return digits.replace(/(\d{4})(?=\d)/g, '$1 ').trim();
-}
+import CardDigitInput from './CardDigitInput';
 
 function formatExpiry(raw: string) {
   const digits = raw.replace(/\D/g, '').slice(0, 4);
@@ -161,14 +157,11 @@ export default function PaymentCredentialsSheet({
             <ScrollView keyboardShouldPersistTaps="handled" style={styles.formScroll}>
               {method === 'card' ? (
                 <>
-                  <Field
+                  <CardDigitInput
                     label={t('pay_card_number')}
                     value={cardNumber}
-                    onChangeText={(v) => setCardNumber(formatCardNumber(v))}
-                    placeholder="0000 0000 0000 0000"
-                    keyboardType="number-pad"
+                    onChange={setCardNumber}
                     colors={colors}
-                    noAutofill
                   />
                   <Field
                     label={t('pay_card_name')}
@@ -272,21 +265,26 @@ function Field({
 }) {
   const styles = useMemo(() => sheetStyles(colors), [colors]);
   const autofillOff = noAutofill
-    ? ({
-        autoComplete: 'off' as const,
-        textContentType: 'none' as const,
-        importantForAutofill: 'no' as const,
-        autoCorrect: false,
-        spellCheck: false,
-        ...(Platform.OS === 'web'
-          ? ({
-              // Prevent Chrome "insecure payment form" autofill on http://localhost
-              name: `khidmat_${label.replace(/\W/g, '_').toLowerCase()}`,
-              // @ts-expect-error RN web data attributes
-              dataSet: { '1p-ignore': 'true', lpignore: 'true' },
-            } as object)
-          : {}),
-      } as const)
+    ? Platform.OS === 'web'
+      ? ({
+          autoComplete: 'new-password' as const,
+          textContentType: 'none' as const,
+          importantForAutofill: 'no' as const,
+          autoCorrect: false,
+          spellCheck: false,
+          name: `khidmat_${label.replace(/\W/g, '_').toLowerCase()}`,
+          // @ts-expect-error RN web
+          type: 'text',
+          // @ts-expect-error RN web data attributes
+          dataSet: { '1p-ignore': 'true', lpignore: 'true', formType: 'other' },
+        } as const)
+      : ({
+          autoComplete: 'off' as const,
+          textContentType: 'none' as const,
+          importantForAutofill: 'no' as const,
+          autoCorrect: false,
+          spellCheck: false,
+        } as const)
     : {};
   return (
     <View style={[styles.field, half && styles.fieldHalf]}>

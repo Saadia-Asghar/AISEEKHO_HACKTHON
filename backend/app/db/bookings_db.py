@@ -1,7 +1,7 @@
-"""Booking queries and cancel."""
+"""Booking queries, cancel, and reschedule."""
 
-import json
-from datetime import datetime
+import re
+from datetime import datetime, timedelta
 from typing import Any
 
 from app.db.booking_status import can_transition, normalize_status, transition
@@ -37,6 +37,65 @@ def list_bookings(user_id: str, status_filter: str | None = None) -> list[dict[s
             ).fetchall()
 
     return [_booking_row(r) for r in rows]
+
+
+_SLOT_RE = re.compile(r"^\d{2}:\d{2}$")
+
+
+def _slot_datetime_for(when: str, slot: str) -> str:
+    base = datetime.utcnow()
+    if (when or "tomorrow").lower() == "tomorrow":
+        base += timedelta(days=1)
+    hour, minute = map(int, slot.split(":"))
+    return base.replace(hour=hour, minute=minute, second=0, microsecond=0).isoformat() + "Z"
+
+
+def reschedule_booking(
+    booking_id: str,
+    slot: str,
+    user_id: str | None = None,
+    when: str = "tomorrow",
+) -> dict[str, Any]:
+    slot = slot.strip()
+    if not _SLOT_RE.match(slot):
+        raise ValueError("Invalid time slot (use HH:MM)")
+
+    with _connect() as conn:
+        row = conn.execute(
+            "SELECT id, user_id, status, provider_name, service_type, location FROM bookings WHERE id = ?",
+            (booking_id,),
+        ).fetchone()
+        if not row:
+            raise ValueError("Booking not found")
+        if user_id and row["user_id"] and row["user_id"] != user_id:
+            raise ValueError("Not your booking")
+        status = normalize_status(row["status"])
+        if status in ("CANCELLED", "COMPLETED"):
+            raise ValueError("Cannot reschedule a cancelled or completed booking")
+
+        slot_datetime = _slot_datetime_for(when, slot)
+        when_label = "tomorrow" if (when or "").lower() == "tomorrow" else "today"
+        message = (
+            f"Rescheduled with {row['provider_name']} for {row['service_type']} "
+            f"at {row['location']} — {when_label} {slot}."
+        )
+        conn.execute(
+            """
+            UPDATE bookings
+            SET slot = ?, slot_datetime = ?, confirmation_message = ?
+            WHERE id = ?
+            """,
+            (slot, slot_datetime, message, booking_id),
+        )
+
+    return {
+        "booking_id": booking_id,
+        "slot": slot,
+        "slot_datetime": slot_datetime,
+        "when": when_label,
+        "status": status,
+        "message": message,
+    }
 
 
 def cancel_booking(booking_id: str, user_id: str | None = None) -> dict[str, Any]:

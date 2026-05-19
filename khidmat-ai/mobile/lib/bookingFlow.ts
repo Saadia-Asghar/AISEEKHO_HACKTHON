@@ -11,6 +11,7 @@ import type { PaymentCredentialsPayload } from './paymentCredentials';
 import { getSession } from './auth';
 import { useBookingStore } from './store';
 import { showToast } from './toastStore';
+import { onBookingConfirmed } from './appNotifications';
 
 export function getSelectedProvider(): ProviderSummary | null {
   const { result, selectedProviderId } = useBookingStore.getState();
@@ -123,12 +124,28 @@ export async function completeCheckout(
     ...(payConfirm.notifications ?? []),
   ];
 
+  const finalNotifications = mergedNotifications.length ? mergedNotifications : full.notifications ?? [];
   setResult({
     ...full,
     booking: { ...full.booking, status: 'CONFIRMED', payment_status: 'paid' },
     payment: { ...full.payment, status: 'paid' },
-    notifications: mergedNotifications.length ? mergedNotifications : full.notifications,
+    notifications: finalNotifications,
   });
+
+  const provider = getSelectedProvider();
+  await onBookingConfirmed({
+    bookingId: full.booking.booking_id,
+    providerName: provider?.name ?? full.booking.provider_name ?? 'Provider',
+    serviceLabel: full.intent?.service_label ?? 'Service',
+    slot: full.booking.slot ?? full.intent?.time_expression ?? 'Scheduled',
+    apiNotifications: finalNotifications.map((n) => ({
+      channel: n.channel,
+      status: n.status,
+      preview: n.preview,
+      scheduled_at: n.scheduled_at,
+    })),
+  });
+
   if (options?.navigate !== false) router.replace('/booking-confirm');
   return true;
 }

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Platform,
   RefreshControl,
   ScrollView,
   Share,
@@ -13,7 +14,9 @@ import type { AppColors } from '../../constants/theme';
 import { fonts, spacing } from '../../constants/theme';
 import { router } from 'expo-router';
 import { getSession } from '../../lib/auth';
-import { cancelBooking, getBookings } from '../../api/client';
+import { cancelBooking, getBookings, rescheduleBooking } from '../../api/client';
+import RescheduleModal from '../../components/RescheduleModal';
+import { scheduleLocalNotification } from '../../lib/appNotifications';
 import { bookingRowId } from '../../lib/store';
 import { useI18n } from '../../lib/i18n';
 import { useTheme } from '../../lib/ThemeContext';
@@ -88,6 +91,30 @@ export default function BookingsScreen() {
     setLoading(true);
     load();
   }, [load]);
+
+  const onReschedule = async (slot: string, when: 'today' | 'tomorrow') => {
+    if (!rescheduleTarget) return;
+    const bid = bookingRowId(rescheduleTarget);
+    const session = await getSession();
+    if (!session) return;
+    setRescheduling(true);
+    try {
+      await rescheduleBooking(bid, session.userId, slot, when);
+      setRescheduleTarget(null);
+      showToast(t('reschedule_done'));
+      scheduleLocalNotification(
+        'Visit rescheduled',
+        `${rescheduleTarget.provider_name} · ${when} ${slot}`,
+        Platform.OS === 'web' ? 15 : 3600,
+        'reminder'
+      );
+      await load();
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : t('reschedule_failed'));
+    } finally {
+      setRescheduling(false);
+    }
+  };
 
   const onCancel = (id: string) => {
     Alert.alert('Cancel booking?', 'This cannot be undone.', [
@@ -179,7 +206,7 @@ export default function BookingsScreen() {
                       <Button
                         label={t('reschedule')}
                         variant="outline"
-                        onPress={() => showToast('Reschedule — contact provider on WhatsApp')}
+                        onPress={() => setRescheduleTarget(b)}
                         style={{ flex: 1 }}
                       />
                       <Button
@@ -217,6 +244,15 @@ export default function BookingsScreen() {
           <GoogleBadge />
         </ScrollView>
       )}
+
+      <RescheduleModal
+        visible={!!rescheduleTarget}
+        currentSlot={rescheduleTarget?.slot}
+        providerName={rescheduleTarget?.provider_name}
+        onClose={() => !rescheduling && setRescheduleTarget(null)}
+        onConfirm={onReschedule}
+        loading={rescheduling}
+      />
     </ThemedSafeArea>
   );
 }

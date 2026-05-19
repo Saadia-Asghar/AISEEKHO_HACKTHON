@@ -282,6 +282,12 @@ class ConfirmPaymentRequest(BaseModel):
     notify_channels: list[str] = Field(default_factory=lambda: ["sms", "whatsapp"])
 
 
+class RescheduleBookingRequest(BaseModel):
+    slot: str
+    when: str = "tomorrow"  # today | tomorrow
+    user_id: str | None = None
+
+
 class CreateUserRequest(BaseModel):
     display_name: str
 
