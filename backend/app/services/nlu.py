@@ -8,10 +8,13 @@ SERVICE_PATTERNS: list[tuple[str, str, str]] = [
     (r"clean|cleaner|safai|صفائی", "cleaner", "Cleaner"),
     (r"plumb|pipe|leak|paani|pani", "plumber", "Plumber"),
     (r"electric|bijli|wiring|wire", "electrician", "Electrician"),
-    (r"tutor|tuition|padhai|teacher|math|ٹیوٹر|ٹیوٹر", "tutor", "Home Tutor"),
+    (r"tutor|tuition|padhai|teacher|math|ٹیوٹر", "tutor", "Home Tutor"),
     (r"beauti|salon|makeup|hair", "beautician", "Beautician"),
     (r"carpent|furniture|wood", "carpenter", "Carpenter"),
     (r"paint|painter", "painter", "Painter"),
+    (r"computer|laptop|pc|window|software", "pc_repair", "PC Repair"),
+    (r"appliance|geyser|microwave|fridge", "appliance_repair", "Appliances"),
+    (r"car|auto|tuning|mechanic", "car_mechanic", "Car Repair"),
 ]
 
 LOCATION_PATTERN = re.compile(

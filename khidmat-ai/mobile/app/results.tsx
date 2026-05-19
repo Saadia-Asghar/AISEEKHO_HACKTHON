@@ -1,14 +1,12 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, Link } from 'expo-router';
-import * as Haptics from 'expo-haptics';
 import { colors, fonts, radius, shadows, spacing } from '../constants/theme';
 import { useBookingStore } from '../lib/store';
 import Avatar from '../components/Avatar';
 import ScoreBar from '../components/ScoreBar';
 import Badge from '../components/ui/Badge';
-import Button from '../components/ui/Button';
 import TipCard from '../components/TipCard';
 import BookingFlowBar from '../components/BookingFlowBar';
 import PageHeader from '../components/PageHeader';
@@ -16,10 +14,11 @@ import CurvedSheet from '../components/ui/CurvedSheet';
 import NearbyMap from '../components/NearbyMap';
 import PriceSortChips from '../components/PriceSortChips';
 import SecLabel from '../components/ui/SecLabel';
+import CheckoutBar from '../components/CheckoutBar';
 import { showToast } from '../lib/toastStore';
 import type { ProviderSummary, PriceSort } from '../api/client';
 import { discover } from '../api/client';
-import { bookSelectedProvider } from '../lib/bookingFlow';
+import { goToCheckout, selectProvider } from '../lib/bookingFlow';
 import TransparentPricing from '../components/TransparentPricing';
 import { getSession } from '../lib/auth';
 import { getUserCoords } from '../lib/location';
@@ -36,16 +35,22 @@ function formatPrice(p: ProviderSummary) {
 
 function ProviderCard({
   provider,
+  selected,
   top,
   topRated,
   badge,
-  onPress,
+  onSelect,
+  onProfile,
+  t,
 }: {
   provider: ProviderSummary;
+  selected?: boolean;
   top?: boolean;
   topRated?: boolean;
   badge?: string;
-  onPress?: () => void;
+  onSelect: () => void;
+  onProfile: () => void;
+  t: (k: string) => string;
 }) {
   const bd = provider.score_breakdown;
   const dist = bd?.distance_40pct ?? 0.32;
@@ -53,8 +58,20 @@ function ProviderCard({
   const avail = bd?.availability_25pct ?? 0.43;
 
   return (
-    <Pressable style={[styles.pcard, top && styles.pcardTop]} onPress={onPress} disabled={!onPress}>
-      {top ? (
+    <Pressable
+      style={[
+        styles.pcard,
+        top && styles.pcardTop,
+        selected && styles.pcardSelected,
+      ]}
+      onPress={onSelect}
+    >
+      {selected ? (
+        <View style={styles.selectedTag}>
+          <Text style={styles.selectedTagText}>✓ {t('selected')}</Text>
+        </View>
+      ) : null}
+      {top && !selected ? (
         <View style={styles.topTag}>
           <Text style={styles.topTagText}>⭐ Top Match</Text>
         </View>
@@ -82,21 +99,36 @@ function ProviderCard({
         </View>
       </View>
       {bd ? <ScoreBar distance={dist} rating={rat} availability={avail} /> : null}
+      <Pressable style={styles.profileLink} onPress={onProfile} hitSlop={8}>
+        <Text style={styles.profileLinkText}>{t('view_profile')} →</Text>
+      </Pressable>
     </Pressable>
   );
 }
 
 export default function ResultsScreen() {
-  const { result, priceSort, setPriceSort, setResult, lastSearchText, searchFilters } =
-    useBookingStore();
+  const {
+    result,
+    priceSort,
+    setPriceSort,
+    setResult,
+    lastSearchText,
+    searchFilters,
+    selectedProviderId,
+    setSelectedProviderId,
+  } = useBookingStore();
   const { t, lang } = useI18n();
-  const [booking, setBooking] = useState(false);
   const [resorting, setResorting] = useState(false);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!result) router.replace('/');
   }, [result]);
+
+  useEffect(() => {
+    if (result?.recommended?.id && !selectedProviderId) {
+      setSelectedProviderId(result.recommended.id);
+    }
+  }, [result?.recommended?.id, selectedProviderId, setSelectedProviderId]);
 
   const reSearch = useCallback(
     async (sort: PriceSort) => {
@@ -122,19 +154,27 @@ export default function ResultsScreen() {
           lang,
         });
         setResult(data);
-        showToast(sort === 'smart' ? 'Sorted by best match' : sort === 'low' ? 'Lowest price first' : 'Premium first');
+        setSelectedProviderId(data.recommended?.id ?? null);
       } catch (e) {
         showToast(e instanceof Error ? e.message : 'Could not re-sort');
       } finally {
         setResorting(false);
       }
     },
-    [lastSearchText, resorting, setPriceSort, setResult, lang, searchFilters]
+    [lastSearchText, resorting, setPriceSort, setResult, lang, searchFilters, setSelectedProviderId]
   );
 
-  useEffect(() => {
-    if (result?.recommended?.id) setSelectedId(result.recommended.id);
-  }, [result?.recommended?.id]);
+  const selectedProvider = useMemo(() => {
+    if (!result) return null;
+    const id = selectedProviderId || result.recommended?.id;
+    const pool = [
+      result.recommended,
+      ...(result.candidates ?? []),
+      ...(result.top_three ?? []),
+      ...(result.top_rated ?? []),
+    ].filter(Boolean) as ProviderSummary[];
+    return pool.find((p) => p.id === id) ?? result.recommended;
+  }, [result, selectedProviderId]);
 
   if (!result) {
     return (
@@ -148,26 +188,23 @@ export default function ResultsScreen() {
   const topRated = (result.top_rated ?? []).filter((p) => p.id !== top.id);
   const candidates = result.candidates ?? result.top_three ?? [];
   const others = candidates.filter(
-    (p) => p.id !== top.id && !topRated.some((t) => t.id === p.id)
+    (p) => p.id !== top.id && !topRated.some((tr) => tr.id === p.id)
   );
 
   const sortLabel =
     result.price_sort === 'low' ? 'Lowest price' : result.price_sort === 'high' ? 'Premium' : 'Best match';
 
-  const bookNow = async () => {
-    if (booking || !selectedId) return;
-    setBooking(true);
-    try {
-      await bookSelectedProvider(selectedId);
-    } catch (e) {
-      showToast(e instanceof Error ? e.message : 'Booking failed');
-    } finally {
-      setBooking(false);
-    }
-  };
-
   const serviceTitle = `${result.intent.service_label} · ${result.intent.location}`;
   const markerCount = result.map_markers?.length ?? 0;
+  const estimate =
+    result.pricing?.estimate_min_pkr && result.pricing?.estimate_max_pkr
+      ? `~PKR ${result.pricing.estimate_min_pkr.toLocaleString()}`
+      : undefined;
+
+  const onSelect = async (id: string) => {
+    await selectProvider(id);
+    setSelectedProviderId(id);
+  };
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
@@ -182,8 +219,12 @@ export default function ResultsScreen() {
         {resorting ? (
           <ActivityIndicator color={colors.violet} style={{ marginVertical: spacing.md }} />
         ) : null}
-        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          showsVerticalScrollIndicator={false}
+        >
           <Text style={styles.preview}>{t('preview_note')}</Text>
+          <Text style={styles.pickHint}>{t('pick_hint')}</Text>
           <TransparentPricing pricing={result.pricing} />
           <View style={styles.sortPad}>
             <PriceSortChips value={priceSort} onChange={reSearch} />
@@ -194,17 +235,12 @@ export default function ResultsScreen() {
               markers={result.map_markers}
               userLat={result.user_location?.lat}
               userLng={result.user_location?.lng}
-              onMarkerPress={(id) => router.push(`/provider/${id}`)}
+              onMarkerPress={(id) => {
+                onSelect(id);
+                router.push(`/provider/${id}`);
+              }}
             />
           ) : null}
-
-          <View style={styles.tipWrap}>
-            <TipCard
-              tipId="results_pick"
-              title="How to choose"
-              message="🏆 Top rated workers appear first. Use charge sort for budget or premium. Tap map pins or cards for profiles."
-            />
-          </View>
 
           {topRated.length > 0 ? (
             <View style={styles.block}>
@@ -214,7 +250,10 @@ export default function ResultsScreen() {
                   <ProviderCard
                     provider={p}
                     topRated
-                    onPress={() => router.push(`/provider/${p.id}`)}
+                    selected={selectedProviderId === p.id}
+                    onSelect={() => onSelect(p.id)}
+                    onProfile={() => router.push(`/provider/${p.id}`)}
+                    t={t}
                   />
                 </View>
               ))}
@@ -227,10 +266,10 @@ export default function ResultsScreen() {
               <ProviderCard
                 provider={top}
                 top
-                onPress={() => {
-                  setSelectedId(top.id);
-                  router.push(`/provider/${top.id}`);
-                }}
+                selected={selectedProviderId === top.id}
+                onSelect={() => onSelect(top.id)}
+                onProfile={() => router.push(`/provider/${top.id}`)}
+                t={t}
               />
             </View>
           </View>
@@ -243,30 +282,31 @@ export default function ResultsScreen() {
                   <ProviderCard
                     provider={p}
                     badge={i === 0 ? 'Nearby' : undefined}
-                    onPress={() => {
-                      setSelectedId(p.id);
-                      router.push(`/provider/${p.id}`);
-                    }}
+                    selected={selectedProviderId === p.id}
+                    onSelect={() => onSelect(p.id)}
+                    onProfile={() => router.push(`/provider/${p.id}`)}
+                    t={t}
                   />
                 </View>
               ))}
             </View>
           ) : null}
 
-          <View style={styles.footer}>
-            <Button
-              label={`${t('confirm_book')}: ${candidates.find((p) => p.id === selectedId)?.name ?? top.name} →`}
-              onPress={bookNow}
-              loading={booking}
-              style={{ width: '100%' }}
-            />
-            <Link href="/(tabs)/trace" asChild>
-              <Pressable style={styles.traceLink}>
-                <Text style={styles.traceText}>🧠 View Agent Reasoning</Text>
-              </Pressable>
-            </Link>
-          </View>
+          <Link href="/(tabs)/trace" asChild>
+            <Pressable style={styles.traceLink}>
+              <Text style={styles.traceText}>🧠 View Agent Reasoning</Text>
+            </Pressable>
+          </Link>
         </ScrollView>
+
+        {selectedProvider ? (
+          <CheckoutBar
+            providerName={selectedProvider.name}
+            subtitle={`${selectedProvider.rating.toFixed(1)}★ · ${selectedProvider.distance_km.toFixed(1)} km`}
+            estimateLabel={estimate}
+            onContinue={() => goToCheckout()}
+          />
+        ) : null}
       </CurvedSheet>
     </SafeAreaView>
   );
@@ -275,32 +315,54 @@ export default function ResultsScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.violetDeep },
   sheet: { flex: 1, marginTop: -20 },
-  scroll: { paddingBottom: spacing.xl, paddingTop: spacing.sm },
+  scroll: { paddingBottom: spacing.md, paddingTop: spacing.sm },
   preview: {
     textAlign: 'center',
     fontSize: 11,
     color: colors.amber,
     marginHorizontal: spacing.lg,
+    marginBottom: 4,
+    fontFamily: fonts.body,
+  },
+  pickHint: {
+    textAlign: 'center',
+    fontSize: 11,
+    color: colors.text3,
+    marginHorizontal: spacing.lg,
     marginBottom: spacing.sm,
     fontFamily: fonts.body,
   },
   sortPad: { paddingHorizontal: spacing.lg, marginBottom: spacing.sm },
-  tipWrap: { paddingHorizontal: spacing.lg, marginTop: 4 },
   block: { marginTop: spacing.md },
   cardWrap: { marginHorizontal: spacing.lg, marginBottom: 12 },
   pcard: {
     backgroundColor: colors.card,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: colors.border,
     borderRadius: radius.lg,
     padding: 16,
     ...shadows.card,
   },
   pcardTop: {
-    borderColor: 'rgba(123,94,167,0.35)',
-    backgroundColor: 'rgba(123,94,167,0.08)',
+    borderColor: 'rgba(124,58,237,0.35)',
+    backgroundColor: colors.violetSoft,
     marginTop: 10,
   },
+  pcardSelected: {
+    borderColor: colors.violet,
+    backgroundColor: 'rgba(124,58,237,0.12)',
+  },
+  selectedTag: {
+    position: 'absolute',
+    top: -10,
+    right: 14,
+    zIndex: 2,
+    backgroundColor: colors.jade,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 20,
+  },
+  selectedTagText: { color: '#fff', fontSize: 10, fontWeight: '700', fontFamily: fonts.body },
   topTag: {
     position: 'absolute',
     top: -10,
@@ -320,7 +382,13 @@ const styles = StyleSheet.create({
   pmeta: { fontSize: 12, color: colors.text2, marginTop: 3, fontFamily: fonts.body },
   star: { color: colors.amber },
   pmetaBold: { color: colors.text, fontWeight: '600' },
-  footer: { paddingHorizontal: spacing.lg, marginTop: 8 },
-  traceLink: { marginTop: 10, alignItems: 'center', padding: spacing.sm },
+  profileLink: { marginTop: 10, alignSelf: 'flex-start' },
+  profileLinkText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.violetBright,
+    fontFamily: fonts.body,
+  },
+  traceLink: { marginTop: spacing.md, alignItems: 'center', padding: spacing.sm },
   traceText: { color: colors.text2, fontWeight: '600', fontFamily: fonts.body },
 });

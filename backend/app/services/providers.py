@@ -17,6 +17,9 @@ CATEGORY_LABELS = {
     "painter": "Painter",
     "tutor": "Home Tutor",
     "beautician": "Beautician",
+    "pc_repair": "PC Repair",
+    "appliance_repair": "Appliances",
+    "car_mechanic": "Car Repair",
 }
 
 PRICE_RANGES: dict[str, tuple[int, int]] = {
@@ -28,6 +31,9 @@ PRICE_RANGES: dict[str, tuple[int, int]] = {
     "painter": (1900, 4200),
     "tutor": (1200, 3000),
     "beautician": (2000, 5000),
+    "pc_repair": (1500, 4500),
+    "appliance_repair": (2000, 3500),
+    "car_mechanic": (1800, 5000),
 }
 
 

@@ -2,15 +2,16 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import * as Haptics from 'expo-haptics';
 import { colors, fonts, radius, shadows, spacing } from '../constants/theme';
 import { useBookingStore } from '../lib/store';
-import { getSession } from '../lib/auth';
-import { confirmPayment, type PaymentMethod } from '../api/client';
+import { completeCheckout, getSelectedProvider } from '../lib/bookingFlow';
+import type { PaymentMethod } from '../api/client';
 import Button from '../components/ui/Button';
 import BookingFlowBar from '../components/BookingFlowBar';
 import CurvedSheet from '../components/ui/CurvedSheet';
 import PageHeader from '../components/PageHeader';
+import Avatar from '../components/Avatar';
+import TransparentPricing from '../components/TransparentPricing';
 import { showToast } from '../lib/toastStore';
 import { useI18n } from '../lib/i18n';
 
@@ -22,18 +23,24 @@ const METHODS: { id: PaymentMethod; labelKey: string; icon: string }[] = [
 ];
 
 export default function PaymentScreen() {
-  const { result, setResult } = useBookingStore();
+  const { result } = useBookingStore();
   const { t } = useI18n();
   const [method, setMethod] = useState<PaymentMethod>('card');
   const [paying, setPaying] = useState(false);
 
-  useEffect(() => {
-    if (!result?.booking?.booking_id || !result.payment?.payment_id) {
-      router.replace('/');
-    }
-  }, [result?.booking?.booking_id, result?.payment?.payment_id]);
+  const provider = getSelectedProvider();
 
-  if (!result?.booking?.booking_id || !result.payment?.payment_id) {
+  useEffect(() => {
+    if (!result?.session_id) {
+      router.replace('/');
+      return;
+    }
+    if (!provider) {
+      router.replace('/results');
+    }
+  }, [result?.session_id, provider?.id]);
+
+  if (!result || !provider) {
     return (
       <SafeAreaView style={styles.safe}>
         <ActivityIndicator color={colors.violet} style={{ marginTop: spacing.xl }} />
@@ -41,35 +48,19 @@ export default function PaymentScreen() {
     );
   }
 
-  const b = result.booking;
-  const pay = result.payment;
-  const amount = pay.amount_pkr || b.amount_pkr || 1500;
+  const estimateMin = result.pricing?.estimate_min_pkr;
+  const estimateMax = result.pricing?.estimate_max_pkr;
+  const estimate =
+    estimateMin && estimateMax
+      ? `PKR ${estimateMin.toLocaleString()}–${estimateMax.toLocaleString()}`
+      : 'Quote on visit';
 
   const onPay = async () => {
     if (paying) return;
     setPaying(true);
     try {
-      const session = await getSession();
-      if (!session) {
-        router.replace('/auth');
-        return;
-      }
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-      await confirmPayment({
-        payment_id: pay.payment_id,
-        booking_id: b.booking_id,
-        method,
-        user_id: session.userId,
-        customer_phone: session.phone,
-        stripe_payment_intent_id: pay.stripe_payment_intent_id ?? undefined,
-      });
-      setResult({
-        ...result,
-        booking: { ...b, status: 'CONFIRMED', payment_status: 'paid' },
-        payment: { ...pay, status: 'paid' },
-      });
+      await completeCheckout(method);
       showToast(t('payment_success'));
-      router.replace('/booking-confirm');
     } catch (e) {
       showToast(e instanceof Error ? e.message : t('payment_failed'));
     } finally {
@@ -81,17 +72,32 @@ export default function PaymentScreen() {
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <PageHeader
         title={t('payment_title')}
-        subtitle={`${b.provider_name} · ${result.intent.location}`}
+        subtitle={`${result.intent.service_label} · ${result.intent.location}`}
         onBack={() => router.back()}
       />
       <CurvedSheet style={styles.sheet}>
         <BookingFlowBar step={2} />
-        <ScrollView contentContainerStyle={styles.scroll}>
-          <View style={styles.amountCard}>
-            <Text style={styles.amountLabel}>{t('payment_amount')}</Text>
-            <Text style={styles.amount}>PKR {amount.toLocaleString()}</Text>
-            <Text style={styles.note}>{t('payment_visit_note')}</Text>
+        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+          <View style={styles.orderCard}>
+            <Text style={styles.orderLabel}>{t('order_summary')}</Text>
+            <View style={styles.orderRow}>
+              <Avatar name={provider.name} size={52} square />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.orderName}>{provider.name}</Text>
+                <Text style={styles.orderMeta}>
+                  ★ {provider.rating.toFixed(1)} · {provider.distance_km.toFixed(1)} km
+                </Text>
+                <Text style={styles.orderSlot}>{result.intent.time_expression || 'Flexible'}</Text>
+              </View>
+            </View>
+            <View style={styles.divider} />
+            <View style={styles.lineRow}>
+              <Text style={styles.lineLabel}>{t('payment_amount')}</Text>
+              <Text style={styles.lineVal}>{estimate}</Text>
+            </View>
           </View>
+
+          <TransparentPricing pricing={result.pricing} />
 
           <Text style={styles.sec}>{t('payment_method')}</Text>
           {METHODS.map((m) => (
@@ -110,8 +116,11 @@ export default function PaymentScreen() {
             label={t('payment_confirm')}
             onPress={onPay}
             loading={paying}
-            style={{ width: '100%', marginTop: spacing.lg }}
+            style={{ width: '100%', marginTop: spacing.md }}
           />
+          <Pressable onPress={() => router.back()} style={styles.backLink}>
+            <Text style={styles.backText}>← {t('change_provider')}</Text>
+          </Pressable>
           <Text style={styles.footer}>{t('payment_notify_hint')}</Text>
         </ScrollView>
       </CurvedSheet>
@@ -123,30 +132,38 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.violetDeep },
   sheet: { flex: 1, marginTop: -20 },
   scroll: { padding: spacing.lg, paddingBottom: spacing.xl },
-  amountCard: {
+  orderCard: {
     backgroundColor: colors.card,
     borderRadius: radius.lg,
     padding: spacing.lg,
-    alignItems: 'center',
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
     borderWidth: 1,
     borderColor: colors.border,
     ...shadows.card,
   },
-  amountLabel: { fontSize: 12, color: colors.text2, fontFamily: fonts.body },
-  amount: {
-    fontFamily: fonts.display,
-    fontSize: 32,
+  orderLabel: {
+    fontSize: 11,
     fontWeight: '700',
-    color: colors.violetBright,
-    marginVertical: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    color: colors.text3,
+    marginBottom: spacing.md,
+    fontFamily: fonts.body,
   },
-  note: { fontSize: 11, color: colors.text3, textAlign: 'center', fontFamily: fonts.body },
+  orderRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  orderName: { fontSize: 16, fontWeight: '600', color: colors.text, fontFamily: fonts.body },
+  orderMeta: { fontSize: 12, color: colors.text2, marginTop: 4, fontFamily: fonts.body },
+  orderSlot: { fontSize: 11, color: colors.violetBright, marginTop: 4, fontFamily: fonts.body },
+  divider: { height: 1, backgroundColor: colors.border, marginVertical: spacing.md },
+  lineRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  lineLabel: { fontSize: 13, color: colors.text2, fontFamily: fonts.body },
+  lineVal: { fontSize: 15, fontWeight: '700', color: colors.jade, fontFamily: fonts.body },
   sec: {
     fontSize: 12,
     fontWeight: '700',
     color: colors.text3,
     marginBottom: spacing.sm,
+    marginTop: spacing.sm,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     fontFamily: fonts.body,
@@ -166,11 +183,12 @@ const styles = StyleSheet.create({
   methodIcon: { fontSize: 22 },
   methodLabel: { flex: 1, fontSize: 15, color: colors.text, fontFamily: fonts.body },
   check: { color: colors.violetBright, fontWeight: '700', fontSize: 16 },
+  backLink: { alignItems: 'center', paddingVertical: spacing.md },
+  backText: { color: colors.text2, fontSize: 13, fontWeight: '600', fontFamily: fonts.body },
   footer: {
     fontSize: 11,
     color: colors.text3,
     textAlign: 'center',
-    marginTop: spacing.md,
     lineHeight: 16,
     fontFamily: fonts.body,
   },

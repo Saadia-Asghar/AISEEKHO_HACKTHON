@@ -52,11 +52,28 @@ export default function BookingConfirmScreen() {
       router.replace('/');
       return;
     }
+    const paid =
+      result.booking?.payment_status === 'paid' ||
+      result.payment?.status === 'paid' ||
+      result.booking?.status === 'CONFIRMED';
+    if (!result.booking?.booking_id) {
+      router.replace('/results');
+      return;
+    }
+    if (!paid) {
+      router.replace('/payment');
+      return;
+    }
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     Animated.spring(scale, { toValue: 1, friction: 4, useNativeDriver: true }).start();
   }, [result]);
 
-  if (!result || !result.booking) return null;
+  if (!result?.booking?.booking_id) return null;
+  const paid =
+    result.booking.payment_status === 'paid' ||
+    result.payment?.status === 'paid' ||
+    result.booking.status === 'CONFIRMED';
+  if (!paid) return null;
 
   const b = result.booking;
   const code = b.booking_id?.startsWith('KHI')

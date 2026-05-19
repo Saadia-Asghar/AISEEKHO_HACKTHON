@@ -51,6 +51,10 @@ const CHIPS = [
   { label: 'Cleaner', emoji: '🧹', phrase: 'cleaner' },
   { label: 'Painter', emoji: '🎨', phrase: 'painter' },
   { label: 'Tutor', emoji: '📚', phrase: 'tutor' },
+  { label: 'PC Repair', emoji: '💻', phrase: 'laptop and computer repair specialist' },
+  { label: 'Appliances', emoji: '📺', phrase: 'appliances and geyser repair technician' },
+  { label: 'Home Salon', emoji: '💄', phrase: 'home salon beautician' },
+  { label: 'Car Repair', emoji: '🚗', phrase: 'car mechanic' },
 ];
 
 export default function HomeScreen() {
@@ -71,6 +75,7 @@ export default function HomeScreen() {
     setLastSearchText,
     searchFilters,
     setSearchFilters,
+    setSelectedProviderId,
   } = useBookingStore();
   const submitting = useRef(false);
   const [recording, setRecording] = useState(false);
@@ -139,6 +144,7 @@ export default function HomeScreen() {
           lang,
         });
         setResult(data);
+        setSelectedProviderId(data.recommended?.id ?? null);
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
         showToast(t('preview_note'));
         router.push('/results');
@@ -150,7 +156,7 @@ export default function HomeScreen() {
         submitting.current = false;
       }
     },
-    [setLoading, setResult, setError, priceSort, setLastSearchText, searchFilters, lang, t]
+    [setLoading, setResult, setError, priceSort, setLastSearchText, searchFilters, setSelectedProviderId, lang, t]
   );
 
   const onPriceSortChange = async (sort: PriceSort) => {

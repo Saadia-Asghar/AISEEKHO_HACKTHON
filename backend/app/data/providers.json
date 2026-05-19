@@ -718,5 +718,241 @@
       "16:00"
     ],
     "phone": "+92-394-8231838"
+  },
+  {
+    "id": "h31",
+    "name": "آمنہ ہوم ٹیوٹر",
+    "category": "tutor",
+    "categories": [
+      "tutor"
+    ],
+    "area": "G-13",
+    "lat": 33.6841,
+    "lng": 72.9715,
+    "rating": 4.8,
+    "reviews": 32,
+    "verified": true,
+    "price_min_pkr": 3000,
+    "price_max_pkr": 6000,
+    "bio": "Experienced primary & secondary tutor in G-13, Islamabad",
+    "available_slots": [
+      "14:00",
+      "16:00",
+      "18:00"
+    ],
+    "phone": "+92-312-4456789"
+  },
+  {
+    "id": "h32",
+    "name": "طارق کمپیوٹرز",
+    "category": "pc_repair",
+    "categories": [
+      "pc_repair"
+    ],
+    "area": "I-8",
+    "lat": 33.6655,
+    "lng": 73.0811,
+    "rating": 4.5,
+    "reviews": 28,
+    "verified": true,
+    "price_min_pkr": 1500,
+    "price_max_pkr": 4500,
+    "bio": "Expert laptop & computer hardware technician in I-8, Islamabad",
+    "available_slots": [
+      "10:00",
+      "12:00",
+      "15:00",
+      "17:00"
+    ],
+    "phone": "+92-321-9876543"
+  },
+  {
+    "id": "h33",
+    "name": "ریاض گیزر سروسز",
+    "category": "appliance_repair",
+    "categories": [
+      "appliance_repair"
+    ],
+    "area": "F-7",
+    "lat": 33.7211,
+    "lng": 73.0533,
+    "rating": 4.1,
+    "reviews": 19,
+    "verified": false,
+    "price_min_pkr": 2000,
+    "price_max_pkr": 3500,
+    "bio": "Geyser, washing machine, fridge repair specialist in F-7",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "13:00",
+      "15:00"
+    ],
+    "phone": "+92-333-8884422"
+  },
+  {
+    "id": "h34",
+    "name": "زینب ہوم بیوٹی",
+    "category": "beautician",
+    "categories": [
+      "beautician"
+    ],
+    "area": "F-10",
+    "lat": 33.6981,
+    "lng": 73.0142,
+    "rating": 4.9,
+    "reviews": 55,
+    "verified": true,
+    "price_min_pkr": 2500,
+    "price_max_pkr": 8000,
+    "bio": "Professional salon & bridal services at home in F-10, Islamabad",
+    "available_slots": [
+      "11:00",
+      "13:00",
+      "15:00",
+      "17:00"
+    ],
+    "phone": "+92-345-7766554"
+  },
+  {
+    "id": "h35",
+    "name": "شفیق آٹو ریپیر",
+    "category": "car_mechanic",
+    "categories": [
+      "car_mechanic"
+    ],
+    "area": "G-9",
+    "lat": 33.6821,
+    "lng": 72.9811,
+    "rating": 4.3,
+    "reviews": 64,
+    "verified": true,
+    "price_min_pkr": 1800,
+    "price_max_pkr": 5000,
+    "bio": "Experienced car mechanic & tuning expert in G-9, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-5551234"
+  },
+  {
+    "id": "h36",
+    "name": "زاہد گیزر ماسٹر",
+    "category": "appliance_repair",
+    "categories": [
+      "appliance_repair"
+    ],
+    "area": "G-13",
+    "lat": 33.6891,
+    "lng": 72.9781,
+    "rating": 4.2,
+    "reviews": 15,
+    "verified": false,
+    "price_min_pkr": 1500,
+    "price_max_pkr": 3000,
+    "bio": "Trusted geyser and microwave repair expert in G-13",
+    "available_slots": [
+      "10:00",
+      "13:00",
+      "16:00"
+    ],
+    "phone": "+92-323-5556677"
+  },
+  {
+    "id": "h37",
+    "name": "سحرش بیوٹیشن",
+    "category": "beautician",
+    "categories": [
+      "beautician"
+    ],
+    "area": "G-9",
+    "lat": 33.6877,
+    "lng": 72.9899,
+    "rating": 4.7,
+    "reviews": 42,
+    "verified": true,
+    "price_min_pkr": 2000,
+    "price_max_pkr": 5000,
+    "bio": "Hair and makeup expert providing services at your doorstep in G-9",
+    "available_slots": [
+      "12:00",
+      "14:00",
+      "16:00",
+      "18:00"
+    ],
+    "phone": "+92-311-6667788"
+  },
+  {
+    "id": "h38",
+    "name": "کامران موبائل رپیر",
+    "category": "pc_repair",
+    "categories": [
+      "pc_repair"
+    ],
+    "area": "F-7",
+    "lat": 33.7199,
+    "lng": 73.0511,
+    "rating": 4.4,
+    "reviews": 38,
+    "verified": false,
+    "price_min_pkr": 1000,
+    "price_max_pkr": 4000,
+    "bio": "Mobile & laptop repair engineer in F-7 Markaz",
+    "available_slots": [
+      "11:00",
+      "13:00",
+      "15:00",
+      "17:00"
+    ],
+    "phone": "+92-344-9990011"
+  },
+  {
+    "id": "h39",
+    "name": "حماد آٹو سروس",
+    "category": "car_mechanic",
+    "categories": [
+      "car_mechanic"
+    ],
+    "area": "F-10",
+    "lat": 33.6922,
+    "lng": 73.0155,
+    "rating": 4.6,
+    "reviews": 49,
+    "verified": true,
+    "price_min_pkr": 2000,
+    "price_max_pkr": 6000,
+    "bio": "Premium home car detailing and repair service in F-10",
+    "available_slots": [
+      "09:00",
+      "12:00",
+      "15:00"
+    ],
+    "phone": "+92-355-8881122"
+  },
+  {
+    "id": "h40",
+    "name": "پروفیسر طارق (ریاضی)",
+    "category": "tutor",
+    "categories": [
+      "tutor"
+    ],
+    "area": "I-8",
+    "lat": 33.6688,
+    "lng": 73.0844,
+    "rating": 4.9,
+    "reviews": 51,
+    "verified": true,
+    "price_min_pkr": 4000,
+    "price_max_pkr": 8000,
+    "bio": "O/A Level Mathematics home tutor with 10+ years experience in I-8",
+    "available_slots": [
+      "15:00",
+      "17:00",
+      "19:00"
+    ],
+    "phone": "+92-366-7772233"
   }
 ]

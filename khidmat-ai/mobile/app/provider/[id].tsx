@@ -22,7 +22,7 @@ import { showToast } from '../../lib/toastStore';
 import { api, getProvider, saveProvider, unsaveProvider } from '../../api/client';
 import { getSession } from '../../lib/auth';
 import { useI18n } from '../../lib/i18n';
-import { bookSelectedProvider } from '../../lib/bookingFlow';
+import { goToCheckout, selectProvider } from '../../lib/bookingFlow';
 import { useBookingStore } from '../../lib/store';
 
 type ReviewItem = {
@@ -137,9 +137,8 @@ export default function ProviderScreen() {
     if (booking) return;
     setBooking(true);
     try {
-      await bookSelectedProvider(id!);
-    } catch (e) {
-      showToast(e instanceof Error ? e.message : 'Booking failed');
+      await selectProvider(id!);
+      goToCheckout();
     } finally {
       setBooking(false);
     }
