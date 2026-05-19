@@ -11,15 +11,12 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors, fonts, gradients, radius, shadows, spacing } from '../constants/theme';
+import { colors, fonts, radius, shadows, spacing } from '../constants/theme';
 import { useBookingStore } from '../lib/store';
 import { getSession } from '../lib/auth';
 import { postReview } from '../api/client';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
-import BookingFlowBar from '../components/BookingFlowBar';
-import CurvedSheet from '../components/ui/CurvedSheet';
 import InputField from '../components/ui/InputField';
 import ReviewTagPicker from '../components/ReviewTagPicker';
 import TransparentPricing from '../components/TransparentPricing';
@@ -125,19 +122,17 @@ export default function BookingConfirmScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-      <LinearGradient colors={[...gradients.jade]} style={styles.heroGrad}>
-        <Animated.View style={[styles.checkAnim, { transform: [{ scale }] }]}>
-          <Text style={styles.checkMark}>✓</Text>
-        </Animated.View>
-        <Text style={styles.confirmTitle}>{t('confirm_title')}</Text>
-        <Text style={styles.bookingRef}>
-          Code: <Text style={styles.code}>{code}</Text>
-        </Text>
-        <Badge label={`${b.provider_name} · ${b.slot}`} variant="jade" />
-      </LinearGradient>
-      <CurvedSheet style={styles.sheet}>
-        <BookingFlowBar step={3} />
-        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <View style={styles.successHero}>
+          <Animated.View style={[styles.checkAnim, { transform: [{ scale }] }]}>
+            <Text style={styles.checkMark}>✓</Text>
+          </Animated.View>
+          <Text style={styles.confirmTitle}>{t('confirm_title')}</Text>
+          <Text style={styles.bookingRef}>
+            Code: <Text style={styles.code}>{code}</Text>
+          </Text>
+          <Badge label={`${b.provider_name} · ${b.slot}`} variant="jade" />
+        </View>
         <Text style={styles.nextHint}>{t('confirm_next')}</Text>
 
         <View style={styles.card}>
@@ -181,7 +176,7 @@ export default function BookingConfirmScreen() {
           />
           <Button
             label={reviewDone ? '⭐ Review submitted!' : 'Submit Review'}
-            variant="jade"
+            variant="accent"
             onPress={submitReview}
             loading={submitting}
             disabled={reviewDone}
@@ -197,42 +192,35 @@ export default function BookingConfirmScreen() {
           style={{ width: '100%', marginTop: 10 }}
         />
         <Button label={`← ${t('back_home')}`} onPress={() => router.replace('/')} style={{ width: '100%', marginTop: 10 }} />
-        </ScrollView>
-      </CurvedSheet>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.jade },
-  heroGrad: {
-    alignItems: 'center',
-    paddingTop: spacing.lg,
-    paddingBottom: 40,
-    paddingHorizontal: spacing.lg,
-  },
-  sheet: { flex: 1, marginTop: -20 },
+  safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { padding: spacing.lg, paddingBottom: spacing.xl },
+  successHero: { alignItems: 'center', marginBottom: spacing.lg },
   checkAnim: {
     width: 88,
     height: 88,
     borderRadius: 44,
-    backgroundColor: 'rgba(255,255,255,0.25)',
+    backgroundColor: colors.jadeSoft,
+    borderWidth: 3,
+    borderColor: colors.jade,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 14,
-    borderWidth: 3,
-    borderColor: 'rgba(255,255,255,0.5)',
   },
-  checkMark: { fontSize: 42, color: '#fff', fontWeight: '700' },
+  checkMark: { fontSize: 42, color: colors.jade, fontWeight: '700' },
   confirmTitle: {
     fontFamily: fonts.display,
     fontSize: 24,
     fontWeight: '700',
-    color: '#fff',
+    color: colors.text,
     marginBottom: 6,
   },
-  bookingRef: { fontSize: 13, color: 'rgba(255,255,255,0.85)', marginBottom: 10, fontFamily: fonts.body },
+  bookingRef: { fontSize: 13, color: colors.text2, marginBottom: 10, fontFamily: fonts.body },
   nextHint: {
     fontSize: 12,
     color: colors.text2,
@@ -241,7 +229,7 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     fontFamily: fonts.body,
   },
-  code: { color: '#fff', fontWeight: '700', fontFamily: fonts.display },
+  code: { color: colors.violetBright, fontWeight: '700', fontFamily: fonts.display },
   card: {
     backgroundColor: colors.card,
     borderWidth: 1,

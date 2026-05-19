@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { colors, fonts, gradients, radius, shadows, spacing } from '../../constants/theme';
-import CurvedSheet from '../../components/ui/CurvedSheet';
+import { colors, fonts, radius, shadows, spacing } from '../../constants/theme';
 import { clearSession, getSession, type Session } from '../../lib/auth';
 import { useI18n } from '../../lib/i18n';
 import LanguagePicker from '../../components/LanguagePicker';
@@ -15,7 +13,6 @@ import GoogleBadge from '../../components/GoogleBadge';
 import OnboardingModal from '../../components/OnboardingModal';
 import { getUserReviews } from '../../api/client';
 import { HOW_TO_SECTIONS } from '../../constants/guide';
-import NavShortcuts from '../../components/NavShortcuts';
 import GoogleStatusBanner from '../../components/GoogleStatusBanner';
 
 type Review = { rating: number; comment?: string; provider_name?: string };
@@ -66,21 +63,18 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <LinearGradient colors={[...gradients.hero]} style={styles.heroGrad}>
-        <View style={styles.profileAv}>
-          <Avatar name={session.name} size={84} />
-        </View>
-        <Text style={styles.nameHero}>{session.name}</Text>
-        <Text style={styles.subHero}>{session.phone} · Karachi</Text>
-        <View style={styles.badges}>
-          <Badge label={`⭐ ${reviews.length} Reviews`} variant="violet" />
-          <Badge label="✓ Verified" variant="jade" />
-        </View>
-      </LinearGradient>
-      <CurvedSheet style={styles.sheet}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <View style={styles.profileHero}>
+          <Avatar name={session.name} size={72} />
+          <Text style={styles.nameHero}>{session.name}</Text>
+          <Text style={styles.subHero}>{session.phone} · Karachi</Text>
+          <View style={styles.badges}>
+            <Badge label={`⭐ ${reviews.length} Reviews`} variant="violet" />
+            <Badge label={`✓ ${t('verified')}`} variant="jade" />
+          </View>
+        </View>
+        <LanguagePicker />
         <GoogleStatusBanner />
-        <NavShortcuts />
         <View style={styles.navCard}>
           <Text style={styles.navTitle}>{t('profile_nav')}</Text>
           <Text style={styles.navRow}>🏠 {t('profile_home')}</Text>
@@ -173,33 +167,22 @@ export default function ProfileScreen() {
         <GoogleBadge />
         <Text style={styles.version}>KhidmatAI v2.0 · Karachi, Pakistan</Text>
       </ScrollView>
-      </CurvedSheet>
       <OnboardingModal visible={showGuide} onClose={() => setShowGuide(false)} />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.violetDeep },
-  heroGrad: {
-    alignItems: 'center',
-    paddingTop: spacing.lg,
-    paddingBottom: 40,
-    paddingHorizontal: spacing.lg,
-  },
-  sheet: { flex: 1, marginTop: -20 },
+  safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { paddingBottom: 110, paddingTop: spacing.md },
-  profileAv: {
-    width: 84,
-    height: 84,
-    borderRadius: 42,
-    overflow: 'hidden',
-    marginBottom: 14,
-    borderWidth: 3,
-    borderColor: 'rgba(255,255,255,0.35)',
+  profileHero: {
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.lg,
+    marginBottom: spacing.sm,
   },
-  nameHero: { fontFamily: fonts.display, fontSize: 22, fontWeight: '700', color: '#fff' },
-  subHero: { fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 4, fontFamily: fonts.body },
+  nameHero: { fontFamily: fonts.display, fontSize: 22, fontWeight: '700', color: colors.text, marginTop: 12 },
+  subHero: { fontSize: 12, color: colors.text2, marginTop: 4, fontFamily: fonts.body },
   badges: { flexDirection: 'row', gap: 8, marginTop: 12 },
   navCard: {
     marginHorizontal: spacing.lg,

@@ -235,6 +235,24 @@ export async function getContactedWorkers(userId: string) {
   return data.contacted;
 }
 
+export type ServiceCategory = {
+  id: string;
+  label: string;
+  emoji: string;
+  provider_count: number;
+  price_min_pkr: number;
+  price_max_pkr: number;
+  search_template_en: string;
+  search_template_ur: string;
+};
+
+export async function getServiceCategories() {
+  const { data } = await api.get<{ categories: ServiceCategory[]; total_providers: number }>(
+    '/api/services/categories'
+  );
+  return data;
+}
+
 export async function getSuggestions(hour: number) {
   const { data } = await api.get<{ suggestions: Array<{ service_type: string; label: string }> }>(
     '/api/suggestions',

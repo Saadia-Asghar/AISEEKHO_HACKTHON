@@ -7,7 +7,6 @@ import { useBookingStore } from '../lib/store';
 import { completeCheckout, getSelectedProvider } from '../lib/bookingFlow';
 import type { PaymentMethod } from '../api/client';
 import Button from '../components/ui/Button';
-import BookingFlowBar from '../components/BookingFlowBar';
 import CurvedSheet from '../components/ui/CurvedSheet';
 import PageHeader from '../components/PageHeader';
 import Avatar from '../components/Avatar';
@@ -76,7 +75,6 @@ export default function PaymentScreen() {
         onBack={() => router.back()}
       />
       <CurvedSheet style={styles.sheet}>
-        <BookingFlowBar step={2} />
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           <View style={styles.orderCard}>
             <Text style={styles.orderLabel}>{t('order_summary')}</Text>
@@ -129,8 +127,8 @@ export default function PaymentScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.violetDeep },
-  sheet: { flex: 1, marginTop: -20 },
+  safe: { flex: 1, backgroundColor: colors.bg },
+  sheet: { flex: 1 },
   scroll: { padding: spacing.lg, paddingBottom: spacing.xl },
   orderCard: {
     backgroundColor: colors.card,

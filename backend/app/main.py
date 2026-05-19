@@ -21,6 +21,7 @@ from app.routers import (
     pricing_router,
     providers_router,
     reviews,
+    services_router,
     suggestions,
     users,
 )
@@ -64,6 +65,7 @@ app.include_router(suggestions.router)
 app.include_router(google_services.router)
 app.include_router(discover.router)
 app.include_router(pricing_router.router)
+app.include_router(services_router.router)
 app.include_router(admin.router)
 
 

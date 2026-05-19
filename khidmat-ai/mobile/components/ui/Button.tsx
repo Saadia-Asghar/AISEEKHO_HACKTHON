@@ -2,7 +2,7 @@ import { Pressable, StyleSheet, Text, ViewStyle, ActivityIndicator } from 'react
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fonts, gradients, radius, shadows, spacing } from '../../constants/theme';
 
-type Variant = 'violet' | 'gradient' | 'jade' | 'outline' | 'ghost';
+type Variant = 'violet' | 'gradient' | 'jade' | 'outline' | 'ghost' | 'accent';
 
 export default function Button({
   label,
@@ -28,6 +28,7 @@ export default function Button({
         styles.text,
         variant === 'outline' && styles.textOutline,
         variant === 'ghost' && styles.textGhost,
+        variant === 'accent' && styles.textAccent,
       ]}
     >
       {label}
@@ -61,6 +62,7 @@ export default function Button({
         variant === 'violet' && styles.violet,
         variant === 'outline' && styles.outline,
         variant === 'ghost' && styles.ghost,
+        variant === 'accent' && styles.accent,
         (disabled || loading) && styles.disabled,
         pressed && styles.pressed,
         style,
@@ -96,7 +98,13 @@ const styles = StyleSheet.create({
   ghost: {
     backgroundColor: colors.violetSoft,
     borderWidth: 1,
-    borderColor: 'rgba(123,94,167,0.25)',
+    borderColor: 'rgba(124,58,237,0.25)',
+    borderRadius: radius.pill,
+  },
+  accent: {
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: colors.accent,
     borderRadius: radius.pill,
   },
   disabled: { opacity: 0.5 },
@@ -104,4 +112,5 @@ const styles = StyleSheet.create({
   text: { color: colors.text, fontWeight: '700', fontSize: 15, fontFamily: fonts.body },
   textOutline: { color: colors.text },
   textGhost: { color: colors.violetBright },
+  textAccent: { color: colors.accent },
 });

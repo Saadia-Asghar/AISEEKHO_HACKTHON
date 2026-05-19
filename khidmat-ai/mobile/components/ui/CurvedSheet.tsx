@@ -1,7 +1,8 @@
 import { type ReactNode } from 'react';
 import { StyleSheet, View, type ViewStyle } from 'react-native';
-import { colors, sheetCurve } from '../../constants/theme';
+import { sheetCurve } from '../../constants/theme';
 
+/** Stitch flat content panel */
 export default function CurvedSheet({
   children,
   style,
@@ -13,11 +14,5 @@ export default function CurvedSheet({
 }
 
 const styles = StyleSheet.create({
-  sheet: {
-    ...sheetCurve,
-    borderWidth: 1,
-    borderBottomWidth: 0,
-    borderColor: colors.border,
-    minHeight: 200,
-  },
+  sheet: { ...sheetCurve },
 });

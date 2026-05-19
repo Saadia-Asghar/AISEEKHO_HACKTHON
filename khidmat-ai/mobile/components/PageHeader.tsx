@@ -1,14 +1,13 @@
 import { type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors, fonts, gradients, spacing } from '../constants/theme';
+import { colors, fonts, spacing } from '../constants/theme';
 
+/** Stitch flat header (stack screens) */
 export default function PageHeader({
   title,
   subtitle,
   onBack,
   right,
-  compact,
 }: {
   title: string;
   subtitle?: string;
@@ -17,61 +16,42 @@ export default function PageHeader({
   compact?: boolean;
 }) {
   return (
-    <LinearGradient colors={[...gradients.hero]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.hero, compact && styles.heroCompact]}>
+    <View style={styles.wrap}>
       <View style={styles.row}>
         {onBack ? (
-          <Pressable style={styles.back} onPress={onBack} accessibilityRole="button">
-            <Text style={styles.backText}>←</Text>
+          <Pressable style={styles.back} onPress={onBack}>
+            <Text style={styles.backText}>← Back</Text>
           </Pressable>
         ) : (
           <View style={styles.backSpacer} />
         )}
-        <View style={styles.titles}>
-          <Text style={styles.title} numberOfLines={2}>
-            {title}
-          </Text>
-          {subtitle ? (
-            <Text style={styles.sub} numberOfLines={2}>
-              {subtitle}
-            </Text>
-          ) : null}
-        </View>
-        {right ?? <View style={styles.backSpacer} />}
+        {right}
       </View>
-    </LinearGradient>
+      <Text style={styles.title} numberOfLines={2}>
+        {title}
+      </Text>
+      {subtitle ? (
+        <Text style={styles.sub} numberOfLines={2}>
+          {subtitle}
+        </Text>
+      ) : null}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  hero: {
-    paddingTop: spacing.md,
+  wrap: {
     paddingHorizontal: spacing.lg,
-    paddingBottom: 36,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    backgroundColor: colors.bg,
   },
-  heroCompact: { paddingBottom: 28 },
-  row: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
-  back: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  backSpacer: { width: 40 },
-  backText: { color: '#fff', fontSize: 20, fontWeight: '600' },
-  titles: { flex: 1, paddingTop: 4 },
-  title: {
-    fontFamily: fonts.display,
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#fff',
-  },
-  sub: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.8)',
-    marginTop: 6,
-    lineHeight: 18,
-    fontFamily: fonts.body,
-  },
+  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
+  back: { paddingVertical: 4 },
+  backSpacer: { width: 60 },
+  backText: { color: colors.primaryText, fontSize: 14, fontWeight: '600', fontFamily: fonts.body },
+  title: { fontFamily: fonts.display, fontSize: 22, fontWeight: '700', color: colors.primaryText },
+  sub: { fontSize: 13, color: colors.text2, marginTop: 6, fontFamily: fonts.body, lineHeight: 18 },
 });

@@ -205,8 +205,8 @@ export default function BookingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.violetDeep },
-  sheet: { flex: 1, marginTop: -20 },
+  safe: { flex: 1, backgroundColor: colors.bg },
+  sheet: { flex: 1 },
   sheetInner: { paddingHorizontal: spacing.lg, paddingTop: spacing.md, gap: spacing.md },
   list: { paddingHorizontal: spacing.lg, paddingBottom: 110, paddingTop: spacing.sm },
   bCard: {

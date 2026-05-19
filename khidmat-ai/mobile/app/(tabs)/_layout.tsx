@@ -8,6 +8,7 @@ function TabIcon({ label, focused }: { label: string; focused: boolean }) {
   const hint = TAB_HINTS[label] || '';
   return (
     <View style={[styles.ni, focused && styles.niActive]}>
+      {focused ? <View style={styles.tabIndicator} /> : null}
       <Text style={[styles.icon, focused && styles.iconActive]}>{icons[label] || '•'}</Text>
       <Text style={[styles.label, focused && styles.labelActive]}>{label}</Text>
       {hint ? (
@@ -65,14 +66,14 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   tabBar: {
     position: 'absolute',
-    left: spacing.md,
-    right: spacing.md,
-    bottom: Platform.OS === 'ios' ? 20 : 12,
-    height: 72,
-    borderRadius: radius.xl,
-    backgroundColor: colors.card,
-    borderTopWidth: 0,
-    borderWidth: 1,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 76,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
+    backgroundColor: colors.glass,
+    borderTopWidth: 1,
     borderColor: colors.border2,
     paddingBottom: 8,
     paddingTop: 8,
@@ -85,6 +86,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     borderRadius: radius.lg,
     minWidth: 56,
+    position: 'relative',
+  },
+  tabIndicator: {
+    position: 'absolute',
+    top: 0,
+    width: 28,
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: colors.violet,
   },
   niActive: {
     backgroundColor: colors.violetSoft,
@@ -92,7 +102,7 @@ const styles = StyleSheet.create({
   icon: { fontSize: 20, opacity: 0.45 },
   iconActive: { opacity: 1 },
   label: { fontSize: 10, fontWeight: '700', color: colors.text3, fontFamily: fonts.body },
-  labelActive: { color: colors.violetBright },
+  labelActive: { color: colors.primaryText },
   hint: { fontSize: 8, color: colors.text3, fontFamily: fonts.body },
   hintActive: { color: colors.text2 },
 });

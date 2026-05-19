@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import {
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -10,26 +11,24 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { colors, fonts, gradients, radius, spacing } from '../constants/theme';
+import { colors, fonts, radius, spacing } from '../constants/theme';
 import { persistSession } from '../lib/auth';
 import { sendOtp, verifyAuth } from '../api/client';
 import Button from '../components/ui/Button';
-import CurvedSheet from '../components/ui/CurvedSheet';
-import SegmentedControl from '../components/ui/SegmentedControl';
-import InputField from '../components/ui/InputField';
+import StitchAppHeader from '../components/stitch/StitchAppHeader';
+import StitchGlassCard from '../components/stitch/StitchGlassCard';
+import PhoneInputRow from '../components/PhoneInputRow';
 import GoogleBadge from '../components/GoogleBadge';
+import LanguagePicker from '../components/LanguagePicker';
+import { stitchAssets } from '../constants/stitchDesign';
 import { showToast } from '../lib/toastStore';
 import { useI18n } from '../lib/i18n';
-import LanguagePicker from '../components/LanguagePicker';
-
-type AuthTab = 'phone' | 'otp';
 
 export default function AuthScreen() {
   const { t } = useI18n();
-  const [tab, setTab] = useState<AuthTab>('phone');
+  const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [digits, setDigits] = useState('');
   const [phoneDigits, setPhoneDigits] = useState('');
   const [loading, setLoading] = useState(false);
@@ -46,7 +45,7 @@ export default function AuthScreen() {
     setError(null);
     try {
       const res = await sendOtp(phone);
-      setTab('otp');
+      setStep('otp');
       showToast(res.twilio ? t('otp_sent_sms') : `${t('demo_code')} 1234`);
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } catch (e) {
@@ -115,52 +114,37 @@ export default function AuthScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+      <StitchAppHeader />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <LinearGradient colors={[...gradients.hero]} style={styles.hero}>
-          <View style={styles.logoCircle}>
-            <Text style={styles.logoEmoji}>⚡</Text>
+        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+          <View style={styles.brandBlock}>
+            <View style={styles.logoBox}>
+              <Text style={styles.logoIcon}>✨</Text>
+            </View>
+            <Text style={styles.welcome}>Welcome Back</Text>
+            <Text style={styles.welcomeSub}>Premium service execution at your command.</Text>
           </View>
-          <Text style={styles.welcome}>{t('welcome')}</Text>
-          <Text style={styles.heroSub}>{t('auth_sub')}</Text>
-        </LinearGradient>
 
-        <CurvedSheet>
-          <ScrollView contentContainerStyle={styles.sheetScroll} keyboardShouldPersistTaps="handled">
-            <LanguagePicker />
-            <SegmentedControl
-              options={[
-                { key: 'phone' as const, label: 'Phone' },
-                { key: 'otp' as const, label: 'OTP' },
-              ]}
-              value={tab}
-              onChange={(k) => {
-                setTab(k);
-                setError(null);
-              }}
-            />
+          <LanguagePicker />
 
-            {tab === 'phone' ? (
+          <StitchGlassCard style={styles.cardPad}>
+            {step === 'phone' ? (
               <>
-                <InputField
-                  label="Mobile number"
-                  icon="📱"
-                  keyboardType="number-pad"
-                  maxLength={10}
+                <Text style={styles.label}>{t('mobile_number').toUpperCase()}</Text>
+                <PhoneInputRow
                   value={phoneDigits}
-                  onChangeText={(t) => setPhoneDigits(t.replace(/\D/g, '').slice(0, 10))}
-                  placeholder="3XX XXXXXXX"
+                  onChangeText={setPhoneDigits}
                   editable={!loading}
                 />
-                <Text style={styles.prefix}>{t('country_code')}</Text>
-                <Button label={t('send_otp')} onPress={requestOtp} loading={loading} style={{ width: '100%' }} />
+                <Button label={t('send_otp')} onPress={requestOtp} loading={loading} style={{ width: '100%', marginTop: spacing.md }} />
                 <View style={styles.divider}>
                   <View style={styles.divLine} />
                   <Text style={styles.divText}>{t('or')}</Text>
                   <View style={styles.divLine} />
                 </View>
                 <Button
-                  label="Skip — Continue as Guest"
+                  label={t('skip_guest')}
                   variant="outline"
                   onPress={guestContinue}
                   loading={loading}
@@ -172,14 +156,14 @@ export default function AuthScreen() {
               <>
                 <Text style={styles.otpTitle}>{t('enter_otp')}</Text>
                 <Text style={styles.otpSent}>
-                  Sent to <Text style={styles.otpPhone}>+92 {phoneDigits || '3XX XXXXXXX'}</Text>
+                  Sent to <Text style={styles.otpPhone}>+92 {phoneDigits}</Text>
                 </Text>
                 <View style={styles.otpRow}>
                   {[0, 1, 2, 3].map((i) => (
                     <TextInput
                       key={i}
                       ref={otpRefs[i]}
-                      style={styles.otpBox}
+                      style={[styles.otpBox, digits.length > i && styles.otpBoxFilled]}
                       keyboardType="number-pad"
                       maxLength={1}
                       onChangeText={(v) => onOtpChange(i, v)}
@@ -187,13 +171,22 @@ export default function AuthScreen() {
                     />
                   ))}
                 </View>
-                <Text style={styles.demoOtp}>
-                  {t('demo_code')} <Text style={styles.demoCode}>1234</Text>
-                </Text>
-                <Button label={t('verify_continue')} variant="jade" onPress={verify} loading={loading} style={{ width: '100%' }} />
+                <View style={styles.demoBanner}>
+                  <Text style={styles.demoOtp}>
+                    {t('demo_code')} <Text style={styles.demoCode}>1234</Text>
+                  </Text>
+                </View>
+                <Button
+                  label={t('verify_continue')}
+                  variant="violet"
+                  onPress={verify}
+                  loading={loading}
+                  style={{ width: '100%' }}
+                />
                 <Pressable
                   onPress={() => {
-                    setTab('phone');
+                    setStep('phone');
+                    setDigits('');
                     setError(null);
                   }}
                   style={styles.linkBtn}
@@ -202,53 +195,67 @@ export default function AuthScreen() {
                 </Pressable>
               </>
             )}
-
             {error ? <Text style={styles.error}>{error}</Text> : null}
-            <GoogleBadge />
-          </ScrollView>
-        </CurvedSheet>
+          </StitchGlassCard>
+
+          <View style={styles.heroImageWrap}>
+            <Image source={{ uri: stitchAssets.authHero }} style={styles.heroImage} resizeMode="cover" />
+          </View>
+          <GoogleBadge />
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.violetDeep },
-  hero: {
-    paddingTop: spacing.lg,
-    paddingBottom: 48,
-    paddingHorizontal: spacing.lg,
-    alignItems: 'center',
-  },
-  logoCircle: {
-    width: 88,
-    height: 88,
-    borderRadius: 28,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderWidth: 3,
-    borderColor: 'rgba(255,255,255,0.35)',
+  safe: { flex: 1, backgroundColor: colors.bg },
+  scroll: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xl },
+  brandBlock: { alignItems: 'center', marginTop: spacing.lg, marginBottom: spacing.lg },
+  logoBox: {
+    width: 80,
+    height: 80,
+    borderRadius: 24,
+    backgroundColor: colors.violet,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.md,
   },
-  logoEmoji: { fontSize: 40 },
+  logoIcon: { fontSize: 36 },
   welcome: {
     fontFamily: fonts.display,
     fontSize: 28,
-    fontWeight: '700',
-    color: '#fff',
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 6,
   },
-  heroSub: {
-    color: 'rgba(255,255,255,0.85)',
-    fontSize: 14,
-    textAlign: 'center',
-    marginTop: 8,
-    lineHeight: 20,
+  welcomeSub: { fontSize: 16, color: colors.text2, textAlign: 'center', fontFamily: fonts.body },
+  cardPad: { padding: spacing.lg, marginBottom: spacing.lg },
+  label: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.text2,
+    marginBottom: spacing.sm,
+    letterSpacing: 0.8,
     fontFamily: fonts.body,
-    paddingHorizontal: spacing.md,
   },
-  sheetScroll: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xl },
-  prefix: { fontSize: 11, color: colors.text3, marginTop: -8, marginBottom: spacing.md, fontFamily: fonts.body },
+  demoBanner: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.sm,
+    marginBottom: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border2,
+  },
+  heroImageWrap: {
+    height: 160,
+    borderRadius: radius.xxl,
+    overflow: 'hidden',
+    marginBottom: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  heroImage: { width: '100%', height: '100%' },
   divider: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: spacing.md },
   divLine: { flex: 1, height: 1, backgroundColor: colors.border },
   divText: { fontSize: 12, color: colors.text3, fontFamily: fonts.body },
@@ -266,7 +273,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: radius.md,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.bgLowest,
     borderWidth: 2,
     borderColor: colors.border2,
     color: colors.text,
@@ -275,9 +282,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontFamily: fonts.display,
   },
+  otpBoxFilled: { borderColor: colors.primaryText },
   demoOtp: { textAlign: 'center', fontSize: 12, color: colors.text3, marginBottom: spacing.md, fontFamily: fonts.body },
-  demoCode: { color: colors.violetBright, fontWeight: '700', letterSpacing: 3 },
+  demoCode: { color: colors.primaryText, fontWeight: '700', letterSpacing: 3 },
   linkBtn: { alignItems: 'center', padding: spacing.sm },
-  linkText: { color: colors.violetBright, fontSize: 14, fontWeight: '600', fontFamily: fonts.body },
+  linkText: { color: colors.primaryText, fontSize: 14, fontWeight: '600', fontFamily: fonts.body },
   error: { color: colors.rose, textAlign: 'center', marginTop: spacing.md, fontFamily: fonts.body },
 });

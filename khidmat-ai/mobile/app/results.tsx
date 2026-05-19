@@ -8,7 +8,6 @@ import Avatar from '../components/Avatar';
 import ScoreBar from '../components/ScoreBar';
 import Badge from '../components/ui/Badge';
 import TipCard from '../components/TipCard';
-import BookingFlowBar from '../components/BookingFlowBar';
 import PageHeader from '../components/PageHeader';
 import CurvedSheet from '../components/ui/CurvedSheet';
 import NearbyMap from '../components/NearbyMap';
@@ -209,13 +208,12 @@ export default function ResultsScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <PageHeader
-        title={serviceTitle}
-        subtitle={`${sortLabel} · ${markerCount || candidates.length} nearby`}
+        title="Best Match Found"
+        subtitle={`Our AI analyzed ${markerCount || candidates.length} providers · ${serviceTitle}`}
         onBack={() => router.back()}
         right={<Badge label={`${candidates.length} Found`} variant="violet" />}
       />
-      <CurvedSheet style={styles.sheet}>
-        <BookingFlowBar step={1} />
+      <View style={styles.body}>
         {resorting ? (
           <ActivityIndicator color={colors.violet} style={{ marginVertical: spacing.md }} />
         ) : null}
@@ -307,14 +305,14 @@ export default function ResultsScreen() {
             onContinue={() => goToCheckout()}
           />
         ) : null}
-      </CurvedSheet>
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.violetDeep },
-  sheet: { flex: 1, marginTop: -20 },
+  safe: { flex: 1, backgroundColor: colors.bg },
+  body: { flex: 1 },
   scroll: { paddingBottom: spacing.md, paddingTop: spacing.sm },
   preview: {
     textAlign: 'center',
@@ -390,5 +388,5 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
   traceLink: { marginTop: spacing.md, alignItems: 'center', padding: spacing.sm },
-  traceText: { color: colors.text2, fontWeight: '600', fontFamily: fonts.body },
+  traceText: { color: colors.accent, fontWeight: '600', fontFamily: fonts.body },
 });

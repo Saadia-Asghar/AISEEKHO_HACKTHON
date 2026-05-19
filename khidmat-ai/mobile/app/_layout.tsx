@@ -63,6 +63,7 @@ export default function RootLayout() {
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="auth" options={{ headerShown: false }} />
+        <Stack.Screen name="browse" options={{ title: 'Browse', headerShown: false }} />
         <Stack.Screen name="results" options={{ title: 'Results', headerShown: false }} />
         <Stack.Screen name="payment" options={{ title: 'Payment', headerShown: false }} />
         <Stack.Screen name="booking-confirm" options={{ title: 'Confirmed', headerShown: false }} />

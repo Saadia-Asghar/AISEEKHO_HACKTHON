@@ -150,8 +150,8 @@ export default function TraceScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.violetDeep },
-  sheet: { flex: 1, marginTop: -20 },
+  safe: { flex: 1, backgroundColor: colors.bg },
+  sheet: { flex: 1 },
   scroll: { paddingHorizontal: spacing.lg, paddingBottom: 110, paddingTop: spacing.md },
   tipPad: { marginBottom: spacing.sm },
   pageHeader: {

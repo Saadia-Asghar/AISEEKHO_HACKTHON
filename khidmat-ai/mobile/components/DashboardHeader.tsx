@@ -21,7 +21,7 @@ export default function DashboardHeader({
           <Text style={styles.avatarText}>{name.charAt(0).toUpperCase()}</Text>
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={styles.hello}>Hello,</Text>
+          <Text style={styles.hello}>Assalamu Alaikum 👋</Text>
           <Text style={styles.name}>{name}</Text>
         </View>
         <Pressable style={styles.iconBtn} onPress={onHelp}>
@@ -31,7 +31,7 @@ export default function DashboardHeader({
           <Text>👤</Text>
         </Pressable>
       </View>
-      <Text style={styles.sub}>Book home services with AI · Karachi</Text>
+      <Text style={styles.sub}>Bolein, Hum Karein · Powered by Google</Text>
       <View style={styles.stats}>
         <StatCard icon="📋" value="Jobs" label="Bookings" onPress={() => onStatPress?.('bookings')} />
         <StatCard icon="🧠" value="AI" label="Trace" accent={colors.jade} onPress={() => onStatPress?.('trace')} />
