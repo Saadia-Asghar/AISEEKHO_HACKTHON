@@ -440,6 +440,20 @@ export async function verifyAuth(phone: string, otp: string, name?: string) {
   return data;
 }
 
+export async function syncClerkUser(body: {
+  clerk_user_id: string;
+  display_name: string;
+  phone?: string;
+}) {
+  const { data } = await api.post<{
+    user_id: string;
+    token: string;
+    name: string;
+    phone?: string;
+  }>('/api/auth/sync', body);
+  return data;
+}
+
 export async function transcribeSpeech(audioBase64: string, mimeType: string) {
   try {
     const { data } = await api.post<{ text: string; mode: string; provider: string }>(

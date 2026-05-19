@@ -162,6 +162,17 @@ def verify_otp(phone: str, otp: str, name: str | None = None) -> dict[str, Any]:
     return {"token": token, "user_id": user_id, "user": profile}
 
 
+def issue_token_for_user(user_id: str) -> str:
+    """Issue a backend API token for an existing user (e.g. after Clerk sign-in)."""
+    token = secrets.token_urlsafe(32)
+    with _connect() as conn:
+        conn.execute(
+            "INSERT INTO auth_tokens (token, user_id, created_at) VALUES (?, ?, ?)",
+            (token, user_id, datetime.utcnow().isoformat() + "Z"),
+        )
+    return token
+
+
 def get_user_by_token(token: str) -> str | None:
     with _connect() as conn:
         row = conn.execute("SELECT user_id FROM auth_tokens WHERE token = ?", (token,)).fetchone()

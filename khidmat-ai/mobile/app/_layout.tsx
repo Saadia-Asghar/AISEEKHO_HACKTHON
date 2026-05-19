@@ -12,6 +12,7 @@ import { onAuthChange } from '../lib/authEvents';
 import AppToast from '../components/AppToast';
 import AppNotificationBanner from '../components/AppNotificationBanner';
 import { initAppNotifications } from '../lib/appNotifications';
+import ClerkProviderGate from '../components/ClerkProviderGate';
 import { I18nProvider } from '../lib/i18n';
 import { ThemeProvider, useTheme } from '../lib/ThemeContext';
 
@@ -78,9 +79,11 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider>
-      <I18nProvider>
-        <ThemedRoot authed={authed} />
-      </I18nProvider>
+      <ClerkProviderGate>
+        <I18nProvider>
+          <ThemedRoot authed={authed} />
+        </I18nProvider>
+      </ClerkProviderGate>
     </ThemeProvider>
   );
 }

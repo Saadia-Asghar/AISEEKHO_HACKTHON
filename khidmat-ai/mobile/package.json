@@ -12,6 +12,7 @@
     "lint": "echo \"No strict linting configured yet; passing\""
   },
   "dependencies": {
+    "@clerk/clerk-expo": "^2.19.31",
     "@expo/vector-icons": "^15.0.3",
     "@react-native-async-storage/async-storage": "2.2.0",
     "axios": "^1.7.9",
@@ -27,6 +28,7 @@
     "expo-location": "~19.0.8",
     "expo-notifications": "~0.32.17",
     "expo-router": "~6.0.23",
+    "expo-secure-store": "^55.0.14",
     "expo-status-bar": "~3.0.9",
     "react": "19.1.0",
     "react-dom": "19.1.0",

@@ -22,6 +22,8 @@
 
 **Judge login:** `+923000000000` / OTP `1234` or **Skip — Continue as Guest**
 
+**Real SMS OTP (optional):** [CLERK_OTP_SETUP.md](./CLERK_OTP_SETUP.md) — set Clerk keys on Vercel + Render; otherwise demo `1234`.
+
 ---
 
 ## Fix Vercel 404 (if you see NOT_FOUND)
