@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { useAuth, useUser } from '@clerk/clerk-expo';
+import { useUser } from '@clerk/clerk-expo';
 import type { AppColors } from '../constants/theme';
 import { fonts, radius, spacing } from '../constants/theme';
 import { useTheme } from '../lib/ThemeContext';
@@ -50,16 +50,8 @@ function MockAuthScreen() {
 
 function ClerkAuthScreen() {
   const clerkOtp = useClerkPhoneOtp();
-  const { userId: clerkUserId } = useAuth();
   const { user: clerkUser } = useUser();
-  return (
-    <AuthScreenBody
-      useClerk
-      clerkOtp={clerkOtp}
-      clerkUserId={clerkUserId}
-      clerkUser={clerkUser}
-    />
-  );
+  return <AuthScreenBody useClerk clerkOtp={clerkOtp} clerkUser={clerkUser} />;
 }
 
 type ClerkUser = ReturnType<typeof useUser>['user'];
@@ -67,12 +59,10 @@ type ClerkUser = ReturnType<typeof useUser>['user'];
 function AuthScreenBody({
   useClerk,
   clerkOtp,
-  clerkUserId,
   clerkUser,
 }: {
   useClerk: boolean;
   clerkOtp?: ReturnType<typeof useClerkPhoneOtp>;
-  clerkUserId?: string | null;
   clerkUser?: ClerkUser;
 }) {
   const { t } = useI18n();
@@ -156,9 +146,7 @@ function AuthScreenBody({
     setError(null);
     try {
       if (authMode === 'clerk' && clerkOtp) {
-        await clerkOtp.verifyCode(otp);
-        const cid = clerkUserId ?? clerkUser?.id;
-        if (!cid) throw new Error('Clerk session missing after verify');
+        const cid = await clerkOtp.verifyCode(otp);
         const synced = await syncClerkUser({
           clerk_user_id: cid,
           display_name: clerkUser?.fullName || clerkUser?.firstName || 'Guest',
@@ -311,6 +299,7 @@ function AuthScreenBody({
               </>
             )}
             {error ? <Text style={styles.error}>{error}</Text> : null}
+            {useClerk ? <View nativeID="clerk-captcha" style={styles.captcha} /> : null}
           </StitchGlassCard>
 
           <View style={styles.heroImageWrap}>
@@ -427,5 +416,6 @@ function authStyles(colors: AppColors) {
       fontFamily: fonts.body,
     },
     termsLink: { color: colors.primaryText, fontWeight: '600', textDecorationLine: 'underline' },
+  captcha: { height: 1, width: 1, opacity: 0, marginTop: 4 },
   });
 }

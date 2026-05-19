@@ -1,71 +1,87 @@
-# Clerk phone OTP (real SMS) + demo fallback
+# Clerk phone OTP — KhidmatAI (Expo)
 
-KhidmatAI uses **Clerk** for real SMS OTP when keys are set. Without keys, the app uses **demo OTP `1234`** via the backend.
+Clerk’s dashboard may show the **Expo** quickstart (`@clerk/expo`). This repo uses the same stack with package **`@clerk/clerk-expo`** (equivalent for our SDK version) and a **custom phone UI** at `/auth` — you do **not** need to delete tabs or add `(auth)/sign-in.tsx` from their template.
 
-## Flow
+## Clerk Dashboard checklist
 
-| Keys set? | Send OTP | Verify |
-|-----------|----------|--------|
-| **Yes** — `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` + `CLERK_SECRET_KEY` | Clerk sends SMS (6-digit code) | Clerk → `/api/auth/sync` → app session |
-| **No** | Backend demo (`1234`) | `/api/auth/verify` |
-| **Guest** | Always demo | `+923000000000` / `1234` or **Skip** |
+1. **User & authentication → Phone**
+   - Sign-in with phone: **ON**
+   - Sign-up with phone: **ON**
+   - Verify at sign-up: **ON** (recommended)
+   - Password: **OFF**
 
-## 1. Clerk Dashboard
+2. **Native applications** (Configure → Native applications)  
+   Enable the **Native API** for Expo / mobile builds.
 
-1. [dashboard.clerk.com](https://dashboard.clerk.com) → create application.
-2. **User & authentication** → **Phone**:
-   - Enable **Sign-up with phone**
-   - Enable **Sign-in with phone**
-   - Enable **Verify at sign-up** (recommended)
-   - Disable **Password** if you only want OTP
-3. Copy **Publishable key** (`pk_test_...`) and **Secret key** (`sk_test_...`).
+3. **API Keys** — copy publishable + secret keys.
 
-## 2. Environment variables
+4. **“Watching for users”**  
+   Completes after the **first successful sign-up** in your app (real phone OTP or guest demo does not count for Clerk — only a Clerk-verified phone sign-in/sign-up).
 
-> **Expo / Vercel use `EXPO_PUBLIC_*`, not `NEXT_PUBLIC_*`.**  
-> Clerk’s Next.js quickstart does not apply to this repo — we already use `@clerk/clerk-expo` + a custom sign-in screen.
+## Environment variables
 
-**Local** (already in gitignored files if you set them up):
+| Where | Variable | Value |
+|-------|----------|--------|
+| `khidmat-ai/mobile/.env` | `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` | `pk_test_...` |
+| `backend/.env` | `CLERK_SECRET_KEY` | `sk_test_...` |
+| **Vercel** | `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` | same publishable key |
+| **Vercel** | `EXPO_PUBLIC_API_URL` | Render API URL |
+| **Render** | `CLERK_SECRET_KEY` | same secret key |
 
-| File | Variable |
-|------|----------|
-| `khidmat-ai/mobile/.env` | `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` |
-| `backend/.env` | `CLERK_SECRET_KEY` |
+Use **`EXPO_PUBLIC_*`**, not `NEXT_PUBLIC_*`.
 
-**Vercel** (mobile web):
+## Already wired in this repo
 
-```env
-EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_xxxxxxxx
-EXPO_PUBLIC_API_URL=https://your-api.onrender.com
+| Clerk guide step | KhidmatAI |
+|------------------|-----------|
+| Install `@clerk/expo` + `expo-secure-store` | `@clerk/clerk-expo` + `expo-secure-store` in `package.json` |
+| `ClerkProvider` + `tokenCache` | `components/ClerkProviderGate.tsx` |
+| Custom phone sign-in | `app/auth.tsx` + `lib/clerkPhoneOtp.ts` |
+| Session → backend | `POST /api/auth/sync` → KhidmatAI token |
+| No Clerk keys | Demo OTP **1234** fallback |
+| Logout | Clears Clerk + local session → `/auth` |
+| Bot protection | `<View nativeID="clerk-captcha" />` on auth screen |
+
+## Run locally
+
+```powershell
+# API
+cd d:\project\backend
+python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# App (restart after .env changes)
+cd d:\project\khidmat-ai\mobile
+npx expo start --web --clear
 ```
 
-**Render** (API):
+1. Open app → **sign-in** screen.  
+2. Enter `03XXXXXXXXX` → **Send OTP** → 6-digit SMS.  
+3. **Verify** → home.  
+4. Clerk dashboard should show your first user.
 
-```env
-CLERK_SECRET_KEY=sk_test_xxxxxxxx
+**Judges (no SMS):** **Skip — Continue as Guest** or `3000000000` / `1234`.
+
+## Verify deployment
+
+```http
+GET https://YOUR-API.onrender.com/health
 ```
 
-Redeploy both after saving. Never commit real keys to GitHub.
+Expect: `"clerk_configured": true`
 
-## 3. Test
+## Troubleshooting
 
-1. Open the app → sign-in screen.
-2. Enter a real Pakistani number (`03XX XXXXXXX`).
-3. Tap **Send OTP** — you should get a **6-digit SMS** (not the demo banner).
-4. Enter the code → home.
+| Symptom | Fix |
+|---------|-----|
+| Still demo `1234` | Publishable key missing on Vercel; redeploy |
+| “Phone OTP not enabled” | Clerk → Phone toggles (sign-in + sign-up) |
+| SMS not received | Check Clerk → Logs; verify phone on trial |
+| Sync 401 | `CLERK_SECRET_KEY` on Render |
+| “Clerk user not ready” | Tap Verify again; ensure captcha / network OK |
+| Dashboard still “Watching for users” | Complete one **Clerk** phone sign-up (not guest skip) |
 
-**Demo / judges:** **Skip — Continue as Guest** or `3000000000` + `1234`.
+## Do not follow from Clerk guide
 
-## 4. Troubleshooting
-
-| Issue | Fix |
-|-------|-----|
-| Still shows “Demo code: 1234” | Publishable key missing on Vercel or invalid placeholder |
-| “Phone OTP not enabled” | Enable phone sign-in/sign-up in Clerk Dashboard |
-| SMS not received (trial) | Clerk may rate-limit; check Clerk → SMS logs |
-| Sync 401 | Set `CLERK_SECRET_KEY` on Render and redeploy API |
-| `/health` `clerk_configured: false` | Add secret on Render |
-
-## 5. Optional: Twilio via backend
-
-If you prefer Twilio instead of Clerk, set `TWILIO_*` on Render only (no Clerk keys). The app will use backend OTP (Twilio or demo).
+- Removing `app/(tabs)` or replacing the whole app structure  
+- Next.js `middleware.ts` or `NEXT_PUBLIC_*`  
+- Email/password examples (this app uses **phone OTP** only)

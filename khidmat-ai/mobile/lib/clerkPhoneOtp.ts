@@ -1,5 +1,10 @@
 import { useCallback, useRef, useState } from 'react';
-import { isClerkAPIResponseError, useAuth, useSignIn, useSignUp } from '@clerk/clerk-expo';
+import {
+  getClerkInstance,
+  isClerkAPIResponseError,
+  useSignIn,
+  useSignUp,
+} from '@clerk/clerk-expo';
 
 export type ClerkOtpMode = 'signIn' | 'signUp';
 
@@ -26,7 +31,6 @@ function isNewUserError(err: unknown): boolean {
 export function useClerkPhoneOtp() {
   const { isLoaded: signInLoaded, signIn, setActive } = useSignIn();
   const { isLoaded: signUpLoaded, signUp } = useSignUp();
-  const { userId } = useAuth();
   const modeRef = useRef<ClerkOtpMode>('signIn');
   const [sending, setSending] = useState(false);
 
@@ -67,23 +71,30 @@ export function useClerkPhoneOtp() {
   );
 
   const verifyCode = useCallback(
-    async (code: string) => {
+    async (code: string): Promise<string> => {
       if (!signIn || !signUp) throw new Error('Clerk not ready');
 
+      let sessionId: string | null = null;
       if (modeRef.current === 'signUp') {
         const result = await signUp.attemptPhoneNumberVerification({ code });
         if (result.status !== 'complete' || !result.createdSessionId) {
           throw new Error('Sign-up not complete — check the code and try again');
         }
-        await setActive!({ session: result.createdSessionId });
-        return;
+        sessionId = result.createdSessionId;
+      } else {
+        const result = await signIn.attemptFirstFactor({ strategy: 'phone_code', code });
+        if (result.status !== 'complete' || !result.createdSessionId) {
+          throw new Error('Sign-in not complete — check the code and try again');
+        }
+        sessionId = result.createdSessionId;
       }
 
-      const result = await signIn.attemptFirstFactor({ strategy: 'phone_code', code });
-      if (result.status !== 'complete' || !result.createdSessionId) {
-        throw new Error('Sign-in not complete — check the code and try again');
+      await setActive!({ session: sessionId });
+      const clerkUserId = getClerkInstance()?.user?.id;
+      if (!clerkUserId) {
+        throw new Error('Clerk user not ready — wait a moment and try Verify again');
       }
-      await setActive!({ session: result.createdSessionId });
+      return clerkUserId;
     },
     [signIn, signUp, setActive],
   );
@@ -91,7 +102,6 @@ export function useClerkPhoneOtp() {
   return {
     sendCode,
     verifyCode,
-    clerkUserId: userId,
     sending,
     isReady: signInLoaded && signUpLoaded,
   };
