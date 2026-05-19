@@ -4,6 +4,7 @@ import {
   Alert,
   RefreshControl,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   View,
@@ -12,7 +13,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { colors, fonts, radius, spacing } from '../../constants/theme';
 import { getSession } from '../../lib/auth';
-import { cancelBooking, getBookings } from '../../api/client';
+import { cancelBooking, getBookings, startBooking } from '../../api/client';
+import { useI18n } from '../../lib/i18n';
+import { showToast } from '../../lib/toastStore';
 import Avatar from '../../components/Avatar';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
@@ -28,12 +31,25 @@ type BookingRow = {
   id: string;
   service_type?: string;
   provider_name?: string;
+  location?: string;
   slot?: string;
   slot_datetime?: string;
   status?: string;
 };
 
+import type { strings } from '../../constants/i18n';
+
+function statusLabel(status: string | undefined, t: (k: keyof (typeof strings)['en']) => string) {
+  const s = (status || 'PENDING').toUpperCase();
+  if (s === 'IN_PROGRESS') return t('status_in_progress');
+  if (s === 'CONFIRMED') return t('status_confirmed');
+  if (s === 'COMPLETED') return t('status_completed');
+  if (s === 'CANCELLED') return t('status_cancelled');
+  return t('status_pending');
+}
+
 export default function BookingsScreen() {
+  const { t } = useI18n();
   const [tab, setTab] = useState<Tab>('upcoming');
   const [rows, setRows] = useState<BookingRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -136,17 +152,44 @@ export default function BookingsScreen() {
                     <Text style={styles.bDate}>{b.slot || b.slot_datetime}</Text>
                   </View>
                   <Badge
-                    label={(b.status || 'PENDING').replace(/_/g, ' ')}
+                    label={statusLabel(b.status, t)}
                     variant={(b.status || '').includes('CANCEL') ? 'rose' : 'jade'}
                   />
                 </View>
                 {tab === 'upcoming' ? (
                   <View style={styles.bActions}>
+                    <Button
+                      label={t('on_the_way')}
+                      variant="ghost"
+                      onPress={async () => {
+                        await startBooking(b.id);
+                        showToast(t('status_in_progress'));
+                        load();
+                      }}
+                      style={{ flex: 1 }}
+                    />
                     <Button label="Cancel" variant="outline" onPress={() => onCancel(b.id)} style={{ flex: 1 }} />
                   </View>
                 ) : tab === 'past' ? (
                   <View style={styles.bActions}>
-                    <Button label="🔄 Rebook" onPress={() => router.push('/')} style={{ flex: 1 }} />
+                    <Button
+                      label={`🔄 ${t('rebook')}`}
+                      onPress={() => {
+                        const msg = `Mujhe ${b.service_type || 'service'} chahiye ${b.location || 'G-13'} mein — prefer ${b.provider_name}`;
+                        router.push({ pathname: '/', params: { q: msg } });
+                      }}
+                      style={{ flex: 1 }}
+                    />
+                    <Button
+                      label={t('share_worker')}
+                      variant="outline"
+                      onPress={() =>
+                        Share.share({
+                          message: `Book ${b.provider_name} on KhidmatAI — ${b.service_type} in ${b.location}`,
+                        })
+                      }
+                      style={{ flex: 1 }}
+                    />
                   </View>
                 ) : null}
               </View>

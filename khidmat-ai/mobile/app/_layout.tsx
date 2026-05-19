@@ -9,6 +9,7 @@ import { StatusBar } from 'expo-status-bar';
 import { colors } from '../constants/theme';
 import { getSession } from '../lib/auth';
 import AppToast from '../components/AppToast';
+import { I18nProvider } from '../lib/i18n';
 
 export default function RootLayout() {
   const [ready, setReady] = useState(false);
@@ -50,7 +51,7 @@ export default function RootLayout() {
   }
 
   return (
-    <>
+    <I18nProvider>
       <StatusBar style="light" />
       <AppToast />
       <Stack
@@ -66,6 +67,6 @@ export default function RootLayout() {
         <Stack.Screen name="booking-confirm" options={{ title: 'Confirmed', headerShown: false }} />
         <Stack.Screen name="provider/[id]" options={{ title: 'Provider' }} />
       </Stack>
-    </>
+    </I18nProvider>
   );
 }

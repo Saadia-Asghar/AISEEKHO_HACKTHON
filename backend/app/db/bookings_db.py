@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 from typing import Any
 
-from app.db.booking_status import normalize_status, transition
+from app.db.booking_status import can_transition, normalize_status, transition
 from app.db.database import _connect
 
 
@@ -13,7 +13,7 @@ def list_bookings(user_id: str, status_filter: str | None = None) -> list[dict[s
         if status_filter == "upcoming":
             q = """
                 SELECT * FROM bookings WHERE user_id = ?
-                AND UPPER(status) IN ('CONFIRMED', 'PENDING', 'PENDING_PAYMENT', 'REMINDER_SCHEDULED')
+                AND UPPER(status) IN ('CONFIRMED', 'PENDING', 'PENDING_PAYMENT', 'REMINDER_SCHEDULED', 'IN_PROGRESS')
                 AND UPPER(status) != 'CANCELLED'
                 ORDER BY created_at DESC
             """
@@ -62,6 +62,21 @@ def confirm_booking(booking_id: str) -> dict[str, Any]:
             (new_status, booking_id),
         )
     return {"booking_id": booking_id, "status": "CONFIRMED"}
+
+
+def start_booking(booking_id: str) -> dict[str, Any]:
+    """Mark worker as on the way (demo lifecycle)."""
+    with _connect() as conn:
+        row = conn.execute("SELECT status FROM bookings WHERE id = ?", (booking_id,)).fetchone()
+        if not row:
+            raise ValueError("Booking not found")
+        cur = normalize_status(row["status"])
+        if cur == "CONFIRMED":
+            new_status = transition(cur, "IN_PROGRESS")
+        else:
+            new_status = transition(cur, "IN_PROGRESS") if can_transition(cur, "IN_PROGRESS") else cur
+        conn.execute("UPDATE bookings SET status = ? WHERE id = ?", (new_status, booking_id))
+    return {"booking_id": booking_id, "status": "IN_PROGRESS"}
 
 
 def complete_booking(booking_id: str) -> dict[str, Any]:

@@ -53,6 +53,11 @@ def init_db() -> None:
                 summary_json TEXT,
                 created_at TEXT
             );
+            CREATE TABLE IF NOT EXISTS discover_sessions (
+                session_id TEXT PRIMARY KEY,
+                payload_json TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            );
             CREATE TABLE IF NOT EXISTS providers (
                 id TEXT PRIMARY KEY,
                 name TEXT NOT NULL,
@@ -238,6 +243,28 @@ def save_trace(session_id: str, trace: list[dict[str, Any]], summary: dict[str, 
             "INSERT INTO agent_traces (session_id, trace_json, summary_json, created_at) VALUES (?, ?, ?, ?)",
             (session_id, json.dumps(trace), json.dumps(summary), datetime.utcnow().isoformat() + "Z"),
         )
+
+
+def save_discover_session(session_id: str, payload: dict[str, Any]) -> None:
+    with _connect() as conn:
+        conn.execute(
+            """
+            INSERT OR REPLACE INTO discover_sessions (session_id, payload_json, created_at)
+            VALUES (?, ?, ?)
+            """,
+            (session_id, json.dumps(payload), datetime.utcnow().isoformat() + "Z"),
+        )
+
+
+def get_discover_session(session_id: str) -> dict[str, Any] | None:
+    with _connect() as conn:
+        row = conn.execute(
+            "SELECT payload_json FROM discover_sessions WHERE session_id = ?",
+            (session_id,),
+        ).fetchone()
+    if not row:
+        return None
+    return json.loads(row["payload_json"])
 
 
 def get_trace(session_id: str) -> dict[str, Any] | None:

@@ -1,13 +1,13 @@
 import { create } from 'zustand';
-import type { OrchestrateResult, PriceSort } from '../api/client';
+import type { DiscoverResult, PriceSort } from '../api/client';
 
 type State = {
-  result: OrchestrateResult | null;
+  result: DiscoverResult | null;
   loading: boolean;
   error: string | null;
   priceSort: PriceSort;
   lastSearchText: string | null;
-  setResult: (r: OrchestrateResult | null) => void;
+  setResult: (r: DiscoverResult | null) => void;
   setLoading: (v: boolean) => void;
   setError: (e: string | null) => void;
   setPriceSort: (s: PriceSort) => void;

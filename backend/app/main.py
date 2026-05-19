@@ -7,15 +7,18 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.db.database import get_trace, init_db
 from app.deps.auth import optional_user_id
-from app.models.schemas import OrchestrationResponse, ServiceRequest
+from app.models.schemas import DiscoverResponse, OrchestrationResponse, ServiceRequest
 from app.orchestrator import KhidmatOrchestrator
 from app.routers import (
+    admin,
     auth,
     auth_api,
     bookings_router,
+    discover,
     google_services,
     otp_auth,
     payments,
+    pricing_router,
     providers_router,
     reviews,
     suggestions,
@@ -59,6 +62,9 @@ app.include_router(providers_router.router)
 app.include_router(bookings_router.router)
 app.include_router(suggestions.router)
 app.include_router(google_services.router)
+app.include_router(discover.router)
+app.include_router(pricing_router.router)
+app.include_router(admin.router)
 
 
 @app.get("/health")
@@ -79,7 +85,7 @@ def health():
     }
 
 
-@app.post("/api/orchestrate", response_model=OrchestrationResponse)
+@app.post("/api/orchestrate", response_model=DiscoverResponse)
 def orchestrate(
     request: ServiceRequest,
     token_user_id: str | None = Depends(optional_user_id),
@@ -88,7 +94,7 @@ def orchestrate(
     if token_user_id and request.user_id and request.user_id != token_user_id:
         raise HTTPException(status_code=403, detail="user_id does not match token")
     try:
-        return orchestrator.run(
+        return orchestrator.discover(
             request.message,
             request.session_id,
             request.customer_name,
@@ -97,6 +103,11 @@ def orchestrate(
             request.user_lng,
             request.customer_phone,
             request.price_sort,
+            max_distance_km=request.max_distance_km,
+            min_rating=request.min_rating,
+            verified_only=request.verified_only,
+            available_today=request.available_today,
+            lang=request.lang,
         )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e

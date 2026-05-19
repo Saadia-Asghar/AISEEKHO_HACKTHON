@@ -31,6 +31,15 @@ def confirm_booking_route(booking_id: str):
         raise HTTPException(status_code=400, detail=str(e)) from e
 
 
+@router.post("/{booking_id}/start")
+def start_booking_route(booking_id: str):
+    """Demo: worker on the way."""
+    try:
+        return bookings_db.start_booking(booking_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+
+
 @router.patch("/{booking_id}/cancel")
 def cancel_booking(booking_id: str, user_id: str | None = None):
     try:

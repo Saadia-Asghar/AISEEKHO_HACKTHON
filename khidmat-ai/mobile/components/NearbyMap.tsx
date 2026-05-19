@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useI18n } from '../lib/i18n';
 import { colors, fonts, radius, spacing } from '../constants/theme';
 import type { MapMarker } from '../api/client';
 
@@ -32,6 +33,7 @@ export default function NearbyMap({
   userLng?: number;
   onMarkerPress?: (id: string) => void;
 }) {
+  const { t } = useI18n();
   const layout = useMemo(() => {
     if (!markers.length) return null;
     const centerLat = userLat ?? markers[0].lat;
@@ -161,6 +163,15 @@ const styles = StyleSheet.create({
   pinEmoji: { fontSize: 14 },
   legend: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 8 },
   legendItem: { fontSize: 10, color: colors.text3, fontFamily: fonts.body },
+  mapsBtn: {
+    marginTop: 8,
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.jade,
+  },
+  mapsBtnText: { color: colors.jade, fontWeight: '600', fontSize: 12, fontFamily: fonts.body },
   list: { marginTop: 10, gap: 6 },
   listRow: {
     padding: 10,

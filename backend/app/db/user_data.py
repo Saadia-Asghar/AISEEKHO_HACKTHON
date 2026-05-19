@@ -48,6 +48,11 @@ def init_user_tables() -> None:
             conn.execute("ALTER TABLE users ADD COLUMN clerk_id TEXT")
         if "phone" not in user_cols:
             conn.execute("ALTER TABLE users ADD COLUMN phone TEXT")
+        rating_cols = {r[1] for r in conn.execute("PRAGMA table_info(provider_ratings)").fetchall()}
+        if "tags" not in rating_cols:
+            conn.execute("ALTER TABLE provider_ratings ADD COLUMN tags TEXT")
+        if "location_area" not in rating_cols:
+            conn.execute("ALTER TABLE provider_ratings ADD COLUMN location_area TEXT")
         cols = {r[1] for r in conn.execute("PRAGMA table_info(bookings)").fetchall()}
         if "user_id" not in cols:
             conn.execute("ALTER TABLE bookings ADD COLUMN user_id TEXT")
@@ -161,6 +166,8 @@ def submit_rating(
     booking_id: str,
     stars: int,
     comment: str | None = None,
+    tags: list[str] | None = None,
+    location_area: str | None = None,
 ) -> dict[str, Any]:
     stars = max(1, min(5, stars))
     rating_id = f"RT-{uuid.uuid4().hex[:10]}"
@@ -182,12 +189,13 @@ def submit_rating(
         ).fetchone()
         if existing:
             raise ValueError("You already rated this booking")
+        tags_json = json.dumps(tags or [])
         conn.execute(
             """
-            INSERT INTO provider_ratings (id, user_id, provider_id, booking_id, stars, comment, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO provider_ratings (id, user_id, provider_id, booking_id, stars, comment, created_at, tags, location_area)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (rating_id, user_id, provider_id, booking_id, stars, comment, created),
+            (rating_id, user_id, provider_id, booking_id, stars, comment, created, tags_json, location_area),
         )
         if booking["user_id"] is None:
             conn.execute("UPDATE bookings SET user_id = ? WHERE id = ?", (user_id, booking_id))

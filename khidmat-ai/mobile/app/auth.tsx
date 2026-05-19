@@ -22,10 +22,13 @@ import SegmentedControl from '../components/ui/SegmentedControl';
 import InputField from '../components/ui/InputField';
 import GoogleBadge from '../components/GoogleBadge';
 import { showToast } from '../lib/toastStore';
+import { useI18n } from '../lib/i18n';
+import LanguagePicker from '../components/LanguagePicker';
 
 type AuthTab = 'phone' | 'otp';
 
 export default function AuthScreen() {
+  const { t } = useI18n();
   const [tab, setTab] = useState<AuthTab>('phone');
   const [digits, setDigits] = useState('');
   const [phoneDigits, setPhoneDigits] = useState('');
@@ -117,12 +120,13 @@ export default function AuthScreen() {
           <View style={styles.logoCircle}>
             <Text style={styles.logoEmoji}>⚡</Text>
           </View>
-          <Text style={styles.welcome}>Welcome!</Text>
-          <Text style={styles.heroSub}>Sign in to book trusted home services with AI</Text>
+          <Text style={styles.welcome}>{t('welcome')}</Text>
+          <Text style={styles.heroSub}>{t('auth_sub')}</Text>
         </LinearGradient>
 
         <CurvedSheet>
           <ScrollView contentContainerStyle={styles.sheetScroll} keyboardShouldPersistTaps="handled">
+            <LanguagePicker />
             <SegmentedControl
               options={[
                 { key: 'phone' as const, label: 'Phone' },
@@ -147,11 +151,11 @@ export default function AuthScreen() {
                   placeholder="3XX XXXXXXX"
                   editable={!loading}
                 />
-                <Text style={styles.prefix}>Country code: 🇵🇰 +92</Text>
-                <Button label="Send OTP" onPress={requestOtp} loading={loading} style={{ width: '100%' }} />
+                <Text style={styles.prefix}>{t('country_code')}</Text>
+                <Button label={t('send_otp')} onPress={requestOtp} loading={loading} style={{ width: '100%' }} />
                 <View style={styles.divider}>
                   <View style={styles.divLine} />
-                  <Text style={styles.divText}>or</Text>
+                  <Text style={styles.divText}>{t('or')}</Text>
                   <View style={styles.divLine} />
                 </View>
                 <Button
@@ -165,7 +169,7 @@ export default function AuthScreen() {
               </>
             ) : (
               <>
-                <Text style={styles.otpTitle}>Enter verification code</Text>
+                <Text style={styles.otpTitle}>{t('enter_otp')}</Text>
                 <Text style={styles.otpSent}>
                   Sent to <Text style={styles.otpPhone}>+92 {phoneDigits || '3XX XXXXXXX'}</Text>
                 </Text>
@@ -183,9 +187,9 @@ export default function AuthScreen() {
                   ))}
                 </View>
                 <Text style={styles.demoOtp}>
-                  Demo code: <Text style={styles.demoCode}>1234</Text>
+                  {t('demo_code')} <Text style={styles.demoCode}>1234</Text>
                 </Text>
-                <Button label="Verify & Continue" variant="jade" onPress={verify} loading={loading} style={{ width: '100%' }} />
+                <Button label={t('verify_continue')} variant="jade" onPress={verify} loading={loading} style={{ width: '100%' }} />
                 <Pressable
                   onPress={() => {
                     setTab('phone');
@@ -193,7 +197,7 @@ export default function AuthScreen() {
                   }}
                   style={styles.linkBtn}
                 >
-                  <Text style={styles.linkText}>← Change number</Text>
+                  <Text style={styles.linkText}>{t('change_number')}</Text>
                 </Pressable>
               </>
             )}

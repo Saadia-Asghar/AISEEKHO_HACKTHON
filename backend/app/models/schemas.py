@@ -173,6 +173,43 @@ class ProviderScoreSummary(BaseModel):
     total_score: float
 
 
+class TypicalJobRow(BaseModel):
+    title: str
+    title_ur: str | None = None
+    price_min_pkr: int
+    price_max_pkr: int
+
+
+class PricingTransparency(BaseModel):
+    estimate_min_pkr: int
+    estimate_max_pkr: int
+    visit_fee_note: str
+    final_price_note: str
+    service_label: str
+    typical_jobs: list[TypicalJobRow] = Field(default_factory=list)
+
+
+class DiscoverResponse(BaseModel):
+    """Preview search — no booking until user confirms."""
+
+    session_id: str
+    intent: ServiceIntent
+    candidates: list[Provider]
+    top_three: list[Provider]
+    top_rated: list[Provider] = Field(default_factory=list)
+    recommended: Provider
+    ranking: RankingResult | None = None
+    alternatives: list[ProviderScoreSummary] = Field(default_factory=list)
+    map_markers: list[MapMarker] = Field(default_factory=list)
+    trace: list[TraceEntry]
+    trace_summary: TraceSummary
+    personalization: PersonalizationSummary | None = None
+    user_location: LocationInfo | None = None
+    price_sort: str = "smart"
+    pricing: PricingTransparency
+    preview: bool = True
+
+
 class OrchestrationResponse(BaseModel):
     session_id: str
     intent: ServiceIntent
@@ -204,6 +241,11 @@ class ServiceRequest(BaseModel):
     user_lng: float | None = None
     customer_phone: str | None = None
     price_sort: str = "smart"  # smart | low | high
+    max_distance_km: float | None = None
+    min_rating: float | None = None
+    verified_only: bool = False
+    available_today: bool = False
+    lang: str = "en"
 
 
 class SyncClerkRequest(BaseModel):

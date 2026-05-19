@@ -21,6 +21,8 @@ import Badge from '../components/ui/Badge';
 import BookingFlowBar from '../components/BookingFlowBar';
 import CurvedSheet from '../components/ui/CurvedSheet';
 import InputField from '../components/ui/InputField';
+import ReviewTagPicker from '../components/ReviewTagPicker';
+import TransparentPricing from '../components/TransparentPricing';
 import { showToast } from '../lib/toastStore';
 
 if (Platform.OS !== 'web') {
@@ -41,6 +43,7 @@ export default function BookingConfirmScreen() {
   const [comment, setComment] = useState('');
   const [reviewDone, setReviewDone] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [tags, setTags] = useState<string[]>([]);
 
   useEffect(() => {
     if (!result) {
@@ -51,7 +54,7 @@ export default function BookingConfirmScreen() {
     Animated.spring(scale, { toValue: 1, friction: 4, useNativeDriver: true }).start();
   }, [result]);
 
-  if (!result) return null;
+  if (!result || !result.booking) return null;
 
   const b = result.booking;
   const code = b.booking_id?.startsWith('KHI')
@@ -135,8 +138,11 @@ export default function BookingConfirmScreen() {
           </View>
         </View>
 
+        {result.pricing ? <TransparentPricing pricing={result.pricing} /> : null}
+
         <View style={styles.card}>
           <Text style={styles.reviewTitle}>Rate your experience</Text>
+          <ReviewTagPicker selected={tags} onChange={setTags} />
           <View style={styles.starRow}>
             {[1, 2, 3, 4, 5].map((n) => (
               <Pressable key={n} onPress={() => setRating(n)} disabled={reviewDone}>

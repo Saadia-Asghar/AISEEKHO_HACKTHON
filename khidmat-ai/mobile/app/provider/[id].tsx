@@ -19,10 +19,17 @@ import SecLabel from '../../components/ui/SecLabel';
 import GoogleBadge from '../../components/GoogleBadge';
 import TipCard from '../../components/TipCard';
 import { showToast } from '../../lib/toastStore';
-import { api, getProvider } from '../../api/client';
+import { api, getProvider, saveProvider } from '../../api/client';
 import { getSession } from '../../lib/auth';
+import { useI18n } from '../../lib/i18n';
 
-type ReviewItem = { rating: number; comment?: string; user_name?: string };
+type ReviewItem = {
+  rating: number;
+  comment?: string;
+  user_name?: string;
+  tags?: string[];
+  same_sector?: boolean;
+};
 
 const SAMPLE_REVIEWS = [
   { quote: 'Bahut acha kaam kiya. Time pe aaye aur AC bilkul theek kar diya.', name: 'Ahmed Khan', stars: 5 },
@@ -35,17 +42,22 @@ function categoryLabel(cat: string) {
 
 export default function ProviderScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { t } = useI18n();
   const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [reviews, setReviews] = useState<ReviewItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     (async () => {
       const session = await getSession();
       try {
         const p = await getProvider(id!, session?.userId);
+        setSaved(Boolean((p as { is_saved?: boolean }).is_saved));
+        const area = String((p as { area?: string }).area || 'G-13');
         const { data: revData } = await api.get<{ reviews: ReviewItem[] }>(
-          `/api/providers/${id}/reviews`
+          `/api/providers/${id}/reviews`,
+          { params: { location_area: area } }
         );
         setData(p as Record<string, unknown>);
         setReviews(revData.reviews || []);
@@ -69,6 +81,11 @@ export default function ProviderScreen() {
   const phone = String(data?.phone || '0300-1234567');
   const rating = Number(data?.average_rating ?? data?.rating ?? 4.9);
   const jobs = Number(data?.jobs_completed ?? 847);
+  const visitFee = Number(data?.visit_fee_pkr ?? 500);
+  const hourly = Number(data?.hourly_rate_pkr ?? 1500);
+  const responseMin = Number(data?.response_time_min ?? 25);
+  const lat = Number(data?.lat ?? 0);
+  const lng = Number(data?.lng ?? 0);
 
   const displayReviews =
     reviews.length > 0
@@ -83,6 +100,22 @@ export default function ProviderScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     const tel = phone.replace(/\s/g, '');
     Linking.openURL(`tel:${tel.startsWith('+') ? tel : tel}`);
+  };
+
+  const openMaps = () => {
+    if (lat && lng) {
+      Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`);
+    } else {
+      Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(area + ' Islamabad')}`);
+    }
+  };
+
+  const onSave = async () => {
+    const session = await getSession();
+    if (!session) return;
+    await saveProvider(session.userId, id!);
+    setSaved(true);
+    showToast(t('save_worker'));
   };
 
   return (
@@ -115,9 +148,13 @@ export default function ProviderScreen() {
               <Text style={styles.statL}>Experience</Text>
             </View>
             <View style={styles.statBox}>
-              <Text style={[styles.statN, { color: colors.jade }]}>99%</Text>
-              <Text style={styles.statL}>On-time</Text>
+              <Text style={[styles.statN, { color: colors.jade }]}>{responseMin}m</Text>
+              <Text style={styles.statL}>Response</Text>
             </View>
+          </View>
+          <View style={styles.priceRow}>
+            <Text style={styles.priceLine}>Visit from PKR {visitFee.toLocaleString()}</Text>
+            <Text style={styles.priceLine}>Hourly from PKR {hourly.toLocaleString()}</Text>
           </View>
         </View>
 
@@ -141,7 +178,16 @@ export default function ProviderScreen() {
         </View>
 
         <View style={styles.reviewsSection}>
-          <SecLabel>Reviews</SecLabel>
+          <SecLabel>{`Reviews — ${t('same_sector_reviews')}`}</SecLabel>
+          {reviews
+            .filter((r) => r.same_sector)
+            .slice(0, 2)
+            .map((r, i) => (
+              <View key={`sec-${i}`} style={[styles.reviewItem, styles.sectorReview]}>
+                <Text style={styles.sectorBadge}>📍 Your sector</Text>
+                <Text style={styles.revText}>{r.comment}</Text>
+              </View>
+            ))}
           {displayReviews.map((r, i) => (
             <View key={i} style={styles.reviewItem}>
               <View style={styles.revUser}>
@@ -157,13 +203,18 @@ export default function ProviderScreen() {
         </View>
 
         <Button
-          label={`Book ${name}`}
-          onPress={() => {
-            showToast('Opening booking…');
-            router.push('/booking-confirm');
-          }}
+          label={saved ? '✓ Saved' : t('save_worker')}
+          variant="outline"
+          onPress={onSave}
+          disabled={saved}
           style={{ width: '100%', marginBottom: 10 }}
         />
+        <Button
+          label={`Book ${name}`}
+          onPress={() => router.back()}
+          style={{ width: '100%', marginBottom: 10 }}
+        />
+        <Button label={t('open_maps')} variant="outline" onPress={openMaps} style={{ width: '100%', marginBottom: 10 }} />
         <Button label="📞 Call Provider" variant="outline" onPress={callProvider} style={{ width: '100%' }} />
         <GoogleBadge />
       </ScrollView>
@@ -217,6 +268,8 @@ const styles = StyleSheet.create({
   },
   statN: { fontFamily: fonts.display, fontSize: 20, fontWeight: '600' },
   statL: { fontSize: 11, color: colors.text2, marginTop: 2, fontFamily: fonts.body },
+  priceRow: { marginTop: 12, gap: 4 },
+  priceLine: { fontSize: 12, color: colors.text2, textAlign: 'center', fontFamily: fonts.body },
   skills: { paddingHorizontal: spacing.lg, marginBottom: 16 },
   skillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   skillChip: {
@@ -234,4 +287,6 @@ const styles = StyleSheet.create({
   revName: { fontSize: 13, fontWeight: '600', color: colors.text, fontFamily: fonts.body },
   revStars: { color: colors.amber, fontSize: 13 },
   revText: { fontSize: 13, color: colors.text2, lineHeight: 20, fontFamily: fonts.body },
+  sectorReview: { backgroundColor: colors.violetSoft, borderRadius: radius.md, padding: spacing.md, marginBottom: 8 },
+  sectorBadge: { fontSize: 10, fontWeight: '700', color: colors.violetBright, marginBottom: 6, fontFamily: fonts.body },
 });

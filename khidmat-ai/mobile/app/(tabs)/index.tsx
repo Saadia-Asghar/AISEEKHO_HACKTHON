@@ -11,11 +11,13 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { colors, fonts, gradients, radius, shadows, spacing } from '../../constants/theme';
 import { getSession } from '../../lib/auth';
-import { orchestrate, getSuggestions, transcribeSpeech, getContactedWorkers } from '../../api/client';
+import { discover, getSuggestions, transcribeSpeech, getContactedWorkers } from '../../api/client';
+import SearchFilters, { type SearchFilterState } from '../../components/SearchFilters';
+import { useI18n } from '../../lib/i18n';
 import type { ContactedWorker } from '../../api/client';
 import { useBookingStore } from '../../lib/store';
 import { addRecentSearch, getRecentSearches } from '../../lib/searchHistory';
@@ -50,6 +52,7 @@ const CHIPS = [
 ];
 
 export default function HomeScreen() {
+  const { q } = useLocalSearchParams<{ q?: string }>();
   const [name, setName] = useState('Guest');
   const [input, setInput] = useState('');
   const [recent, setRecent] = useState<string[]>([]);
@@ -62,6 +65,13 @@ export default function HomeScreen() {
   const [showGuide, setShowGuide] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [contacted, setContacted] = useState<ContactedWorker[]>([]);
+  const [filters, setFilters] = useState<SearchFilterState>({
+    maxDistanceKm: null,
+    minRating: null,
+    verifiedOnly: false,
+    availableToday: false,
+  });
+  const { t, lang } = useI18n();
 
   useEffect(() => {
     hasSeenOnboarding().then((seen) => {
@@ -78,6 +88,7 @@ export default function HomeScreen() {
     });
     getRecentSearches().then(setRecent);
     getPriceSort().then(setPriceSort);
+    if (q) setInput(String(q));
     getSuggestions(new Date().getHours()).then((sug) =>
       setHighlight(new Set(sug.map((x) => x.service_type.replace(/_/g, ' '))))
     );
@@ -105,14 +116,19 @@ export default function HomeScreen() {
         setRecent(await getRecentSearches());
         setLastSearchText(text.trim());
         const coords = await getUserCoords();
-        const data = await orchestrate(text.trim(), session.userId, session.name, session.phone, {
+        const data = await discover(text.trim(), session.userId, session.name, session.phone, {
           userLat: coords.lat,
           userLng: coords.lng,
           priceSort,
+          maxDistanceKm: filters.maxDistanceKm,
+          minRating: filters.minRating,
+          verifiedOnly: filters.verifiedOnly,
+          availableToday: filters.availableToday,
+          lang,
         });
         setResult(data);
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-        showToast('✓ Providers found — pick your match');
+        showToast(t('preview_note'));
         router.push('/results');
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Connection error — tap to retry');
@@ -122,7 +138,7 @@ export default function HomeScreen() {
         submitting.current = false;
       }
     },
-    [setLoading, setResult, setError, priceSort, setLastSearchText]
+    [setLoading, setResult, setError, priceSort, setLastSearchText, filters, lang, t]
   );
 
   const onPriceSortChange = async (sort: PriceSort) => {
@@ -231,10 +247,11 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.searchBlock}>
+            <SearchFilters value={filters} onChange={setFilters} />
             <InputField
-              label="What do you need?"
+              label={t('home_title')}
               icon="✏️"
-              placeholder="e.g. Mujhe AC repair karwana hai ghar mein…"
+              placeholder={t('home_placeholder')}
               value={input}
               onChangeText={setInput}
               multiline
@@ -257,7 +274,7 @@ export default function HomeScreen() {
             <PriceSortChips value={priceSort} onChange={onPriceSortChange} />
             <View style={styles.btnRow}>
               <Button
-                label="⚡ Try Demo"
+                label={`⚡ ${t('try_demo')}`}
                 variant="ghost"
                 onPress={() => {
                   setInput(DEMO);
@@ -267,7 +284,7 @@ export default function HomeScreen() {
                 style={{ flex: 1 }}
               />
               <Button
-                label="📍 Book Now"
+                label={`📍 ${t('book_now')}`}
                 onPress={() => {
                   if (!input.trim()) {
                     showToast('Type a request or tap Try Demo');

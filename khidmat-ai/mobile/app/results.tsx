@@ -18,10 +18,12 @@ import PriceSortChips from '../components/PriceSortChips';
 import SecLabel from '../components/ui/SecLabel';
 import { showToast } from '../lib/toastStore';
 import type { ProviderSummary, PriceSort } from '../api/client';
-import { confirmBooking, orchestrate } from '../api/client';
+import { confirmBooking, createBookingFromDiscover, discover } from '../api/client';
+import TransparentPricing from '../components/TransparentPricing';
 import { getSession } from '../lib/auth';
 import { getUserCoords } from '../lib/location';
 import { setPriceSort as persistPriceSort } from '../lib/bookingPrefs';
+import { useI18n } from '../lib/i18n';
 
 function formatPrice(p: ProviderSummary) {
   if (p.price_min_pkr && p.price_max_pkr) {
@@ -85,8 +87,10 @@ function ProviderCard({
 
 export default function ResultsScreen() {
   const { result, priceSort, setPriceSort, setResult, lastSearchText } = useBookingStore();
+  const { t, lang } = useI18n();
   const [booking, setBooking] = useState(false);
   const [resorting, setResorting] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!result) router.replace('/');
@@ -105,10 +109,11 @@ export default function ResultsScreen() {
           return;
         }
         const coords = await getUserCoords();
-        const data = await orchestrate(lastSearchText, session.userId, session.name, session.phone, {
+        const data = await discover(lastSearchText, session.userId, session.name, session.phone, {
           userLat: coords.lat,
           userLng: coords.lng,
           priceSort: sort,
+          lang,
         });
         setResult(data);
         showToast(sort === 'smart' ? 'Sorted by best match' : sort === 'low' ? 'Lowest price first' : 'Premium first');
@@ -118,8 +123,12 @@ export default function ResultsScreen() {
         setResorting(false);
       }
     },
-    [lastSearchText, resorting, setPriceSort, setResult]
+    [lastSearchText, resorting, setPriceSort, setResult, lang]
   );
+
+  useEffect(() => {
+    if (result?.recommended?.id) setSelectedId(result.recommended.id);
+  }, [result?.recommended?.id]);
 
   if (!result) {
     return (
@@ -140,11 +149,27 @@ export default function ResultsScreen() {
     result.price_sort === 'low' ? 'Lowest price' : result.price_sort === 'high' ? 'Premium' : 'Best match';
 
   const bookNow = async () => {
-    if (booking) return;
+    if (booking || !selectedId) return;
     setBooking(true);
     try {
+      const session = await getSession();
+      if (!session) {
+        router.replace('/auth');
+        return;
+      }
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-      if (result.booking?.booking_id) await confirmBooking(result.booking.booking_id);
+      let full = result;
+      if (!result.booking?.booking_id) {
+        full = await createBookingFromDiscover(
+          result.session_id,
+          selectedId,
+          session.userId,
+          session.name,
+          session.phone
+        );
+        setResult(full);
+      }
+      if (full.booking?.booking_id) await confirmBooking(full.booking.booking_id);
       showToast('✓ Booking confirmed!');
       router.push('/booking-confirm');
     } finally {
@@ -169,6 +194,8 @@ export default function ResultsScreen() {
           <ActivityIndicator color={colors.violet} style={{ marginVertical: spacing.md }} />
         ) : null}
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+          <Text style={styles.preview}>{t('preview_note')}</Text>
+          <TransparentPricing pricing={result.pricing} />
           <View style={styles.sortPad}>
             <PriceSortChips value={priceSort} onChange={reSearch} />
           </View>
@@ -192,7 +219,7 @@ export default function ResultsScreen() {
 
           {topRated.length > 0 ? (
             <View style={styles.block}>
-              <SecLabel>Top rated nearby</SecLabel>
+              <SecLabel>{t('top_rated')}</SecLabel>
               {topRated.map((p) => (
                 <View key={p.id} style={styles.cardWrap}>
                   <ProviderCard
@@ -206,25 +233,31 @@ export default function ResultsScreen() {
           ) : null}
 
           <View style={styles.block}>
-            <SecLabel>AI top match</SecLabel>
+            <SecLabel>{t('top_match')}</SecLabel>
             <View style={styles.cardWrap}>
               <ProviderCard
                 provider={top}
                 top
-                onPress={() => router.push(`/provider/${top.id}`)}
+                onPress={() => {
+                  setSelectedId(top.id);
+                  router.push(`/provider/${top.id}`);
+                }}
               />
             </View>
           </View>
 
           {others.length > 0 ? (
             <View style={styles.block}>
-              <SecLabel>More nearby</SecLabel>
+              <SecLabel>{t('more_nearby')}</SecLabel>
               {others.map((p, i) => (
                 <View key={p.id} style={styles.cardWrap}>
                   <ProviderCard
                     provider={p}
                     badge={i === 0 ? 'Nearby' : undefined}
-                    onPress={() => router.push(`/provider/${p.id}`)}
+                    onPress={() => {
+                      setSelectedId(p.id);
+                      router.push(`/provider/${p.id}`);
+                    }}
                   />
                 </View>
               ))}
@@ -233,7 +266,7 @@ export default function ResultsScreen() {
 
           <View style={styles.footer}>
             <Button
-              label={`Book ${top.name} →`}
+              label={`${t('confirm_book')}: ${candidates.find((p) => p.id === selectedId)?.name ?? top.name} →`}
               onPress={bookNow}
               loading={booking}
               style={{ width: '100%' }}
@@ -254,6 +287,14 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.violetDeep },
   sheet: { flex: 1, marginTop: -20 },
   scroll: { paddingBottom: spacing.xl, paddingTop: spacing.sm },
+  preview: {
+    textAlign: 'center',
+    fontSize: 11,
+    color: colors.amber,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.sm,
+    fontFamily: fonts.body,
+  },
   sortPad: { paddingHorizontal: spacing.lg, marginBottom: spacing.sm },
   tipWrap: { paddingHorizontal: spacing.lg, marginTop: 4 },
   block: { marginTop: spacing.md },

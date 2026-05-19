@@ -90,9 +90,25 @@ export type ContactedWorker = {
 
 export type PriceSort = 'smart' | 'low' | 'high';
 
-export type OrchestrateResult = {
+export type TypicalJob = {
+  title: string;
+  title_ur?: string;
+  price_min_pkr: number;
+  price_max_pkr: number;
+};
+
+export type PricingTransparency = {
+  estimate_min_pkr: number;
+  estimate_max_pkr: number;
+  visit_fee_note: string;
+  final_price_note: string;
+  service_label: string;
+  typical_jobs: TypicalJob[];
+};
+
+export type DiscoverResult = {
   session_id: string;
-  intent: { service_label: string; location: string; time_expression: string; language: string };
+  intent: { service_label: string; location: string; time_expression: string; language: string; service_type?: string };
   recommended: ProviderSummary;
   top_three: ProviderSummary[];
   top_rated?: ProviderSummary[];
@@ -101,15 +117,24 @@ export type OrchestrateResult = {
   user_location?: { lat: number; lng: number; source: string };
   price_sort?: PriceSort;
   alternatives: ProviderScore[];
-  booking: {
+  pricing: PricingTransparency;
+  preview: boolean;
+  trace: Array<{ agent: string; phase: string; action: string; reasoning: string; timestamp?: string }>;
+  trace_summary?: { outcome: string };
+  booking?: {
     booking_id: string;
     provider_name: string;
     slot: string;
     status: string;
     confirmation_message: string;
+    amount_pkr?: number;
+    payment_status?: string;
   };
-  trace: Array<{ agent: string; phase: string; action: string; reasoning: string; timestamp?: string }>;
-  trace_summary?: { outcome: string };
+  payment?: { payment_id: string; amount_pkr: number; status: string };
+};
+
+export type OrchestrateResult = DiscoverResult & {
+  booking: NonNullable<DiscoverResult['booking']>;
 };
 
 function parseErr(err: unknown): string {
@@ -120,19 +145,26 @@ function parseErr(err: unknown): string {
   return err instanceof Error ? err.message : 'Connection error — tap to retry';
 }
 
-export async function orchestrate(
+export type DiscoverOpts = {
+  userLat?: number;
+  userLng?: number;
+  priceSort?: PriceSort;
+  maxDistanceKm?: number | null;
+  minRating?: number | null;
+  verifiedOnly?: boolean;
+  availableToday?: boolean;
+  lang?: 'en' | 'ur';
+};
+
+export async function discover(
   text: string,
   userId: string,
   name?: string,
   phone?: string,
-  opts?: {
-    userLat?: number;
-    userLng?: number;
-    priceSort?: PriceSort;
-  }
-): Promise<OrchestrateResult> {
+  opts?: DiscoverOpts
+): Promise<DiscoverResult> {
   try {
-    const { data } = await api.post<OrchestrateResult>('/api/orchestrate', {
+    const { data } = await api.post<DiscoverResult>('/api/discover', {
       message: text,
       user_id: userId,
       customer_name: name,
@@ -140,11 +172,54 @@ export async function orchestrate(
       user_lat: opts?.userLat,
       user_lng: opts?.userLng,
       price_sort: opts?.priceSort ?? 'smart',
+      max_distance_km: opts?.maxDistanceKm ?? undefined,
+      min_rating: opts?.minRating ?? undefined,
+      verified_only: opts?.verifiedOnly ?? false,
+      available_today: opts?.availableToday ?? false,
+      lang: opts?.lang ?? 'en',
     });
     return data;
   } catch (e) {
     throw new Error(parseErr(e));
   }
+}
+
+/** @deprecated use discover + createBookingFromDiscover */
+export async function orchestrate(
+  text: string,
+  userId: string,
+  name?: string,
+  phone?: string,
+  opts?: DiscoverOpts
+): Promise<DiscoverResult> {
+  return discover(text, userId, name, phone, opts);
+}
+
+export async function createBookingFromDiscover(
+  sessionId: string,
+  providerId: string,
+  userId: string,
+  name?: string,
+  phone?: string
+): Promise<OrchestrateResult> {
+  const { data } = await api.post<OrchestrateResult>('/api/bookings/create', {
+    session_id: sessionId,
+    provider_id: providerId,
+    user_id: userId,
+    customer_name: name,
+    customer_phone: phone,
+  });
+  return data as OrchestrateResult;
+}
+
+export async function saveProvider(userId: string, providerId: string) {
+  const { data } = await api.post(`/api/users/${userId}/saved/${providerId}`);
+  return data;
+}
+
+export async function startBooking(bookingId: string) {
+  const { data } = await api.post(`/api/bookings/${bookingId}/start`);
+  return data;
 }
 
 export async function getContactedWorkers(userId: string) {
@@ -186,6 +261,8 @@ export async function postReview(body: {
   provider_id: string;
   rating: number;
   comment?: string;
+  tags?: string[];
+  location_area?: string;
 }) {
   const { data } = await api.post('/api/reviews', body);
   return data;

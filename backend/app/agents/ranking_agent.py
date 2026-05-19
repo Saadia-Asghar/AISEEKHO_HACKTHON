@@ -87,9 +87,24 @@ class RankingAgent(BaseAgent):
 
         return total, reason, breakdown, pers_summary
 
+    def _apply_filters(self, candidates: list[Provider], context: dict[str, Any]) -> list[Provider]:
+        out = list(candidates)
+        max_km = context.get("max_distance_km")
+        if max_km is not None:
+            out = [p for p in out if p.distance_km <= float(max_km)]
+        min_rating = context.get("min_rating")
+        if min_rating is not None:
+            out = [p for p in out if (p.effective_rating or p.rating) >= float(min_rating)]
+        if context.get("verified_only"):
+            out = [p for p in out if p.verified]
+        if context.get("available_today"):
+            out = [p for p in out if p.available_now and p.available_slots]
+        return out if out else candidates
+
     def run(self, context: dict[str, Any]) -> dict[str, Any]:
         intent = context["intent"]
-        candidates: list[Provider] = context.get("candidates", [])
+        candidates: list[Provider] = self._apply_filters(context.get("candidates", []), context)
+        context["candidates"] = candidates
         user_id = context.get("user_id")
         personalization_ctx = user_data.get_personalization_context(user_id)
 

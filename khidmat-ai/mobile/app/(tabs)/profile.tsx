@@ -5,7 +5,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { colors, fonts, gradients, radius, shadows, spacing } from '../../constants/theme';
 import CurvedSheet from '../../components/ui/CurvedSheet';
-import { clearSession, getLang, getSession, setLang, type Session } from '../../lib/auth';
+import { clearSession, getSession, type Session } from '../../lib/auth';
+import { useI18n } from '../../lib/i18n';
+import LanguagePicker from '../../components/LanguagePicker';
+import { showToast } from '../../lib/toastStore';
 import Avatar from '../../components/Avatar';
 import Badge from '../../components/ui/Badge';
 import GoogleBadge from '../../components/GoogleBadge';
@@ -17,7 +20,6 @@ type Review = { rating: number; comment?: string; provider_name?: string };
 
 const MENU = [
   { icon: '📖', label: 'How to use KhidmatAI', sub: 'Step-by-step guide', bg: colors.violetSoft, action: 'guide' as const },
-  { icon: '🌐', label: 'Language', sub: 'Urdu · اردو', bg: colors.violetSoft, action: 'lang' as const },
   { icon: '📋', label: 'My Bookings', sub: 'View upcoming', bg: colors.jadeSoft, route: '/(tabs)/bookings' as const },
   { icon: '⭐', label: 'My Reviews', sub: 'Reviews given', bg: colors.amberSoft, action: 'reviews' as const },
   { icon: '💬', label: 'Help & Support', sub: 'support@khidmat.ai', bg: 'rgba(59,130,246,0.1)', action: 'help' as const },
@@ -26,7 +28,7 @@ const MENU = [
 
 export default function ProfileScreen() {
   const [session, setSession] = useState<Session | null>(null);
-  const [lang, setLangState] = useState<'en' | 'ur'>('en');
+  const { lang, t } = useI18n();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [showReviews, setShowReviews] = useState(false);
   const [showHowTo, setShowHowTo] = useState(false);
@@ -35,7 +37,6 @@ export default function ProfileScreen() {
   const load = useCallback(async () => {
     const s = await getSession();
     setSession(s);
-    setLangState(await getLang());
     if (s) {
       try {
         setReviews(await getUserReviews(s.userId));
@@ -91,10 +92,6 @@ export default function ProfileScreen() {
             onPress={async () => {
               if (item.action === 'guide') {
                 setShowHowTo((v) => !v);
-              } else if (item.action === 'lang') {
-                const next = lang === 'en' ? 'ur' : 'en';
-                await setLang(next);
-                setLangState(next);
               } else if (item.route) {
                 router.push(item.route);
               } else if (item.action === 'reviews') {
@@ -218,6 +215,24 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
   navRow: { fontSize: 13, color: colors.text2, marginBottom: 4, fontFamily: fonts.body },
+  langSection: {
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.md,
+    padding: spacing.md,
+    backgroundColor: colors.card,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  langSectionTitle: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+    color: colors.text3,
+    marginBottom: 8,
+    fontFamily: fonts.body,
+  },
   divider: { height: 1, backgroundColor: colors.border, marginHorizontal: spacing.lg },
   menuItem: {
     flexDirection: 'row',

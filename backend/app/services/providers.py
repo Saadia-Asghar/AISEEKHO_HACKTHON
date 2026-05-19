@@ -40,20 +40,25 @@ def enrich_provider(raw: dict[str, Any]) -> dict[str, Any]:
     cat = raw.get("category", "general")
     pmin, pmax = PRICE_RANGES.get(cat, (1500, 3500))
     agg = user_data.get_provider_aggregate_rating(raw["id"])
+    reviews_total = agg["static_reviews"] + agg["user_rating_count"]
     return {
         **raw,
         "service_label": CATEGORY_LABELS.get(cat, cat.replace("_", " ").title()),
         "bio": raw.get(
             "bio",
             f"Trusted {CATEGORY_LABELS.get(cat, 'service')} in {raw.get('area', 'Islamabad')} "
-            f"with {raw.get('reviews', 0)}+ jobs completed.",
+            f"with {reviews_total}+ jobs completed.",
         ),
         "photo_url": raw.get("photo_url"),
         "verified": raw.get("verified", raw.get("rating", 0) >= 4.5),
         "price_min_pkr": raw.get("price_min_pkr", pmin),
         "price_max_pkr": raw.get("price_max_pkr", pmax),
+        "visit_fee_pkr": raw.get("visit_fee_pkr", min(500, pmin // 3)),
+        "hourly_rate_pkr": raw.get("hourly_rate_pkr", pmin),
+        "jobs_completed": raw.get("jobs_completed", reviews_total * 3 + 12),
+        "response_time_min": raw.get("response_time_min", 25),
         "rating": agg["effective_rating"],
-        "review_count": agg["static_reviews"] + agg["user_rating_count"],
+        "review_count": reviews_total,
     }
 
 
