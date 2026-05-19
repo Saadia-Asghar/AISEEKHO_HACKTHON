@@ -16,8 +16,8 @@ import { getServiceCategories, type ServiceCategory } from '../api/client';
 import { useBookingStore } from '../lib/store';
 import { useI18n } from '../lib/i18n';
 import { formatCategorySearch, runDiscoverSearch } from '../lib/discoverSearch';
-import PageHeader from '../components/PageHeader';
-import CurvedSheet from '../components/ui/CurvedSheet';
+import StitchAppHeader from '../components/stitch/StitchAppHeader';
+import StitchGlassCard from '../components/stitch/StitchGlassCard';
 import SearchFilters from '../components/SearchFilters';
 import ShimmerOverlay from '../components/ShimmerOverlay';
 import SecLabel from '../components/ui/SecLabel';
@@ -80,13 +80,12 @@ export default function BrowseScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-      <PageHeader
-        title={t('browse_title')}
-        subtitle={t('browse_sub')}
-        onBack={() => router.back()}
-      />
-      <CurvedSheet style={styles.sheet}>
-        <View style={styles.toolbar}>
+      <StitchAppHeader onBack={() => router.back()} />
+      <View style={styles.head}>
+        <Text style={styles.headTitle}>{t('browse_title')}</Text>
+        <Text style={styles.headSub}>{t('browse_sub')}</Text>
+      </View>
+      <StitchGlassCard style={styles.toolbar}>
           <Text style={styles.areaLabel}>{t('browse_area')}</Text>
           <TextInput
             style={styles.areaInput}
@@ -104,7 +103,7 @@ export default function BrowseScreen() {
           />
           <SearchFilters value={searchFilters} onChange={setSearchFilters} />
           <Text style={styles.filterNote}>{t('browse_filter_note')}</Text>
-        </View>
+      </StitchGlassCard>
 
         {fetching ? (
           <ActivityIndicator color={colors.violet} style={{ marginTop: spacing.xl }} />
@@ -142,7 +141,6 @@ export default function BrowseScreen() {
             ) : null}
           </ScrollView>
         )}
-      </CurvedSheet>
       <ShimmerOverlay visible={loading} />
     </SafeAreaView>
   );
@@ -150,14 +148,19 @@ export default function BrowseScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
-  sheet: { flex: 1 },
+  head: { paddingHorizontal: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.sm },
+  headTitle: {
+    fontFamily: fonts.display,
+    fontSize: 24,
+    fontWeight: '600',
+    color: colors.primaryText,
+  },
+  headSub: { fontSize: 14, color: colors.text2, marginTop: 6, fontFamily: fonts.body },
   toolbar: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.md,
+    padding: spacing.md,
     gap: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    paddingBottom: spacing.md,
   },
   areaLabel: {
     fontSize: 11,

@@ -21,10 +21,9 @@ import Avatar from '../../components/Avatar';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import ScreenGuide from '../../components/ScreenGuide';
-import TipCard from '../../components/TipCard';
 import EmptyState from '../../components/EmptyState';
-import CurvedSheet from '../../components/ui/CurvedSheet';
 import SegmentedControl from '../../components/ui/SegmentedControl';
+import StitchGlassCard from '../../components/stitch/StitchGlassCard';
 
 type Tab = 'upcoming' | 'past' | 'cancelled';
 
@@ -98,13 +97,8 @@ export default function BookingsScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <ScreenGuide title={t('bookings_title')} subtitle={t('bookings_sub')} />
-      <CurvedSheet style={styles.sheet}>
-        <View style={styles.sheetInner}>
-          <TipCard
-            tipId="bookings_tabs"
-            title="Tabs explained"
-            message="Upcoming = active jobs · Past = completed · Cancelled = ended by you"
-          />
+      <View style={styles.sheetInner}>
+        <StitchGlassCard style={styles.filterCard}>
           <SegmentedControl
             options={[
               { key: 'upcoming' as Tab, label: t('tab_upcoming') },
@@ -117,7 +111,8 @@ export default function BookingsScreen() {
               setLoading(true);
             }}
           />
-        </View>
+        </StitchGlassCard>
+      </View>
 
       {loading ? (
         <ActivityIndicator color={colors.violet} style={{ marginTop: spacing.xl }} />
@@ -199,21 +194,20 @@ export default function BookingsScreen() {
           )}
         </ScrollView>
       )}
-      </CurvedSheet>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
-  sheet: { flex: 1 },
-  sheetInner: { paddingHorizontal: spacing.lg, paddingTop: spacing.md, gap: spacing.md },
+  sheetInner: { paddingHorizontal: spacing.lg, paddingTop: spacing.sm, marginBottom: spacing.sm },
+  filterCard: { padding: spacing.md },
   list: { paddingHorizontal: spacing.lg, paddingBottom: 110, paddingTop: spacing.sm },
   bCard: {
-    backgroundColor: colors.card,
+    backgroundColor: colors.glass,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.lg,
+    borderRadius: radius.xl,
     padding: 16,
     marginBottom: 12,
   },

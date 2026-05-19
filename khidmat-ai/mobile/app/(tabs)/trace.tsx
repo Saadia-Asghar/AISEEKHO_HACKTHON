@@ -11,8 +11,6 @@ import type { OrchestrateResult } from '../../api/client';
 import Badge from '../../components/ui/Badge';
 import GoogleBadge from '../../components/GoogleBadge';
 import ScreenGuide from '../../components/ScreenGuide';
-import TipCard from '../../components/TipCard';
-import CurvedSheet from '../../components/ui/CurvedSheet';
 import { useI18n } from '../../lib/i18n';
 
 const ICONS: Record<string, { icon: string; tone: 'jade' | 'violet' | 'amber' | 'gray' }> = {
@@ -94,19 +92,9 @@ export default function TraceScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <ScreenGuide title={t('trace_title')} subtitle={t('trace_sub')} />
-      <CurvedSheet style={styles.sheet}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <View style={styles.tipPad}>
-          <TipCard
-            tipId="trace_empty"
-          title="No steps yet?"
-          message="Go to Home → Try Demo or Book Now. Your latest AI reasoning appears here automatically."
-          actionLabel="Go to Home →"
-          onAction={() => router.push('/')}
-          />
-        </View>
         <View style={styles.pageHeader}>
-          <Text style={styles.pageTitle}>Live trace</Text>
+          <Text style={styles.pageTitle}>Agent timeline</Text>
           <View style={styles.gBadge}>
             <Text style={styles.gLetter}>G</Text>
             <Text style={styles.gText}>Google AI</Text>
@@ -144,23 +132,20 @@ export default function TraceScreen() {
 
         <GoogleBadge />
       </ScrollView>
-      </CurvedSheet>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
-  sheet: { flex: 1 },
-  scroll: { paddingHorizontal: spacing.lg, paddingBottom: 110, paddingTop: spacing.md },
-  tipPad: { marginBottom: spacing.sm },
+  scroll: { paddingHorizontal: spacing.lg, paddingBottom: 110, paddingTop: spacing.sm },
   pageHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: spacing.md,
   },
-  pageTitle: { fontFamily: fonts.display, fontSize: 17, fontWeight: '600', color: colors.text },
+  pageTitle: { fontFamily: fonts.display, fontSize: 18, fontWeight: '600', color: colors.primaryText },
   gBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -211,10 +196,10 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
   tlCard: {
-    backgroundColor: colors.card,
+    backgroundColor: colors.glass,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.r,
+    borderRadius: radius.lg,
     padding: 12,
   },
   tlCardDone: { borderColor: 'rgba(46,196,169,0.25)', backgroundColor: 'rgba(46,196,169,0.05)' },

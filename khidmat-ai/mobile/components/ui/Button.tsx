@@ -1,13 +1,13 @@
 import { Pressable, StyleSheet, Text, ViewStyle, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, fonts, gradients, radius, shadows, spacing } from '../../constants/theme';
+import { colors, fonts, gradients, radius, spacing } from '../../constants/theme';
 
 type Variant = 'violet' | 'gradient' | 'jade' | 'outline' | 'ghost' | 'accent';
 
 export default function Button({
   label,
   onPress,
-  variant = 'gradient',
+  variant = 'violet',
   disabled,
   loading,
   style,
@@ -19,13 +19,14 @@ export default function Button({
   loading?: boolean;
   style?: ViewStyle;
 }) {
-  const isGradient = variant === 'gradient' || variant === 'violet';
+  const isGradient = variant === 'gradient';
   const content = loading ? (
-    <ActivityIndicator color={colors.text} />
+    <ActivityIndicator color={isGradient || variant === 'violet' ? colors.onPrimaryContainer : colors.text} />
   ) : (
     <Text
       style={[
         styles.text,
+        (variant === 'violet' || variant === 'gradient' || variant === 'jade') && styles.textOnFill,
         variant === 'outline' && styles.textOutline,
         variant === 'ghost' && styles.textGhost,
         variant === 'accent' && styles.textAccent,
@@ -46,7 +47,7 @@ export default function Button({
           colors={[...gradients.hero]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
-          style={[styles.base, styles.gradient, shadows.soft]}
+          style={[styles.base, styles.gradient]}
         >
           {content}
         </LinearGradient>
@@ -109,7 +110,8 @@ const styles = StyleSheet.create({
   },
   disabled: { opacity: 0.5 },
   pressed: { transform: [{ scale: 0.98 }], opacity: 0.92 },
-  text: { color: colors.text, fontWeight: '700', fontSize: 15, fontFamily: fonts.body },
+  text: { fontWeight: '700', fontSize: 15, fontFamily: fonts.body },
+  textOnFill: { color: colors.onPrimaryContainer },
   textOutline: { color: colors.text },
   textGhost: { color: colors.violetBright },
   textAccent: { color: colors.accent },

@@ -46,15 +46,27 @@ $env:GOOGLE_ACCESS_TOKEN = gcloud auth print-access-token
 
 ## Run stack
 
+Use the **Expo mobile app** (not the Next.js evaluator on port 3000).
+
 ```powershell
 # Backend
 cd d:\project\backend
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 
-# Mobile (web)
+# Mobile — always clear cache after design changes
 cd d:\project\khidmat-ai\mobile
 $env:EXPO_PUBLIC_API_URL="http://127.0.0.1:8000"
-npx expo start --web --port 8081
+npm run web
+# or: npx expo start --web --port 8081 --clear
 ```
+
+If you still see the old purple gradient / Jobs·AI·24/7 header, stop Expo (Ctrl+C), then:
+
+```powershell
+Remove-Item -Recurse -Force .expo -ErrorAction SilentlyContinue
+npx expo start --web --port 8081 --clear
+```
+
+Hard-refresh the browser (Ctrl+Shift+R) on http://localhost:8081
 
 Guest: `+923000000000` / OTP `1234`

@@ -17,6 +17,7 @@ import { getSession } from '../lib/auth';
 import { postReview } from '../api/client';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
+import StitchAppHeader from '../components/stitch/StitchAppHeader';
 import InputField from '../components/ui/InputField';
 import ReviewTagPicker from '../components/ReviewTagPicker';
 import TransparentPricing from '../components/TransparentPricing';
@@ -122,6 +123,7 @@ export default function BookingConfirmScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+      <StitchAppHeader onBack={() => router.back()} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.successHero}>
           <Animated.View style={[styles.checkAnim, { transform: [{ scale }] }]}>

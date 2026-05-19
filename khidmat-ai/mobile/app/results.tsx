@@ -7,9 +7,7 @@ import { useBookingStore } from '../lib/store';
 import Avatar from '../components/Avatar';
 import ScoreBar from '../components/ScoreBar';
 import Badge from '../components/ui/Badge';
-import TipCard from '../components/TipCard';
-import PageHeader from '../components/PageHeader';
-import CurvedSheet from '../components/ui/CurvedSheet';
+import StitchAppHeader from '../components/stitch/StitchAppHeader';
 import NearbyMap from '../components/NearbyMap';
 import PriceSortChips from '../components/PriceSortChips';
 import SecLabel from '../components/ui/SecLabel';
@@ -207,12 +205,13 @@ export default function ResultsScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-      <PageHeader
-        title="Best Match Found"
-        subtitle={`Our AI analyzed ${markerCount || candidates.length} providers · ${serviceTitle}`}
-        onBack={() => router.back()}
-        right={<Badge label={`${candidates.length} Found`} variant="violet" />}
-      />
+      <StitchAppHeader onBack={() => router.back()} right={<Badge label={`${candidates.length} Found`} variant="violet" />} />
+      <View style={styles.resultsHead}>
+        <Text style={styles.resultsTitle}>Best Match Found</Text>
+        <Text style={styles.resultsSub}>
+          Our AI analyzed {markerCount || candidates.length} providers · {serviceTitle}
+        </Text>
+      </View>
       <View style={styles.body}>
         {resorting ? (
           <ActivityIndicator color={colors.violet} style={{ marginVertical: spacing.md }} />
@@ -312,6 +311,19 @@ export default function ResultsScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
+  resultsHead: {
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  resultsTitle: {
+    fontFamily: fonts.display,
+    fontSize: 24,
+    fontWeight: '600',
+    color: colors.primaryText,
+  },
+  resultsSub: { fontSize: 14, color: colors.text2, marginTop: 6, fontFamily: fonts.body },
   body: { flex: 1 },
   scroll: { paddingBottom: spacing.md, paddingTop: spacing.sm },
   preview: {
@@ -334,12 +346,11 @@ const styles = StyleSheet.create({
   block: { marginTop: spacing.md },
   cardWrap: { marginHorizontal: spacing.lg, marginBottom: 12 },
   pcard: {
-    backgroundColor: colors.card,
-    borderWidth: 2,
+    backgroundColor: colors.glass,
+    borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.lg,
+    borderRadius: radius.xl,
     padding: 16,
-    ...shadows.card,
   },
   pcardTop: {
     borderColor: 'rgba(124,58,237,0.35)',
@@ -384,7 +395,7 @@ const styles = StyleSheet.create({
   profileLinkText: {
     fontSize: 12,
     fontWeight: '600',
-    color: colors.violetBright,
+    color: colors.primaryText,
     fontFamily: fonts.body,
   },
   traceLink: { marginTop: spacing.md, alignItems: 'center', padding: spacing.sm },

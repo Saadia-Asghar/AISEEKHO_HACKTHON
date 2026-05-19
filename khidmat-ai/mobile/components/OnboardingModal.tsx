@@ -8,8 +8,7 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors, fonts, gradients, radius, spacing } from '../constants/theme';
+import { colors, fonts, radius, spacing } from '../constants/theme';
 import { ONBOARDING_STEPS } from '../constants/guide';
 import { markOnboardingSeen } from '../lib/onboarding';
 import Button from './ui/Button';
@@ -49,9 +48,9 @@ export default function OnboardingModal({ visible, onClose }: Props) {
     <Modal visible={visible} animationType="slide" transparent onRequestClose={skip}>
       <View style={styles.backdrop}>
         <View style={[styles.sheet, { maxWidth: Math.min(width - 32, 420) }]}>
-          <LinearGradient colors={[...gradients.hero]} style={styles.sheetHeader}>
+          <View style={styles.sheetHeader}>
             <Text style={styles.sheetHeaderIcon}>{current.icon}</Text>
-          </LinearGradient>
+          </View>
           <View style={styles.dots}>
             {ONBOARDING_STEPS.map((_, i) => (
               <View key={i} style={[styles.dot, i === step && styles.dotOn]} />
@@ -109,6 +108,7 @@ const styles = StyleSheet.create({
   sheetHeader: {
     paddingVertical: spacing.lg,
     alignItems: 'center',
+    backgroundColor: colors.violet,
   },
   sheetHeaderIcon: { fontSize: 44 },
   scroll: { maxHeight: 280, paddingHorizontal: spacing.lg, paddingTop: spacing.md },

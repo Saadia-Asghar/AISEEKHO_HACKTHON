@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { colors, fonts, radius, shadows, spacing } from '../constants/theme';
+import { colors, fonts, radius, spacing } from '../constants/theme';
 import { useBookingStore } from '../lib/store';
 import { completeCheckout, getSelectedProvider } from '../lib/bookingFlow';
 import type { PaymentMethod } from '../api/client';
 import Button from '../components/ui/Button';
-import CurvedSheet from '../components/ui/CurvedSheet';
-import PageHeader from '../components/PageHeader';
+import StitchAppHeader from '../components/stitch/StitchAppHeader';
+import StitchGlassCard from '../components/stitch/StitchGlassCard';
 import Avatar from '../components/Avatar';
 import TransparentPricing from '../components/TransparentPricing';
 import { showToast } from '../lib/toastStore';
@@ -69,14 +69,15 @@ export default function PaymentScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-      <PageHeader
-        title={t('payment_title')}
-        subtitle={`${result.intent.service_label} · ${result.intent.location}`}
-        onBack={() => router.back()}
-      />
-      <CurvedSheet style={styles.sheet}>
-        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-          <View style={styles.orderCard}>
+      <StitchAppHeader onBack={() => router.back()} />
+      <View style={styles.head}>
+        <Text style={styles.headTitle}>{t('payment_title')}</Text>
+        <Text style={styles.headSub}>
+          {result.intent.service_label} · {result.intent.location}
+        </Text>
+      </View>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+          <StitchGlassCard style={styles.orderCard}>
             <Text style={styles.orderLabel}>{t('order_summary')}</Text>
             <View style={styles.orderRow}>
               <Avatar name={provider.name} size={52} square />
@@ -93,7 +94,7 @@ export default function PaymentScreen() {
               <Text style={styles.lineLabel}>{t('payment_amount')}</Text>
               <Text style={styles.lineVal}>{estimate}</Text>
             </View>
-          </View>
+          </StitchGlassCard>
 
           <TransparentPricing pricing={result.pricing} />
 
@@ -120,24 +121,25 @@ export default function PaymentScreen() {
             <Text style={styles.backText}>← {t('change_provider')}</Text>
           </Pressable>
           <Text style={styles.footer}>{t('payment_notify_hint')}</Text>
-        </ScrollView>
-      </CurvedSheet>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
-  sheet: { flex: 1 },
+  head: { paddingHorizontal: spacing.lg, paddingBottom: spacing.md },
+  headTitle: {
+    fontFamily: fonts.display,
+    fontSize: 24,
+    fontWeight: '600',
+    color: colors.primaryText,
+  },
+  headSub: { fontSize: 14, color: colors.text2, marginTop: 6, fontFamily: fonts.body },
   scroll: { padding: spacing.lg, paddingBottom: spacing.xl },
   orderCard: {
-    backgroundColor: colors.card,
-    borderRadius: radius.lg,
     padding: spacing.lg,
     marginBottom: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    ...shadows.card,
   },
   orderLabel: {
     fontSize: 11,

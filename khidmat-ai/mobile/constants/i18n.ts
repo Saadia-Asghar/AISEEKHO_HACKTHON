@@ -101,6 +101,9 @@ const en = {
   country_code: 'Country code: 🇵🇰 +92',
   demo_code: 'Demo code:',
   or: 'or',
+  google_banner_title: 'Stitch AI Integrated',
+  google_banner_body: 'This screen is dynamically generated based on Google Stitch premium UI/UX mockups.',
+  mic_hint: 'Try saying: "AC technician chahiye G-13 mein"',
 };
 
 const ur: Record<string, string> = {
@@ -204,6 +207,9 @@ const ur: Record<string, string> = {
   country_code: 'ملک کوڈ: 🇵🇰 +92',
   demo_code: 'ڈیمو کوڈ:',
   or: 'یا',
+  google_banner_title: 'اسٹچ AI انٹیگریٹڈ',
+  google_banner_body: 'یہ اسکرین گوگل اسٹچ پریمیم ڈیزائن کی ہدایات کے مطابق تیار کی گئی ہے۔',
+  mic_hint: 'بولیں: "G-13 میں AC ٹیکنیشن چاہیے"',
 };
 
 export const strings: Record<Lang, Record<string, string>> = { en, ur };

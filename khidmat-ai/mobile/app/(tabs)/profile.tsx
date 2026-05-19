@@ -14,6 +14,7 @@ import OnboardingModal from '../../components/OnboardingModal';
 import { getUserReviews } from '../../api/client';
 import { HOW_TO_SECTIONS } from '../../constants/guide';
 import GoogleStatusBanner from '../../components/GoogleStatusBanner';
+import StitchAppHeader from '../../components/stitch/StitchAppHeader';
 
 type Review = { rating: number; comment?: string; provider_name?: string };
 
@@ -63,7 +64,9 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
+      <StitchAppHeader />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <Text style={styles.screenTitle}>Account</Text>
         <View style={styles.profileHero}>
           <Avatar name={session.name} size={72} />
           <Text style={styles.nameHero}>{session.name}</Text>
@@ -174,7 +177,15 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
-  scroll: { paddingBottom: 110, paddingTop: spacing.md },
+  scroll: { paddingBottom: 110, paddingTop: spacing.sm },
+  screenTitle: {
+    fontFamily: fonts.display,
+    fontSize: 24,
+    fontWeight: '600',
+    color: colors.primaryText,
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.md,
+  },
   profileHero: {
     alignItems: 'center',
     paddingHorizontal: spacing.lg,

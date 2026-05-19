@@ -17,6 +17,8 @@ import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import SecLabel from '../../components/ui/SecLabel';
 import GoogleBadge from '../../components/GoogleBadge';
+import StitchAppHeader from '../../components/stitch/StitchAppHeader';
+import StitchGlassCard from '../../components/stitch/StitchGlassCard';
 import TipCard from '../../components/TipCard';
 import { showToast } from '../../lib/toastStore';
 import { api, getProvider, saveProvider, unsaveProvider } from '../../api/client';
@@ -145,17 +147,14 @@ export default function ProviderScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['bottom']}>
+    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+      <StitchAppHeader
+        onBack={() => router.back()}
+        right={<Badge label={`✓ ${t('verified')}`} variant="jade" />}
+      />
       <ScrollView contentContainerStyle={styles.scroll}>
-        <View style={styles.pageHeader}>
-          <Pressable style={styles.backBtn} onPress={() => router.back()}>
-            <Text style={styles.backArrow}>←</Text>
-          </Pressable>
-          <Text style={styles.pageTitle}>{t('provider_profile')}</Text>
-          <Badge label={`✓ ${t('verified')}`} variant="jade" />
-        </View>
-
-        <View style={styles.provHero}>
+        <Text style={styles.screenTitle}>{t('provider_profile')}</Text>
+        <StitchGlassCard style={styles.provHero}>
           <Avatar name={name} size={84} square />
           <Text style={styles.provName}>{name}</Text>
           <Text style={styles.provRole}>{category} · {area}</Text>
@@ -182,7 +181,7 @@ export default function ProviderScreen() {
             <Text style={styles.priceLine}>Visit from PKR {visitFee.toLocaleString()}</Text>
             <Text style={styles.priceLine}>Hourly from PKR {hourly.toLocaleString()}</Text>
           </View>
-        </View>
+        </StitchGlassCard>
 
         <View style={{ paddingHorizontal: spacing.lg }}>
           <TipCard
@@ -250,7 +249,15 @@ export default function ProviderScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
-  scroll: { paddingBottom: spacing.xl },
+  scroll: { paddingBottom: spacing.xl, paddingTop: spacing.sm },
+  screenTitle: {
+    fontFamily: fonts.display,
+    fontSize: 24,
+    fontWeight: '600',
+    color: colors.primaryText,
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.md,
+  },
   pageHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -270,7 +277,7 @@ const styles = StyleSheet.create({
   },
   backArrow: { color: colors.text, fontSize: 18 },
   pageTitle: { flex: 1, fontFamily: fonts.display, fontSize: 17, fontWeight: '600', color: colors.text },
-  provHero: { alignItems: 'center', padding: spacing.lg },
+  provHero: { alignItems: 'center', padding: spacing.lg, marginHorizontal: spacing.lg, marginBottom: spacing.md },
   provName: { fontFamily: fonts.display, fontSize: 20, fontWeight: '600', color: colors.text, marginTop: 12 },
   provRole: { fontSize: 13, color: colors.text2, marginTop: 4, fontFamily: fonts.body },
   ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 },
