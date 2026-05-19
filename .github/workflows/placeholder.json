@@ -1,0 +1,4 @@
+{
+  "name": "ci",
+  "script": "echo CI placeholder"
+}
