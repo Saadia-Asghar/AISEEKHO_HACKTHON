@@ -20,7 +20,8 @@ import { deleteUserAccount, getBookings, getUserReviews } from '../../api/client
 import { useI18n } from '../../lib/i18n';
 import type { Lang } from '../../constants/i18n';
 import { showToast } from '../../lib/toastStore';
-import Avatar from '../../components/Avatar';
+import Avatar, { initials } from '../../components/Avatar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import OnboardingModal from '../../components/OnboardingModal';
 import StitchAppHeader from '../../components/stitch/StitchAppHeader';
 import StitchGlassCard from '../../components/stitch/StitchGlassCard';
@@ -103,6 +104,8 @@ export default function ProfileScreen() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [avatarVariant, setAvatarVariant] = useState<'violet' | 'teal' | 'amber' | undefined>(undefined);
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
 
   const load = useCallback(async () => {
     const s = await getSession();
@@ -124,6 +127,24 @@ export default function ProfileScreen() {
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    if (session) {
+      AsyncStorage.getItem(`avatar_variant_${session.userId}`).then((val) => {
+        if (val === 'violet' || val === 'teal' || val === 'amber') {
+          setAvatarVariant(val);
+        }
+      });
+    }
+  }, [session]);
+
+  const saveVariant = async (v: 'violet' | 'teal' | 'amber') => {
+    setAvatarVariant(v);
+    if (session) {
+      await AsyncStorage.setItem(`avatar_variant_${session.userId}`, v);
+    }
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
 
   const avgRating =
     reviews.length > 0
@@ -164,9 +185,9 @@ export default function ProfileScreen() {
         <View style={styles.hero}>
           <View style={styles.avatarWrap}>
             <View style={styles.avatarRing}>
-              <Avatar name={session.name} size={120} />
+              <Avatar name={session.name} size={120} variant={avatarVariant} />
             </View>
-            <Pressable style={styles.editBadge} onPress={() => showToast('Profile photo coming soon')}>
+            <Pressable style={styles.editBadge} onPress={() => setShowAvatarModal(true)}>
               <Text style={styles.editIcon}>✎</Text>
             </Pressable>
           </View>
@@ -281,6 +302,48 @@ export default function ProfileScreen() {
       </Pressable>
 
       <OnboardingModal visible={showGuide} onClose={() => setShowGuide(false)} />
+
+      <Modal visible={showAvatarModal} transparent animationType="slide" onRequestClose={() => setShowAvatarModal(false)}>
+        <Pressable style={styles.modalBackdrop} onPress={() => setShowAvatarModal(false)}>
+          <Pressable style={[styles.modalCard, { paddingVertical: spacing.lg }]} onPress={(e) => e.stopPropagation()}>
+            <Text style={styles.modalTitle}>Choose Avatar Style</Text>
+            <Text style={[styles.modalBody, { marginBottom: spacing.md }]}>Select a matching profile theme color.</Text>
+            
+            <View style={{ flexDirection: 'row', gap: spacing.md, marginVertical: spacing.md, justifyContent: 'center', alignItems: 'center' }}>
+              <Pressable 
+                onPress={() => { saveVariant('violet'); setShowAvatarModal(false); }}
+                style={[{ padding: spacing.xs, borderRadius: radius.lg, borderWidth: 2, borderColor: avatarVariant === 'violet' || (!avatarVariant && initials(session.name).charCodeAt(0) % 3 === 0) ? colors.violet : 'transparent' }]}
+              >
+                <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: colors.violet, alignItems: 'center', justifyContent: 'center' }}>
+                  <Text style={{ color: colors.onPrimaryContainer, fontWeight: '700', fontSize: 18, fontFamily: fonts.display }}>{initials(session.name)}</Text>
+                </View>
+              </Pressable>
+              
+              <Pressable 
+                onPress={() => { saveVariant('teal'); setShowAvatarModal(false); }}
+                style={[{ padding: spacing.xs, borderRadius: radius.lg, borderWidth: 2, borderColor: avatarVariant === 'teal' || (!avatarVariant && initials(session.name).charCodeAt(0) % 3 === 1) ? colors.jade : 'transparent' }]}
+              >
+                <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: colors.jade, alignItems: 'center', justifyContent: 'center' }}>
+                  <Text style={{ color: colors.onPrimaryContainer, fontWeight: '700', fontSize: 18, fontFamily: fonts.display }}>{initials(session.name)}</Text>
+                </View>
+              </Pressable>
+              
+              <Pressable 
+                onPress={() => { saveVariant('amber'); setShowAvatarModal(false); }}
+                style={[{ padding: spacing.xs, borderRadius: radius.lg, borderWidth: 2, borderColor: avatarVariant === 'amber' || (!avatarVariant && initials(session.name).charCodeAt(0) % 3 === 2) ? colors.amber : 'transparent' }]}
+              >
+                <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: colors.amber, alignItems: 'center', justifyContent: 'center' }}>
+                  <Text style={{ color: colors.onPrimaryContainer, fontWeight: '700', fontSize: 18, fontFamily: fonts.display }}>{initials(session.name)}</Text>
+                </View>
+              </Pressable>
+            </View>
+
+            <Pressable style={[styles.modalCancelBtn, { marginTop: spacing.md }]} onPress={() => setShowAvatarModal(false)}>
+              <Text style={styles.modalCancelLabel}>Cancel</Text>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
 
       <Modal visible={showLogoutModal} transparent animationType="fade" onRequestClose={() => setShowLogoutModal(false)}>
         <Pressable style={styles.modalBackdrop} onPress={() => setShowLogoutModal(false)}>
