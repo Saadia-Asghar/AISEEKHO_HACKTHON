@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Redirect, Tabs } from 'expo-router';
 import { Platform, StyleSheet, Text, View } from 'react-native';
-import { getSession } from '../../lib/auth';
+import { getSessionSafe } from '../../lib/authBootstrap';
 import { onAuthChange } from '../../lib/authEvents';
 import { MaterialIcons } from '@expo/vector-icons';
 import { fonts, radius, shadows, spacing } from '../../constants/theme';
@@ -44,7 +44,7 @@ export default function TabLayout() {
   const [hasSession, setHasSession] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const check = () => getSession().then((s) => setHasSession(!!s));
+    const check = () => getSessionSafe().then((s) => setHasSession(!!s));
     check();
     return onAuthChange(check);
   }, []);

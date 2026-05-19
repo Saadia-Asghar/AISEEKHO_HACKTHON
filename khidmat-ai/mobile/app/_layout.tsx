@@ -1,13 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Platform, View } from 'react-native';
-import StitchLoadingOverlay from '../components/stitch/StitchLoadingOverlay';
 
 if (Platform.OS !== 'web') {
   require('react-native-gesture-handler');
 }
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { getSession } from '../lib/auth';
+import { getSessionSafe } from '../lib/authBootstrap';
 import { onAuthChange } from '../lib/authEvents';
 import AppToast from '../components/AppToast';
 import AppNotificationBanner from '../components/AppNotificationBanner';
@@ -16,88 +15,45 @@ import ClerkProviderGate from '../components/ClerkProviderGate';
 import { I18nProvider } from '../lib/i18n';
 import { ThemeProvider, useTheme } from '../lib/ThemeContext';
 
-export default function RootLayout() {
-  const [ready, setReady] = useState(false);
-  const [authed, setAuthed] = useState(false);
-  const segments = useSegments();
+/** Redirect once session is known; never block rendering the route tree. */
+function AuthBootstrap() {
   const router = useRouter();
+  const segments = useSegments();
 
-  const applyAuthGuard = useCallback(async () => {
-    const session = await getSession();
+  const runGuard = useCallback(async () => {
+    const session = await getSessionSafe();
     const onAuth = segments[0] === 'auth';
     if (!session && !onAuth) {
       router.replace('/auth');
-      setAuthed(false);
-      return;
-    }
-    if (session && onAuth) {
+    } else if (session && onAuth) {
       router.replace('/(tabs)');
-      setAuthed(true);
-      return;
     }
-    setAuthed(!!session);
   }, [router, segments]);
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      initAppNotifications();
-      const session = await getSession();
-      if (cancelled) return;
-      setAuthed(!!session);
-      if (session) {
-        router.replace('/(tabs)');
-      } else {
-        router.replace('/auth');
-      }
-      setReady(true);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [router]);
+    initAppNotifications();
+    void runGuard();
+  }, [runGuard]);
 
-  useEffect(() => {
-    if (!ready) return;
-    applyAuthGuard();
-  }, [ready, applyAuthGuard]);
+  useEffect(() => onAuthChange(() => void runGuard()), [runGuard]);
 
-  useEffect(() => {
-    if (!ready) return;
-    return onAuthChange(() => {
-      applyAuthGuard();
-    });
-  }, [ready, applyAuthGuard]);
+  return null;
+}
 
-  if (!ready) {
-    return (
-      <ThemeProvider>
-        <BootSplash />
-      </ThemeProvider>
-    );
-  }
-
+export default function RootLayout() {
   return (
     <ThemeProvider>
       <ClerkProviderGate>
         <I18nProvider>
-          <ThemedRoot authed={authed} />
+          <AuthBootstrap />
+          <ThemedRoot />
         </I18nProvider>
       </ClerkProviderGate>
     </ThemeProvider>
   );
 }
 
-function BootSplash() {
-  const { colors } = useTheme();
-  return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <StitchLoadingOverlay visible subtitle="Starting KhidmatAI…" />
-    </View>
-  );
-}
-
-function ThemedRoot({ authed: _authed }: { authed: boolean }) {
+function ThemedRoot() {
   const { colors, isDark } = useTheme();
   return (
     <>
