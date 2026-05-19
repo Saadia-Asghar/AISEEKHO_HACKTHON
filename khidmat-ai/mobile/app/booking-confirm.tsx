@@ -24,6 +24,7 @@ import InputField from '../components/ui/InputField';
 import ReviewTagPicker from '../components/ReviewTagPicker';
 import TransparentPricing from '../components/TransparentPricing';
 import { showToast } from '../lib/toastStore';
+import { useI18n } from '../lib/i18n';
 
 if (Platform.OS !== 'web') {
   const Notifications = require('expo-notifications');
@@ -38,6 +39,7 @@ if (Platform.OS !== 'web') {
 
 export default function BookingConfirmScreen() {
   const { result } = useBookingStore();
+  const { t } = useI18n();
   const scale = useRef(new Animated.Value(0)).current;
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
@@ -93,6 +95,8 @@ export default function BookingConfirmScreen() {
         provider_id: result.recommended.id,
         rating,
         comment: comment.trim() || undefined,
+        tags: tags.length ? tags : undefined,
+        location_area: result.intent.location,
       });
       setReviewDone(true);
       showToast('⭐ Shukriya! Review saved');
@@ -108,30 +112,28 @@ export default function BookingConfirmScreen() {
         <Animated.View style={[styles.checkAnim, { transform: [{ scale }] }]}>
           <Text style={styles.checkMark}>✓</Text>
         </Animated.View>
-        <Text style={styles.confirmTitle}>Booking Confirmed!</Text>
+        <Text style={styles.confirmTitle}>{t('confirm_title')}</Text>
         <Text style={styles.bookingRef}>
           Code: <Text style={styles.code}>{code}</Text>
         </Text>
         <Badge label={`${b.provider_name} · ${b.slot}`} variant="jade" />
       </LinearGradient>
       <CurvedSheet style={styles.sheet}>
-        <BookingFlowBar step={2} />
+        <BookingFlowBar step={3} />
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={styles.nextHint}>
-          Rate your provider below, then check 📋 Bookings or 🧠 Trace in the bottom bar
-        </Text>
+        <Text style={styles.nextHint}>{t('confirm_next')}</Text>
 
         <View style={styles.card}>
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>📍 Location</Text>
+            <Text style={styles.detailLabel}>📍 {t('location')}</Text>
             <Text style={styles.detailVal}>{result.intent.location}</Text>
           </View>
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>⏰ Time</Text>
+            <Text style={styles.detailLabel}>⏰ {t('time')}</Text>
             <Text style={styles.detailVal}>{b.slot}</Text>
           </View>
           <View style={[styles.detailRow, { borderBottomWidth: 0 }]}>
-            <Text style={styles.detailLabel}>💰 Service</Text>
+            <Text style={styles.detailLabel}>💰 {t('service')}</Text>
             <Text style={[styles.detailVal, { color: colors.jade, fontWeight: '700' }]}>
               {result.intent.service_label}
             </Text>
@@ -141,7 +143,7 @@ export default function BookingConfirmScreen() {
         {result.pricing ? <TransparentPricing pricing={result.pricing} /> : null}
 
         <View style={styles.card}>
-          <Text style={styles.reviewTitle}>Rate your experience</Text>
+          <Text style={styles.reviewTitle}>{t('rate_experience')}</Text>
           <ReviewTagPicker selected={tags} onChange={setTags} />
           <View style={styles.starRow}>
             {[1, 2, 3, 4, 5].map((n) => (
@@ -170,14 +172,14 @@ export default function BookingConfirmScreen() {
           />
         </View>
 
-        <Button label="🔔 Set Reminder" variant="outline" onPress={setReminder} style={{ width: '100%' }} />
+        <Button label={`🔔 ${t('set_reminder')}`} variant="outline" onPress={setReminder} style={{ width: '100%' }} />
         <Button
-          label="🧠 View AI Trace"
+          label={`🧠 ${t('view_trace')}`}
           variant="outline"
           onPress={() => router.push('/(tabs)/trace')}
           style={{ width: '100%', marginTop: 10 }}
         />
-        <Button label="← Back to Home" onPress={() => router.replace('/')} style={{ width: '100%', marginTop: 10 }} />
+        <Button label={`← ${t('back_home')}`} onPress={() => router.replace('/')} style={{ width: '100%', marginTop: 10 }} />
         </ScrollView>
       </CurvedSheet>
     </SafeAreaView>

@@ -64,8 +64,9 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="auth" options={{ headerShown: false }} />
         <Stack.Screen name="results" options={{ title: 'Results' }} />
+        <Stack.Screen name="payment" options={{ title: 'Payment', headerShown: false }} />
         <Stack.Screen name="booking-confirm" options={{ title: 'Confirmed', headerShown: false }} />
-        <Stack.Screen name="provider/[id]" options={{ title: 'Provider' }} />
+        <Stack.Screen name="provider/[id]" options={{ title: 'Provider', headerShown: false }} />
       </Stack>
     </I18nProvider>
   );

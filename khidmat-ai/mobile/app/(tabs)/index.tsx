@@ -16,10 +16,12 @@ import * as Haptics from 'expo-haptics';
 import { colors, fonts, gradients, radius, shadows, spacing } from '../../constants/theme';
 import { getSession } from '../../lib/auth';
 import { discover, getSuggestions, transcribeSpeech, getContactedWorkers } from '../../api/client';
-import SearchFilters, { type SearchFilterState } from '../../components/SearchFilters';
+import SearchFilters from '../../components/SearchFilters';
 import { useI18n } from '../../lib/i18n';
 import type { ContactedWorker } from '../../api/client';
 import { useBookingStore } from '../../lib/store';
+import GoogleStatusBanner from '../../components/GoogleStatusBanner';
+import VoiceWaveform from '../../components/VoiceWaveform';
 import { addRecentSearch, getRecentSearches } from '../../lib/searchHistory';
 import { getPriceSort, setPriceSort as persistPriceSort, type PriceSort } from '../../lib/bookingPrefs';
 import { getUserCoords } from '../../lib/location';
@@ -52,25 +54,29 @@ const CHIPS = [
 ];
 
 export default function HomeScreen() {
-  const { q } = useLocalSearchParams<{ q?: string }>();
+  const { q, submit: autoSubmit } = useLocalSearchParams<{ q?: string; submit?: string }>();
   const [name, setName] = useState('Guest');
   const [input, setInput] = useState('');
   const [recent, setRecent] = useState<string[]>([]);
   const [highlight, setHighlight] = useState<Set<string>>(new Set());
   const pulse = useRef(new Animated.Value(1)).current;
-  const { loading, setLoading, setResult, setError, error, priceSort, setPriceSort, setLastSearchText } =
-    useBookingStore();
+  const {
+    loading,
+    setLoading,
+    setResult,
+    setError,
+    error,
+    priceSort,
+    setPriceSort,
+    setLastSearchText,
+    searchFilters,
+    setSearchFilters,
+  } = useBookingStore();
   const submitting = useRef(false);
   const [recording, setRecording] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [contacted, setContacted] = useState<ContactedWorker[]>([]);
-  const [filters, setFilters] = useState<SearchFilterState>({
-    maxDistanceKm: null,
-    minRating: null,
-    verifiedOnly: false,
-    availableToday: false,
-  });
   const { t, lang } = useI18n();
 
   useEffect(() => {
@@ -88,7 +94,13 @@ export default function HomeScreen() {
     });
     getRecentSearches().then(setRecent);
     getPriceSort().then(setPriceSort);
-    if (q) setInput(String(q));
+    if (q) {
+      const text = String(q);
+      setInput(text);
+      if (autoSubmit === '1' && text.trim()) {
+        setTimeout(() => runSearch(text), 500);
+      }
+    }
     getSuggestions(new Date().getHours()).then((sug) =>
       setHighlight(new Set(sug.map((x) => x.service_type.replace(/_/g, ' '))))
     );
@@ -100,7 +112,7 @@ export default function HomeScreen() {
     ).start();
   }, []);
 
-  const submit = useCallback(
+  const runSearch = useCallback(
     async (text: string) => {
       if (!text.trim() || submitting.current) return;
       submitting.current = true;
@@ -120,10 +132,10 @@ export default function HomeScreen() {
           userLat: coords.lat,
           userLng: coords.lng,
           priceSort,
-          maxDistanceKm: filters.maxDistanceKm,
-          minRating: filters.minRating,
-          verifiedOnly: filters.verifiedOnly,
-          availableToday: filters.availableToday,
+          maxDistanceKm: searchFilters.maxDistanceKm,
+          minRating: searchFilters.minRating,
+          verifiedOnly: searchFilters.verifiedOnly,
+          availableToday: searchFilters.availableToday,
           lang,
         });
         setResult(data);
@@ -138,7 +150,7 @@ export default function HomeScreen() {
         submitting.current = false;
       }
     },
-    [setLoading, setResult, setError, priceSort, setLastSearchText, filters, lang, t]
+    [setLoading, setResult, setError, priceSort, setLastSearchText, searchFilters, lang, t]
   );
 
   const onPriceSortChange = async (sort: PriceSort) => {
@@ -151,7 +163,7 @@ export default function HomeScreen() {
     const msg = `Mujhe ${cat} chahiye ${w.area} mein — prefer ${w.name}`;
     setInput(msg);
     setSearchFocused(false);
-    submit(msg);
+    runSearch(msg);
   };
 
   const onMicPress = async () => {
@@ -172,7 +184,7 @@ export default function HomeScreen() {
       const { base64, mimeType } = await stopRecordingBase64();
       const { text } = await transcribeSpeech(base64, mimeType);
       setInput(text);
-      await submit(text);
+      await runSearch(text);
     } catch (e) {
       setRecording(false);
       setError(e instanceof Error ? e.message : 'Voice failed');
@@ -203,26 +215,27 @@ export default function HomeScreen() {
         <CurvedSheet style={{ flex: 1 }}>
           <BookingFlowBar step={0} />
           <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+          <GoogleStatusBanner />
+
           <View style={styles.quickStart}>
-            <Text style={styles.quickTitle}>3 steps to book</Text>
-            <Text style={styles.quickStep}>
-              Describe → AI finds pros → Confirm & review
-            </Text>
+            <Text style={styles.quickTitle}>{t('quick_steps')}</Text>
+            <Text style={styles.quickStep}>{t('steps_home')}</Text>
           </View>
 
           <TipCard
             tipId="home_try_demo"
-            title="New here?"
-            message="Tap ⚡ Try Demo below for a full sample booking in one tap — no typing needed."
-            actionLabel="Run demo now →"
+            title={t('new_here')}
+            message={t('new_here_msg')}
+            actionLabel={t('run_demo')}
             onAction={() => {
               setInput(DEMO);
-              submit(DEMO);
+              runSearch(DEMO);
             }}
           />
 
           <View style={styles.micSection}>
             <View style={styles.micFrame}>
+              {recording ? <VoiceWaveform active /> : null}
               <Animated.View style={[styles.pulseRing, styles.ring1, { transform: [{ scale: pulse }] }]} />
               <Animated.View style={[styles.pulseRing, styles.ring2]} />
               <Pressable onPress={onMicPress} disabled={loading}>
@@ -236,18 +249,18 @@ export default function HomeScreen() {
             </View>
             <Text style={styles.micHint}>
               {recording ? (
-                <Text style={styles.recordingHint}>🔴 Listening… tap ⏹ when done</Text>
+                <Text style={styles.recordingHint}>🔴 {t('listening')}</Text>
               ) : (
                 <>
-                  Tap mic — <Text style={styles.micHintAccent}>Google speech-to-text</Text>
-                  {Platform.OS === 'web' ? ' (phone only)' : ''}
+                  {t('mic_hint')}
+                  {Platform.OS === 'web' ? ` ${t('mic_web')}` : ''}
                 </>
               )}
             </Text>
           </View>
 
           <View style={styles.searchBlock}>
-            <SearchFilters value={filters} onChange={setFilters} />
+            <SearchFilters value={searchFilters} onChange={setSearchFilters} />
             <InputField
               label={t('home_title')}
               icon="✏️"
@@ -287,10 +300,10 @@ export default function HomeScreen() {
                 label={`📍 ${t('book_now')}`}
                 onPress={() => {
                   if (!input.trim()) {
-                    showToast('Type a request or tap Try Demo');
+                    showToast(t('type_or_demo'));
                     return;
                   }
-                  submit(input);
+                  runSearch(input);
                 }}
                 disabled={loading}
                 style={{ flex: 1 }}
@@ -299,28 +312,28 @@ export default function HomeScreen() {
             <ExamplePhrases
               onSelect={(text) => {
                 setInput(text);
-                showToast('Phrase added — tap Book Now');
+                showToast(t('phrase_added'));
               }}
             />
           </View>
 
           <View style={styles.section}>
-            <SecLabel>Popular services</SecLabel>
+            <SecLabel>{t('popular')}</SecLabel>
             <ServiceGrid
               items={gridItems}
               onSelect={(phrase) => {
                 setInput(`I need a ${phrase} in G-13`);
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                showToast('Service selected — tap Book Now');
+                showToast(t('service_picked'));
               }}
             />
           </View>
 
           {error ? (
-            <Pressable onPress={() => submit(input)} style={styles.errorBox}>
-              <Text style={styles.errorTitle}>Could not connect</Text>
+            <Pressable onPress={() => runSearch(input)} style={styles.errorBox}>
+              <Text style={styles.errorTitle}>{t('connect_error')}</Text>
               <Text style={styles.error}>{error}</Text>
-              <Text style={styles.errorRetry}>Tap to retry</Text>
+              <Text style={styles.errorRetry}>{t('tap_retry')}</Text>
             </Pressable>
           ) : null}
 

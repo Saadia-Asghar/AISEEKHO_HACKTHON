@@ -17,8 +17,6 @@ def _connect() -> sqlite3.Connection:
 def init_db() -> None:
     from app.db import auth_db, user_data
 
-    user_data.init_user_tables()
-    auth_db.init_auth_tables()
     with _connect() as conn:
         conn.executescript(
             """
@@ -100,6 +98,9 @@ def init_db() -> None:
         fu_cols = {r[1] for r in conn.execute("PRAGMA table_info(follow_ups)").fetchall()}
         if "completion_check_time" not in fu_cols:
             conn.execute("ALTER TABLE follow_ups ADD COLUMN completion_check_time TEXT")
+
+    user_data.init_user_tables()
+    auth_db.init_auth_tables()
 
 
 def _seed_providers_if_empty(conn: sqlite3.Connection) -> None:

@@ -14,6 +14,7 @@ import { router } from 'expo-router';
 import { colors, fonts, radius, spacing } from '../../constants/theme';
 import { getSession } from '../../lib/auth';
 import { cancelBooking, getBookings, startBooking } from '../../api/client';
+import { bookingRowId } from '../../lib/store';
 import { useI18n } from '../../lib/i18n';
 import { showToast } from '../../lib/toastStore';
 import Avatar from '../../components/Avatar';
@@ -28,7 +29,8 @@ import SegmentedControl from '../../components/ui/SegmentedControl';
 type Tab = 'upcoming' | 'past' | 'cancelled';
 
 type BookingRow = {
-  id: string;
+  booking_id?: string;
+  id?: string;
   service_type?: string;
   provider_name?: string;
   location?: string;
@@ -95,10 +97,7 @@ export default function BookingsScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <ScreenGuide
-        title="My Bookings"
-        subtitle="Upcoming jobs, past history, and cancellations. Pull down to refresh."
-      />
+      <ScreenGuide title={t('bookings_title')} subtitle={t('bookings_sub')} />
       <CurvedSheet style={styles.sheet}>
         <View style={styles.sheetInner}>
           <TipCard
@@ -108,9 +107,9 @@ export default function BookingsScreen() {
           />
           <SegmentedControl
             options={[
-              { key: 'upcoming' as Tab, label: 'Upcoming' },
-              { key: 'past' as Tab, label: 'Past' },
-              { key: 'cancelled' as Tab, label: 'Cancelled' },
+              { key: 'upcoming' as Tab, label: t('tab_upcoming') },
+              { key: 'past' as Tab, label: t('tab_past') },
+              { key: 'cancelled' as Tab, label: t('tab_cancelled') },
             ]}
             value={tab}
             onChange={(t) => {
@@ -132,18 +131,20 @@ export default function BookingsScreen() {
           {rows.length === 0 ? (
             <EmptyState
               icon={tab === 'cancelled' ? '🎉' : '📋'}
-              title={tab === 'cancelled' ? 'No cancelled bookings' : 'No bookings yet'}
+              title={tab === 'cancelled' ? t('no_cancelled') : t('no_bookings')}
               message={
                 tab === 'cancelled'
-                  ? 'All your bookings are going great!'
-                  : 'Complete a booking from Home (Try Demo is fastest). Your jobs will show here.'
+                  ? t('no_cancelled')
+                  : t('steps_home')
               }
-              actionLabel={tab !== 'cancelled' ? 'Book from Home' : undefined}
+              actionLabel={tab !== 'cancelled' ? t('book_from_home') : undefined}
               onAction={tab !== 'cancelled' ? () => router.push('/') : undefined}
             />
           ) : (
-            rows.map((b) => (
-              <View key={b.id} style={styles.bCard}>
+            rows.map((b) => {
+              const bid = bookingRowId(b);
+              return (
+              <View key={bid} style={styles.bCard}>
                 <View style={styles.bCardTop}>
                   <Avatar name={b.provider_name || 'P'} size={46} square />
                   <View style={{ flex: 1 }}>
@@ -162,13 +163,13 @@ export default function BookingsScreen() {
                       label={t('on_the_way')}
                       variant="ghost"
                       onPress={async () => {
-                        await startBooking(b.id);
+                        await startBooking(bid);
                         showToast(t('status_in_progress'));
                         load();
                       }}
                       style={{ flex: 1 }}
                     />
-                    <Button label="Cancel" variant="outline" onPress={() => onCancel(b.id)} style={{ flex: 1 }} />
+                    <Button label={t('cancel_booking')} variant="outline" onPress={() => onCancel(bid)} style={{ flex: 1 }} />
                   </View>
                 ) : tab === 'past' ? (
                   <View style={styles.bActions}>
@@ -176,7 +177,7 @@ export default function BookingsScreen() {
                       label={`🔄 ${t('rebook')}`}
                       onPress={() => {
                         const msg = `Mujhe ${b.service_type || 'service'} chahiye ${b.location || 'G-13'} mein — prefer ${b.provider_name}`;
-                        router.push({ pathname: '/', params: { q: msg } });
+                        router.push({ pathname: '/', params: { q: msg, submit: '1' } });
                       }}
                       style={{ flex: 1 }}
                     />
@@ -193,7 +194,8 @@ export default function BookingsScreen() {
                   </View>
                 ) : null}
               </View>
-            ))
+            );
+            })
           )}
         </ScrollView>
       )}
