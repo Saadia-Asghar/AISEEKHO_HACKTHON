@@ -4,20 +4,18 @@ import { Platform } from 'react-native';
 export type VoiceStopResult = {
   base64: string;
   mimeType: string;
-  /** Browser STT fallback when API unavailable */
   fallbackText?: string;
 };
 
 let nativeRecording: { stopAndUnloadAsync: () => Promise<unknown>; getURI: () => string | null } | null =
   null;
 
-let webStream: MediaStream | null = null;
-let webRecorder: MediaRecorder | null = null;
-let webChunks: Blob[] = [];
+// Web: SpeechRecognition ONLY (MediaRecorder blocks mic in Chrome)
 let webRecognition: SpeechRecognition | null = null;
-/** Full transcript built from SpeechRecognition */
 let webTranscript = '';
 let onInterimCb: ((text: string) => void) | null = null;
+let onFinalizeCb: ((text: string) => void) | null = null;
+let webListening = false;
 
 function getSpeechRecognitionCtor(): (new () => SpeechRecognition) | null {
   if (Platform.OS !== 'web' || typeof window === 'undefined') return null;
@@ -28,152 +26,199 @@ function getSpeechRecognitionCtor(): (new () => SpeechRecognition) | null {
   return w.SpeechRecognition || w.webkitSpeechRecognition || null;
 }
 
-function rebuildTranscriptFromEvent(event: SpeechRecognitionEvent): string {
+export function isWebSpeechSupported(): boolean {
+  return Platform.OS === 'web' && getSpeechRecognitionCtor() != null;
+}
+
+function transcriptFromEvent(event: SpeechRecognitionEvent): string {
   let combined = '';
   for (let i = 0; i < event.results.length; i++) {
-    const part = event.results[i][0]?.transcript ?? '';
-    combined += part;
+    combined += event.results[i][0]?.transcript ?? '';
   }
   return combined.trim();
 }
 
-function emitLiveTranscript(text: string) {
+function pushTranscript(text: string) {
+  if (!text) return;
   webTranscript = text;
-  if (text && onInterimCb) onInterimCb(text);
+  onInterimCb?.(text);
 }
 
 function getWebTranscript(): string {
   return webTranscript.trim();
 }
 
-async function startWeb(onInterim?: (text: string) => void): Promise<void> {
-  if (!navigator.mediaDevices?.getUserMedia) {
-    throw new Error('Microphone not available in this browser');
-  }
-  onInterimCb = onInterim ?? null;
-  webTranscript = '';
+function fireFinalize() {
+  const text = getWebTranscript();
+  if (text) onFinalizeCb?.(text);
+}
 
-  webStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-    ? 'audio/webm;codecs=opus'
-    : MediaRecorder.isTypeSupported('audio/webm')
-      ? 'audio/webm'
-      : 'audio/mp4';
-
-  webRecorder = new MediaRecorder(webStream, { mimeType });
-  webChunks = [];
-  webRecorder.ondataavailable = (e) => {
-    if (e.data.size > 0) webChunks.push(e.data);
-  };
-  webRecorder.start(200);
-
+async function startWeb(
+  onInterim?: (text: string) => void,
+  onFinalize?: (text: string) => void
+): Promise<void> {
   const Ctor = getSpeechRecognitionCtor();
-  if (Ctor) {
-    webRecognition = new Ctor();
-    webRecognition.continuous = true;
-    webRecognition.interimResults = true;
-    // en-US is most reliable in Chrome; still picks up Urdu/Roman Urdu reasonably well
-    webRecognition.lang = 'en-US';
-    webRecognition.maxAlternatives = 1;
-    webRecognition.onresult = (event: SpeechRecognitionEvent) => {
-      const text = rebuildTranscriptFromEvent(event);
-      if (text) emitLiveTranscript(text);
-    };
-    webRecognition.onerror = () => {
-      /* no-op; permission errors surface from getUserMedia */
-    };
-    try {
-      webRecognition.start();
-    } catch {
-      webRecognition = null;
+  if (!Ctor) {
+    throw new Error(
+      'Voice typing needs Chrome or Edge. Open http://localhost:8081 in Chrome (not Firefox).'
+    );
+  }
+
+  onInterimCb = onInterim ?? null;
+  onFinalizeCb = onFinalize ?? null;
+  webTranscript = '';
+  webListening = true;
+
+  webRecognition = new Ctor();
+  webRecognition.continuous = true;
+  webRecognition.interimResults = true;
+  webRecognition.lang = 'en-US';
+  webRecognition.maxAlternatives = 1;
+
+  webRecognition.onresult = (event: SpeechRecognitionEvent) => {
+    const text = transcriptFromEvent(event);
+    pushTranscript(text);
+  };
+
+  webRecognition.onerror = (event: Event & { error?: string }) => {
+    const code = event.error;
+    if (code === 'not-allowed' || code === 'service-not-allowed') {
+      webListening = false;
     }
+  };
+
+  webRecognition.onend = () => {
+    if (!webListening) return;
+    webListening = false;
+    webRecognition = null;
+    fireFinalize();
+  };
+
+  try {
+    webRecognition.start();
+  } catch (e) {
+    webRecognition = null;
+    webListening = false;
+    throw e instanceof Error ? e : new Error('Could not start speech recognition');
   }
 }
 
-function blobToBase64(blob: Blob): Promise<string> {
+async function recordWebClipMs(ms = 2500): Promise<{ base64: string; mimeType: string }> {
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
+  const recorder = new MediaRecorder(stream, { mimeType });
+  const chunks: Blob[] = [];
+  recorder.ondataavailable = (e) => {
+    if (e.data.size > 0) chunks.push(e.data);
+  };
   return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const data = reader.result as string;
-      const base64 = data.includes(',') ? data.split(',')[1] : data;
-      resolve(base64);
-    };
-    reader.onerror = () => reject(new Error('Could not read audio'));
-    reader.readAsDataURL(blob);
-  });
-}
-
-function waitForRecognitionEnd(rec: SpeechRecognition, timeoutMs = 1500): Promise<void> {
-  return new Promise((resolve) => {
-    const done = () => {
-      clearTimeout(timer);
-      resolve();
-    };
-    const timer = setTimeout(done, timeoutMs);
-    rec.onend = done;
-    try {
-      rec.stop();
-    } catch {
-      done();
-    }
-  });
-}
-
-async function stopMediaRecorder(mime: string, fallbackText: string): Promise<VoiceStopResult> {
-  if (!webRecorder || webRecorder.state === 'inactive') {
-    webStream?.getTracks().forEach((t) => t.stop());
-    webStream = null;
-    return { base64: '', mimeType: mime, fallbackText };
-  }
-
-  return new Promise((resolve, reject) => {
-    const recorder = webRecorder!;
-    const mimeType = recorder.mimeType || mime;
-
     recorder.onstop = async () => {
+      stream.getTracks().forEach((t) => t.stop());
       try {
-        webStream?.getTracks().forEach((t) => t.stop());
-        webStream = null;
-        webRecorder = null;
-        const blob = new Blob(webChunks, { type: mimeType });
-        webChunks = [];
+        const blob = new Blob(chunks, { type: mimeType });
         if (blob.size < 100) {
-          resolve({ base64: '', mimeType, fallbackText });
+          resolve({ base64: '', mimeType });
           return;
         }
-        const base64 = await blobToBase64(blob);
-        resolve({ base64, mimeType, fallbackText });
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const data = reader.result as string;
+          resolve({
+            base64: data.includes(',') ? data.split(',')[1] : data,
+            mimeType,
+          });
+        };
+        reader.onerror = () => reject(new Error('Could not read audio'));
+        reader.readAsDataURL(blob);
       } catch (e) {
         reject(e);
       }
     };
-
-    recorder.onerror = () => reject(new Error('Recording failed'));
-    try {
-      if (recorder.state === 'recording') recorder.requestData();
-      recorder.stop();
-    } catch (e) {
-      reject(e);
-    }
+    recorder.start();
+    setTimeout(() => {
+      try {
+        if (recorder.state === 'recording') recorder.stop();
+      } catch {
+        resolve({ base64: '', mimeType });
+      }
+    }, ms);
   });
 }
 
 async function stopWeb(): Promise<VoiceStopResult> {
-  let fallbackText = getWebTranscript();
+  webListening = false;
+  const existing = getWebTranscript();
 
-  if (webRecognition) {
-    const rec = webRecognition;
-    webRecognition = null;
-    await waitForRecognitionEnd(rec);
-    fallbackText = getWebTranscript() || fallbackText;
+  if (!webRecognition) {
+    onInterimCb = null;
+    onFinalizeCb = null;
+    let base64 = '';
+    let mimeType = 'audio/webm';
+    try {
+      const clip = await recordWebClipMs(2000);
+      base64 = clip.base64;
+      mimeType = clip.mimeType;
+    } catch {
+      /* optional API clip */
+    }
+    return { base64, mimeType, fallbackText: existing };
+  }
+
+  const rec = webRecognition;
+  webRecognition = null;
+
+  const finalText = await new Promise<string>((resolve) => {
+    let settled = false;
+    const finish = (text: string) => {
+      if (settled) return;
+      settled = true;
+      resolve(text.trim() || existing);
+    };
+
+    const timer = setTimeout(() => finish(getWebTranscript() || existing), 2500);
+
+    rec.onresult = (event: SpeechRecognitionEvent) => {
+      const text = transcriptFromEvent(event);
+      if (text) pushTranscript(text);
+    };
+
+    rec.onend = () => {
+      clearTimeout(timer);
+      finish(getWebTranscript() || existing);
+    };
+
+    try {
+      rec.stop();
+    } catch {
+      clearTimeout(timer);
+      finish(getWebTranscript() || existing);
+    }
+  });
+
+  if (finalText) pushTranscript(finalText);
+
+  let base64 = '';
+  let mimeType = 'audio/webm';
+  try {
+    const clip = await recordWebClipMs(2000);
+    base64 = clip.base64;
+    mimeType = clip.mimeType;
+  } catch {
+    /* browser text is enough */
   }
 
   onInterimCb = null;
-  const mime = webRecorder?.mimeType || 'audio/webm';
-  return stopMediaRecorder(mime, fallbackText);
+  onFinalizeCb = null;
+
+  return {
+    base64,
+    mimeType,
+    fallbackText: finalText || getWebTranscript(),
+  };
 }
 
 function cancelWeb(): void {
+  webListening = false;
   if (webRecognition) {
     try {
       webRecognition.stop();
@@ -182,19 +227,9 @@ function cancelWeb(): void {
     }
     webRecognition = null;
   }
-  if (webRecorder && webRecorder.state !== 'inactive') {
-    try {
-      webRecorder.stop();
-    } catch {
-      /* ignore */
-    }
-  }
-  webRecorder = null;
-  webChunks = [];
-  webStream?.getTracks().forEach((t) => t.stop());
-  webStream = null;
   webTranscript = '';
   onInterimCb = null;
+  onFinalizeCb = null;
 }
 
 async function startNative(): Promise<void> {
@@ -235,12 +270,17 @@ function cancelNative(): void {
   }
 }
 
-export async function startRecording(onInterim?: (text: string) => void): Promise<void> {
-  if (isRecording()) return;
+export async function startRecording(
+  onInterim?: (text: string) => void,
+  onFinalize?: (text: string) => void
+): Promise<void> {
   if (Platform.OS === 'web') {
-    await startWeb(onInterim);
+    if (webListening || webRecognition) return;
+    await startWeb(onInterim, onFinalize);
     return;
   }
+  if (nativeRecording) return;
+  onFinalizeCb = onFinalize ?? null;
   await startNative();
 }
 
@@ -253,9 +293,7 @@ export async function stopRecordingBase64(): Promise<VoiceStopResult> {
 
 export function isRecording(): boolean {
   if (Platform.OS === 'web') {
-    return (
-      (webRecorder != null && webRecorder.state === 'recording') || webRecognition != null
-    );
+    return webListening || webRecognition != null;
   }
   return nativeRecording != null;
 }
@@ -268,7 +306,6 @@ export function cancelRecording(): void {
   cancelNative();
 }
 
-/** Current browser transcript while listening (web only) */
 export function getLiveTranscript(): string {
   return getWebTranscript();
 }

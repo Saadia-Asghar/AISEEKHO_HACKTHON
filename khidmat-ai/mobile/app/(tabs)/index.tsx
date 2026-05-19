@@ -30,6 +30,7 @@ import {
   cancelRecording,
   getLiveTranscript,
   isRecording,
+  isWebSpeechSupported,
   startRecording,
   stopRecordingBase64,
 } from '../../lib/voice';
@@ -69,7 +70,10 @@ export default function HomeScreen() {
     useBookingStore();
   const submitting = useRef(false);
   const voiceDraftRef = useRef('');
+  const voiceFinishingRef = useRef(false);
   const [voicePhase, setVoicePhase] = useState<'idle' | 'listening' | 'transcribing'>('idle');
+  const [voiceLiveText, setVoiceLiveText] = useState('');
+  const [searchInputKey, setSearchInputKey] = useState(0);
   const [showGuide, setShowGuide] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [contacted, setContacted] = useState<ContactedWorker[]>([]);
@@ -136,10 +140,20 @@ export default function HomeScreen() {
     runSearch(`Mujhe ${cat} chahiye ${w.area} mein — prefer ${w.name}`);
   };
 
-  const onMicPress = async () => {
-    if (loading || voicePhase === 'transcribing') return;
+  const applyVoiceText = useCallback((text: string) => {
+    const v = text.trim();
+    if (!v) return;
+    voiceDraftRef.current = v;
+    setVoiceLiveText(v);
+    setInput(v);
+    setSearchInputKey((k) => k + 1);
+  }, []);
 
-    if (voicePhase === 'listening' || isRecording()) {
+  const finishVoice = useCallback(
+    async (fromAuto = false) => {
+      if (voiceFinishingRef.current) return;
+      if (voicePhase !== 'listening' && !fromAuto && !isRecording()) return;
+      voiceFinishingRef.current = true;
       setVoicePhase('transcribing');
       try {
         const { base64, mimeType, fallbackText } = await stopRecordingBase64();
@@ -147,63 +161,72 @@ export default function HomeScreen() {
           fallbackText?.trim() ||
           voiceDraftRef.current.trim() ||
           getLiveTranscript().trim() ||
+          voiceLiveText.trim() ||
           input.trim();
 
-        // Show browser transcript in the search box immediately
-        if (text) {
-          setInput(text);
-          voiceDraftRef.current = text;
-        }
+        if (text) applyVoiceText(text);
 
         if (base64 && base64.length > 50) {
           try {
             const res = await transcribeSpeech(base64, mimeType);
-            if (res.text?.trim()) {
-              text = res.text.trim();
-              setInput(text);
-              voiceDraftRef.current = text;
-            }
+            if (res.text?.trim()) text = res.text.trim();
           } catch (apiErr) {
             const msg = apiErr instanceof Error ? apiErr.message : '';
-            const apiUnavailable =
-              /unavailable|503|GOOGLE_API_KEY|speech/i.test(msg);
-            if (!text && !apiUnavailable) throw apiErr;
+            if (!text && !/unavailable|503|speech/i.test(msg)) throw apiErr;
           }
         }
 
-        if (!text) {
-          throw new Error(t('voice_failed'));
-        }
+        if (!text) throw new Error(t('voice_failed'));
 
-        setInput(text);
+        applyVoiceText(text);
         setVoicePhase('idle');
+        setVoiceLiveText('');
         setError(null);
-        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        // Text is in the search box — tap Book Now to search (or edit first)
+        if (!fromAuto) await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       } catch (e) {
         setVoicePhase('idle');
+        setVoiceLiveText('');
         cancelRecording();
         setError(e instanceof Error ? e.message : t('voice_failed'));
+      } finally {
+        voiceFinishingRef.current = false;
       }
+    },
+    [voicePhase, voiceLiveText, input, applyVoiceText, t]
+  );
+
+  const onMicPress = async () => {
+    if (loading || voicePhase === 'transcribing') return;
+
+    if (voicePhase === 'listening' || isRecording()) {
+      await finishVoice(false);
+      return;
+    }
+
+    if (Platform.OS === 'web' && !isWebSpeechSupported()) {
+      setError('Use Chrome or Edge for voice (Firefox is not supported).');
       return;
     }
 
     try {
       setError(null);
       voiceDraftRef.current = '';
+      setVoiceLiveText('');
       setVoicePhase('listening');
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      await startRecording((live) => {
-        if (live.trim()) {
-          voiceDraftRef.current = live;
-          setInput(live);
+      await startRecording(
+        (live) => applyVoiceText(live),
+        (final) => {
+          applyVoiceText(final);
+          void finishVoice(true);
         }
-      });
+      );
     } catch (e) {
       setVoicePhase('idle');
+      setVoiceLiveText('');
       cancelRecording();
       const msg = e instanceof Error ? e.message : t('voice_failed');
-      setError(msg.includes('permission') ? t('voice_permission') : msg);
+      setError(msg.includes('permission') || msg.includes('not-allowed') ? t('voice_permission') : msg);
     }
   };
 
@@ -271,13 +294,28 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.block}>
+            {voiceLiveText || voicePhase === 'listening' ? (
+              <View style={styles.voicePreview}>
+                <Text style={styles.voicePreviewLabel}>
+                  {voicePhase === 'listening' ? t('listening') : 'You said'}
+                </Text>
+                <Text style={styles.voicePreviewText}>
+                  {voiceLiveText || input || '…'}
+                </Text>
+              </View>
+            ) : null}
             <StitchSearchBox
+              key={`search-${searchInputKey}`}
               value={input}
-              onChangeText={setInput}
+              onChangeText={(t) => {
+                setInput(t);
+                voiceDraftRef.current = t;
+                if (voicePhase === 'listening') setVoiceLiveText(t);
+              }}
               placeholder="Describe what you need help with..."
               onFocus={() => setSearchFocused(true)}
               onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
-              editable={!loading}
+              editable={!loading && voicePhase !== 'transcribing'}
               footer={
                 <StitchSearchActions
                   demoLabel={t('try_demo')}
@@ -410,6 +448,29 @@ function homeStyles(colors: AppColors) {
   micCaptionActive: { color: colors.jade, fontWeight: '700' },
   micSub: { fontSize: 12, color: colors.text2, marginTop: 4, fontFamily: fonts.body },
   block: { paddingHorizontal: spacing.lg },
+  voicePreview: {
+    marginBottom: spacing.sm,
+    padding: spacing.md,
+    backgroundColor: colors.violetSoft,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border2,
+  },
+  voicePreviewLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    color: colors.primaryText,
+    marginBottom: 6,
+    fontFamily: fonts.body,
+  },
+  voicePreviewText: {
+    fontSize: 15,
+    color: colors.text,
+    lineHeight: 22,
+    fontFamily: fonts.body,
+  },
   recentWrap: {
     flexDirection: 'row',
     flexWrap: 'wrap',
