@@ -6,63 +6,64 @@
 
 | | |
 |--|--|
-| **Framer project** | [Splendid Gibbon](https://framer.com/projects/Splendid-Gibbon--yocSa4NGRmxD5JPlxxnD-7tsI7) (editor) |
 | **Published prototype** | https://splendid-gibbon-403400.framer.app |
-| **Home UI reference** | https://splendid-gibbon-403400.framer.app/ |
-| **Provider UI reference** | https://splendid-gibbon-403400.framer.app/provider-detail |
-| **Implemented in** | `khidmat-ai/mobile` — same tokens as Framer (`#7C3AED`, `#09090B`, …) |
+| **Mobile theme** | `#7C3AED`, `#09090B` in `khidmat-ai/mobile/constants/theme.ts` |
 
 ## Stack
 
 | Layer | Path | Tech |
 |-------|------|------|
-| Mobile | `khidmat-ai/mobile` | Expo Router, React Native, AsyncStorage auth |
+| Mobile | `khidmat-ai/mobile` | Expo Router, React Native |
 | Backend | `backend` | FastAPI, SQLite, 5-agent pipeline |
-| Web | `khidmat-ai/web` | Next.js dashboard (optional) |
 
-## Preview (integrated)
+## Quick start
 
 ```powershell
 .\scripts\preview.ps1
 ```
 
-Starts **backend** (`http://127.0.0.1:8000`) + **Expo** with `EXPO_PUBLIC_API_URL` set. On a physical phone, use your PC LAN IP instead of `127.0.0.1`.
+- App: http://localhost:8081  
+- API: http://127.0.0.1:8000  
+- Guest: `+923000000000` / OTP **1234**, or **Skip** on auth  
 
-## Run manually
+On a **physical phone**, set `EXPO_PUBLIC_API_URL` to your PC LAN IP (see `khidmat-ai/mobile/.env.example`).
 
-```powershell
-# Backend
-cd backend
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-python run.py
+## Booking flow (current)
 
-# Mobile (device: use your LAN IP)
-cd khidmat-ai\mobile
-npm install
-$env:EXPO_PUBLIC_API_URL="http://YOUR_LAN_IP:8000"
-npx expo start
-```
+1. **Discover** — `POST /api/discover` (preview, no charge)
+2. **Create booking** — `POST /api/bookings/create` (after provider pick)
+3. **Pay** — `POST /api/payments/confirm` (SMS/WhatsApp to customer + provider)
+4. **Review** — confirmation screen + `POST /api/reviews`
 
-Optional: `cd khidmat-ai\web && npm run dev` — same API for browser demo.
+Legacy alias: `POST /api/orchestrate` = discover only (same as `/api/discover`).
 
 ## Auth
 
-Phone `+92` + 10 digits → OTP **1234** (mock). Session stored in AsyncStorage; `user_id` is sent on every API call.
+- **Demo:** OTP `1234` for any 4-digit attempt when Twilio is not configured.
+- **Production:** set `TWILIO_*` in `backend/.env` for real SMS OTP.
 
 ## API highlights
 
-- `POST /api/auth/verify` · `POST /api/orchestrate`
-- `GET /api/bookings/user/{user_id}` · `PATCH /api/bookings/{id}/cancel`
-- `GET /api/suggestions?hour=0-23` · `GET /api/providers/{id}` · `POST /api/reviews`
+- `POST /api/discover` · `POST /api/bookings/create`
+- `POST /api/payments/confirm`
+- `GET /api/bookings/user/{user_id}`
+- `POST /api/provider/jobs/{id}/respond` — provider accept/decline (demo)
+- `GET /api/google/status`
 
-### Google (hackathon)
+## Google keys
 
-Copy `backend/.env.example` → `backend/.env` and set:
+Copy `backend/.env.example` → `backend/.env`:
 
-- `GOOGLE_API_KEY` — Gemini intent + voice transcription (`POST /api/speech/transcribe`)
-- `GOOGLE_MAPS_API_KEY` — Geocoding for discovery (falls back to local sector coords)
+- `GOOGLE_API_KEY` — Gemini intent + voice
+- `GOOGLE_MAPS_API_KEY` — geocoding
 
-Check: `GET http://127.0.0.1:8000/api/google/status` and `GET /health`.
+## Deploy
 
-**Connected flow:** Mobile auth → SQLite users · Home mic → Gemini STT → orchestrate · Trace loads from DB · Reviews saved to `provider_ratings`.
+See [docs/DEPLOY.md](docs/DEPLOY.md) and `khidmat-ai/mobile/eas.json` for EAS builds.
+
+## Tests
+
+```powershell
+cd backend; python -m pytest tests/ -q
+cd khidmat-ai\mobile; npx tsc --noEmit
+```

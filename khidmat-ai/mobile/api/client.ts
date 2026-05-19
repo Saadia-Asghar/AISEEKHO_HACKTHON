@@ -130,7 +130,13 @@ export type DiscoverResult = {
     amount_pkr?: number;
     payment_status?: string;
   };
-  payment?: { payment_id: string; amount_pkr: number; status: string };
+  payment?: {
+    payment_id: string;
+    amount_pkr: number;
+    status: string;
+    stripe_payment_intent_id?: string;
+    stripe_client_secret?: string;
+  };
 };
 
 export type OrchestrateResult = DiscoverResult & {
@@ -252,6 +258,49 @@ export async function cancelBooking(id: string, userId: string) {
 
 export async function confirmBooking(id: string) {
   const { data } = await api.post(`/api/bookings/${id}/confirm`);
+  return data;
+}
+
+export type PaymentMethod = 'card' | 'jazzcash' | 'easypaisa' | 'cash';
+
+export async function confirmPayment(body: {
+  payment_id: string;
+  booking_id: string;
+  method: PaymentMethod;
+  user_id?: string;
+  customer_phone?: string;
+  stripe_payment_intent_id?: string;
+}) {
+  try {
+    const { data } = await api.post<{
+      booking_id: string;
+      status: string;
+      notifications?: Array<{ channel: string; status: string }>;
+      rate_booking?: boolean;
+    }>('/api/payments/confirm', {
+      ...body,
+      notify_channels: ['sms', 'whatsapp'],
+    });
+    return data;
+  } catch (e) {
+    throw new Error(parseErr(e));
+  }
+}
+
+export async function unsaveProvider(userId: string, providerId: string) {
+  const { data } = await api.delete(`/api/users/${userId}/saved/${providerId}`);
+  return data;
+}
+
+export async function providerRespondToJob(
+  bookingId: string,
+  providerId: string,
+  action: 'accept' | 'decline'
+) {
+  const { data } = await api.post(`/api/provider/jobs/${bookingId}/respond`, {
+    provider_id: providerId,
+    action,
+  });
   return data;
 }
 

@@ -20,13 +20,15 @@ import GoogleStatusBanner from '../../components/GoogleStatusBanner';
 
 type Review = { rating: number; comment?: string; provider_name?: string };
 
-const MENU = [
-  { icon: '📖', label: 'How to use KhidmatAI', sub: 'Step-by-step guide', bg: colors.violetSoft, action: 'guide' as const },
-  { icon: '📋', label: 'My Bookings', sub: 'View upcoming', bg: colors.jadeSoft, route: '/(tabs)/bookings' as const },
-  { icon: '⭐', label: 'My Reviews', sub: 'Reviews given', bg: colors.amberSoft, action: 'reviews' as const },
-  { icon: '💬', label: 'Help & Support', sub: 'support@khidmat.ai', bg: 'rgba(59,130,246,0.1)', action: 'help' as const },
-  { icon: '🔒', label: 'Privacy', sub: 'Data & permissions', bg: 'rgba(160,155,192,0.1)', action: 'privacy' as const },
-];
+function menuItems(t: (k: string) => string) {
+  return [
+    { icon: '📖', label: t('how_to'), sub: 'Step-by-step', bg: colors.violetSoft, action: 'guide' as const },
+    { icon: '📋', label: t('my_bookings'), sub: t('tab_upcoming'), bg: colors.jadeSoft, route: '/(tabs)/bookings' as const },
+    { icon: '⭐', label: t('my_reviews'), sub: t('reviews'), bg: colors.amberSoft, action: 'reviews' as const },
+    { icon: '💬', label: t('help_support'), sub: 'support@khidmat.ai', bg: 'rgba(59,130,246,0.1)', action: 'help' as const },
+    { icon: '🔒', label: t('privacy'), sub: 'Data & permissions', bg: 'rgba(160,155,192,0.1)', action: 'privacy' as const },
+  ];
+}
 
 export default function ProfileScreen() {
   const [session, setSession] = useState<Session | null>(null);
@@ -89,7 +91,7 @@ export default function ProfileScreen() {
 
         <View style={styles.divider} />
 
-        {MENU.map((item) => (
+        {menuItems(t).map((item) => (
           <Pressable
             key={item.label}
             style={styles.menuItem}
