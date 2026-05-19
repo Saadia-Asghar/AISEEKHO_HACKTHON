@@ -1,5 +1,8 @@
+import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
-import { colors, fonts, radius, spacing } from '../../constants/theme';
+import type { AppColors } from '../../constants/theme';
+import { fonts, radius, spacing } from '../../constants/theme';
+import { useTheme } from '../../lib/ThemeContext';
 
 type Chip = { id?: string; label: string; emoji: string; hot?: boolean };
 
@@ -10,12 +13,11 @@ export default function StitchChipScroll({
   chips: Chip[];
   onSelect: (chip: Chip) => void;
 }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => chipStyles(colors), [colors]);
+
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.row}
-    >
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
       {chips.map((c) => (
         <Pressable
           key={c.id || c.label}
@@ -31,16 +33,18 @@ export default function StitchChipScroll({
   );
 }
 
-const styles = StyleSheet.create({
-  row: { paddingHorizontal: spacing.lg, gap: 8, paddingBottom: spacing.md },
-  chip: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border2,
-  },
-  chipHot: { borderColor: colors.primaryText, backgroundColor: colors.violetSoft },
-  chipText: { fontSize: 14, fontWeight: '500', color: colors.text, fontFamily: fonts.body },
-});
+function chipStyles(colors: AppColors) {
+  return StyleSheet.create({
+    row: { paddingHorizontal: spacing.lg, gap: 8, paddingBottom: spacing.md },
+    chip: {
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+      borderRadius: radius.pill,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border2,
+    },
+    chipHot: { borderColor: colors.primaryText, backgroundColor: colors.violetSoft },
+    chipText: { fontSize: 14, fontWeight: '500', color: colors.text, fontFamily: fonts.body },
+  });
+}

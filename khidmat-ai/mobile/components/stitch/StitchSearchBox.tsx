@@ -1,6 +1,8 @@
-import { type ReactNode } from 'react';
+import { type ReactNode, useMemo } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { colors, fonts, radius, spacing } from '../../constants/theme';
+import type { AppColors } from '../../constants/theme';
+import { fonts, radius, spacing } from '../../constants/theme';
+import { useTheme } from '../../lib/ThemeContext';
 
 export default function StitchSearchBox({
   value,
@@ -17,9 +19,11 @@ export default function StitchSearchBox({
   onFocus?: () => void;
   onBlur?: () => void;
   editable?: boolean;
-  /** Try Demo + Book Now row (Stitch home_screen) */
   footer?: ReactNode;
 }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => boxStyles(colors), [colors]);
+
   return (
     <View style={styles.wrap}>
       <TextInput
@@ -52,6 +56,9 @@ export function StitchSearchActions({
   bookLabel: string;
   loading?: boolean;
 }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => boxStyles(colors), [colors]);
+
   return (
     <>
       <Pressable style={styles.demoBtn} onPress={onDemo} disabled={loading}>
@@ -64,46 +71,48 @@ export function StitchSearchActions({
   );
 }
 
-const styles = StyleSheet.create({
-  wrap: {
-    backgroundColor: colors.bgLowest,
-    borderWidth: 1,
-    borderColor: colors.border2,
-    borderRadius: radius.lg,
-    minHeight: 120,
-    marginBottom: spacing.md,
-  },
-  input: {
-    padding: spacing.md,
-    paddingBottom: 52,
-    fontSize: 16,
-    lineHeight: 24,
-    color: colors.text,
-    fontFamily: fonts.body,
-    minHeight: 100,
-  },
-  footer: {
-    position: 'absolute',
-    right: spacing.sm,
-    bottom: spacing.sm,
-    flexDirection: 'row',
-    gap: 8,
-    alignItems: 'center',
-  },
-  demoBtn: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: colors.accent,
-  },
-  demoText: { color: colors.accent, fontSize: 13, fontWeight: '600', fontFamily: fonts.body },
-  bookBtn: {
-    paddingHorizontal: 18,
-    paddingVertical: 8,
-    borderRadius: radius.pill,
-    backgroundColor: colors.violet,
-  },
-  bookDisabled: { opacity: 0.6 },
-  bookText: { color: colors.onPrimaryContainer, fontSize: 13, fontWeight: '600', fontFamily: fonts.body },
-});
+function boxStyles(colors: AppColors) {
+  return StyleSheet.create({
+    wrap: {
+      backgroundColor: colors.bgLowest,
+      borderWidth: 1,
+      borderColor: colors.border2,
+      borderRadius: radius.lg,
+      minHeight: 120,
+      marginBottom: spacing.md,
+    },
+    input: {
+      padding: spacing.md,
+      paddingBottom: 52,
+      fontSize: 16,
+      lineHeight: 24,
+      color: colors.text,
+      fontFamily: fonts.body,
+      minHeight: 100,
+    },
+    footer: {
+      position: 'absolute',
+      right: spacing.sm,
+      bottom: spacing.sm,
+      flexDirection: 'row',
+      gap: 8,
+      alignItems: 'center',
+    },
+    demoBtn: {
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+      borderRadius: radius.pill,
+      borderWidth: 1,
+      borderColor: colors.accent,
+    },
+    demoText: { color: colors.accent, fontSize: 13, fontWeight: '600', fontFamily: fonts.body },
+    bookBtn: {
+      paddingHorizontal: 18,
+      paddingVertical: 8,
+      borderRadius: radius.pill,
+      backgroundColor: colors.violet,
+    },
+    bookDisabled: { opacity: 0.6 },
+    bookText: { color: colors.onPrimaryContainer, fontSize: 13, fontWeight: '600', fontFamily: fonts.body },
+  });
+}

@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { colors, fonts, radius, spacing } from '../constants/theme';
+import type { AppColors } from '../constants/theme';
+import { fonts, radius, spacing } from '../constants/theme';
+import ThemedSafeArea from '../components/ThemedSafeArea';
+import { useTheme } from '../lib/ThemeContext';
 import { useBookingStore } from '../lib/store';
 import { completeCheckout, getSelectedProvider } from '../lib/bookingFlow';
 import type { PaymentMethod } from '../api/client';
@@ -22,6 +24,8 @@ const METHODS: { id: PaymentMethod; labelKey: string; icon: string }[] = [
 ];
 
 export default function PaymentScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => paymentStyles(colors), [colors]);
   const { result } = useBookingStore();
   const { t } = useI18n();
   const [method, setMethod] = useState<PaymentMethod>('card');
@@ -41,9 +45,9 @@ export default function PaymentScreen() {
 
   if (!result || !provider) {
     return (
-      <SafeAreaView style={styles.safe}>
+      <ThemedSafeArea>
         <ActivityIndicator color={colors.violet} style={{ marginTop: spacing.xl }} />
-      </SafeAreaView>
+      </ThemedSafeArea>
     );
   }
 
@@ -68,7 +72,7 @@ export default function PaymentScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <ThemedSafeArea edges={['top', 'bottom']}>
       <StitchAppHeader onBack={() => router.back()} />
       <View style={styles.head}>
         <Text style={styles.headTitle}>{t('payment_title')}</Text>
@@ -122,11 +126,12 @@ export default function PaymentScreen() {
           </Pressable>
           <Text style={styles.footer}>{t('payment_notify_hint')}</Text>
       </ScrollView>
-    </SafeAreaView>
+    </ThemedSafeArea>
   );
 }
 
-const styles = StyleSheet.create({
+function paymentStyles(colors: AppColors) {
+  return StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   head: { paddingHorizontal: spacing.lg, paddingBottom: spacing.md },
   headTitle: {
@@ -192,4 +197,5 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     fontFamily: fonts.body,
   },
-});
+  });
+}

@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, Link } from 'expo-router';
 import Button from '../components/ui/Button';
-import { colors, fonts, radius, shadows, spacing } from '../constants/theme';
+import type { AppColors } from '../constants/theme';
+import { fonts, radius, spacing } from '../constants/theme';
+import { useTheme } from '../lib/ThemeContext';
+import ThemedSafeArea from '../components/ThemedSafeArea';
 import { useBookingStore } from '../lib/store';
 import Avatar from '../components/Avatar';
 import ScoreBar from '../components/ScoreBar';
@@ -42,6 +44,8 @@ function skillTags(provider: ProviderSummary): string[] {
   return ['Inverter AC', 'Gas Refill', 'Leakage Repair'];
 }
 
+type ResultStyles = ReturnType<typeof resultsStyles>;
+
 function ProviderCard({
   provider,
   selected,
@@ -52,6 +56,7 @@ function ProviderCard({
   onProfile,
   onBook,
   t,
+  styles: s,
 }: {
   provider: ProviderSummary;
   selected?: boolean;
@@ -62,6 +67,7 @@ function ProviderCard({
   onProfile: () => void;
   onBook?: () => void;
   t: (k: string) => string;
+  styles: ResultStyles;
 }) {
   const bd = provider.score_breakdown;
   const dist = bd?.distance_40pct ?? 0.32;
@@ -71,49 +77,45 @@ function ProviderCard({
 
   return (
     <Pressable
-      style={[
-        styles.pcard,
-        top && styles.pcardTop,
-        selected && styles.pcardSelected,
-      ]}
+      style={[s.pcard, top && s.pcardTop, selected && s.pcardSelected]}
       onPress={onSelect}
     >
       {selected ? (
-        <View style={styles.selectedTag}>
-          <Text style={styles.selectedTagText}>✓ {t('selected')}</Text>
+        <View style={s.selectedTag}>
+          <Text style={s.selectedTagText}>✓ {t('selected')}</Text>
         </View>
       ) : null}
       {top ? <StitchMatchBadge pct={Math.round((provider.score ?? 0.98) * 100)} /> : null}
       {topRated && !top ? (
-        <View style={[styles.topTag, styles.topRatedTag]}>
-          <Text style={styles.topTagText}>🏆 Top Rated</Text>
+        <View style={[s.topTag, s.topRatedTag]}>
+          <Text style={s.topTagText}>🏆 Top Rated</Text>
         </View>
       ) : null}
-      <View style={styles.pcardTopRow}>
+      <View style={s.pcardTopRow}>
         <Avatar name={provider.name} size={top ? 64 : 48} square={!top} />
-        <View style={styles.pinfo}>
-          <View style={styles.nameRow}>
-            <Text style={[styles.pname, top && styles.pnameTop]}>{provider.name}</Text>
+        <View style={s.pinfo}>
+          <View style={s.nameRow}>
+            <Text style={[s.pname, top && s.pnameTop]}>{provider.name}</Text>
             {provider.verified ? (
-              <View style={styles.verifiedPill}>
-                <Text style={styles.verifiedText}>✓ VERIFIED</Text>
+              <View style={s.verifiedPill}>
+                <Text style={s.verifiedText}>✓ VERIFIED</Text>
               </View>
             ) : null}
           </View>
-          <Text style={styles.pmeta}>
-            <Text style={styles.star}>★ </Text>
-            <Text style={styles.pmetaBold}>{provider.rating.toFixed(1)}</Text>
+          <Text style={s.pmeta}>
+            <Text style={s.star}>★ </Text>
+            <Text style={s.pmetaBold}>{provider.rating.toFixed(1)}</Text>
             {' · '}
             {provider.distance_km.toFixed(1)} km
             {top ? (
-              <Text style={styles.response}> · ⚡ {responseMin} min response</Text>
+              <Text style={s.response}> · ⚡ {responseMin} min response</Text>
             ) : (
               ` · ${formatPrice(provider)}`
             )}
           </Text>
         </View>
         {!top ? (
-          <View style={styles.badgesCol}>
+          <View style={s.badgesCol}>
             {provider.contacted_before ? <Badge label="Contacted" variant="violet" /> : null}
             {badge ? <Badge label={badge} variant="amber" /> : null}
           </View>
@@ -121,20 +123,20 @@ function ProviderCard({
       </View>
 
       {top ? (
-        <View style={styles.skillRow}>
+        <View style={s.skillRow}>
           {skillTags(provider).map((tag) => (
-            <View key={tag} style={styles.skillChip}>
-              <Text style={styles.skillText}>{tag}</Text>
+            <View key={tag} style={s.skillChip}>
+              <Text style={s.skillText}>{tag}</Text>
             </View>
           ))}
         </View>
       ) : null}
 
       {top ? (
-        <View style={styles.quoteBox}>
-          <Text style={styles.quoteText}>
+        <View style={s.quoteBox}>
+          <Text style={s.quoteText}>
             &ldquo;Fixed my AC in 30 mins. Highly professional!&rdquo;{' '}
-            <Text style={styles.quoteAuthor}>- Recent customer</Text>
+            <Text style={s.quoteAuthor}>- Recent customer</Text>
           </Text>
         </View>
       ) : null}
@@ -142,24 +144,24 @@ function ProviderCard({
       {bd ? <ScoreBar distance={dist} rating={rat} availability={avail} /> : null}
 
       {top ? (
-        <View style={styles.bookRow}>
+        <View style={s.bookRow}>
           <View>
-            <Text style={styles.priceLabel}>Starting at</Text>
-            <Text style={styles.priceValue}>{formatPrice(provider)}</Text>
+            <Text style={s.priceLabel}>Starting at</Text>
+            <Text style={s.priceValue}>{formatPrice(provider)}</Text>
           </View>
-          <Button label={t('book_now')} onPress={onBook ?? onSelect} variant="violet" style={styles.bookBtn} />
+          <Button label={t('book_now')} onPress={onBook ?? onSelect} variant="violet" style={s.bookBtn} />
         </View>
       ) : (
-        <Pressable style={styles.profileLink} onPress={onProfile} hitSlop={8}>
-          <Text style={styles.profileLinkText}>{t('view_profile')} →</Text>
+        <Pressable style={s.profileLink} onPress={onProfile} hitSlop={8}>
+          <Text style={s.profileLinkText}>{t('view_profile')} →</Text>
         </Pressable>
       )}
 
       {top ? (
         <Link href="/(tabs)/trace" asChild>
-          <Pressable style={styles.reasoningLink}>
-            <Text style={styles.reasoningText}>🧠 View Agent Reasoning</Text>
-            <Text style={styles.reasoningChevron}>›</Text>
+          <Pressable style={s.reasoningLink}>
+            <Text style={s.reasoningText}>🧠 View Agent Reasoning</Text>
+            <Text style={s.reasoningChevron}>›</Text>
           </Pressable>
         </Link>
       ) : null}
@@ -168,6 +170,8 @@ function ProviderCard({
 }
 
 export default function ResultsScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => resultsStyles(colors), [colors]);
   const {
     result,
     priceSort,
@@ -239,9 +243,9 @@ export default function ResultsScreen() {
 
   if (!result) {
     return (
-      <SafeAreaView style={styles.safe}>
+      <ThemedSafeArea>
         <ActivityIndicator color={colors.violet} style={{ marginTop: spacing.xl }} />
-      </SafeAreaView>
+      </ThemedSafeArea>
     );
   }
 
@@ -268,12 +272,14 @@ export default function ResultsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <ThemedSafeArea edges={['top', 'bottom']}>
       <StitchAppHeader onBack={() => router.back()} right={<Badge label={`${candidates.length} Found`} variant="violet" />} />
       <View style={styles.resultsHead}>
-        <Text style={styles.resultsTitle}>Best Match Found</Text>
+        <Text style={styles.resultsTitle}>{t('results_title')}</Text>
         <Text style={styles.resultsSub}>
-          Our AI analyzed {markerCount || candidates.length} providers · {serviceTitle}
+          {t('results_sub')
+            .replace('{n}', String(markerCount || candidates.length))
+            .replace('{service}', serviceTitle)}
         </Text>
       </View>
       <View style={styles.body}>
@@ -315,6 +321,7 @@ export default function ResultsScreen() {
                     onSelect={() => onSelect(p.id)}
                     onProfile={() => router.push(`/provider/${p.id}`)}
                     t={t}
+                    styles={styles}
                   />
                 </View>
               ))}
@@ -335,13 +342,14 @@ export default function ResultsScreen() {
                 }}
                 onProfile={() => router.push(`/provider/${top.id}`)}
                 t={t}
+                styles={styles}
               />
             </View>
           </View>
 
           {others.length > 0 ? (
             <View style={styles.block}>
-              <Text style={styles.altSectionTitle}>Other Great Options</Text>
+              <Text style={styles.altSectionTitle}>{t('other_options')}</Text>
               {others.map((p, i) => (
                 <View key={p.id} style={styles.cardWrap}>
                   <ProviderCard
@@ -351,6 +359,7 @@ export default function ResultsScreen() {
                     onSelect={() => onSelect(p.id)}
                     onProfile={() => router.push(`/provider/${p.id}`)}
                     t={t}
+                    styles={styles}
                   />
                 </View>
               ))}
@@ -369,12 +378,12 @@ export default function ResultsScreen() {
           />
         ) : null}
       </View>
-    </SafeAreaView>
+    </ThemedSafeArea>
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bg },
+function resultsStyles(colors: AppColors) {
+  return StyleSheet.create({
   resultsHead: {
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.sm,
@@ -544,4 +553,5 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     fontFamily: fonts.body,
   },
-});
+  });
+}

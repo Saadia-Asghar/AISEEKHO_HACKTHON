@@ -8,10 +8,11 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { colors, fonts, radius, shadows, spacing } from '../constants/theme';
+import type { AppColors } from '../constants/theme';
+import { fonts, radius, shadows, spacing } from '../constants/theme';
+import ThemedSafeArea from '../components/ThemedSafeArea';
 import { getServiceCategories, type ServiceCategory } from '../api/client';
 import { useBookingStore } from '../lib/store';
 import { useI18n } from '../lib/i18n';
@@ -26,6 +27,7 @@ import { showToast } from '../lib/toastStore';
 
 export default function BrowseScreen() {
   const { colors } = useTheme();
+  const styles = useMemo(() => browseStyles(colors), [colors]);
   const { category: preselect } = useLocalSearchParams<{ category?: string }>();
   const { t, lang } = useI18n();
   const { loading, searchFilters, setSearchFilters } = useBookingStore();
@@ -81,7 +83,7 @@ export default function BrowseScreen() {
   }, [preselect, fetching, categories, onCategory]);
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <ThemedSafeArea edges={['top', 'bottom']}>
       <StitchAppHeader onBack={() => router.back()} />
       <View style={styles.head}>
         <Text style={styles.headTitle}>{t('browse_title')}</Text>
@@ -143,11 +145,12 @@ export default function BrowseScreen() {
           </ScrollView>
         )}
       <ShimmerOverlay visible={loading} />
-    </SafeAreaView>
+    </ThemedSafeArea>
   );
 }
 
-const styles = StyleSheet.create({
+function browseStyles(colors: AppColors) {
+  return StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   head: { paddingHorizontal: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.sm },
   headTitle: {
@@ -249,4 +252,5 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
     fontFamily: fonts.body,
   },
-});
+  });
+}

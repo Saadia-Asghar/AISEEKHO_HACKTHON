@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
   KeyboardAvoidingView,
@@ -12,7 +12,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { colors, fonts, radius, shadows, spacing } from '../../constants/theme';
+import type { AppColors } from '../../constants/theme';
+import { fonts, radius, spacing } from '../../constants/theme';
 import { getSession } from '../../lib/auth';
 import { getSuggestions, transcribeSpeech, getContactedWorkers } from '../../api/client';
 import { runDiscoverSearch } from '../../lib/discoverSearch';
@@ -49,6 +50,7 @@ const CHIPS = [
 
 export default function HomeScreen() {
   const { colors } = useTheme();
+  const styles = useMemo(() => homeStyles(colors), [colors]);
   const { q, submit: autoSubmit } = useLocalSearchParams<{ q?: string; submit?: string }>();
   const [name, setName] = useState('Guest');
   const [input, setInput] = useState('');
@@ -152,7 +154,7 @@ export default function HomeScreen() {
   }));
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: colors.bg }]} edges={['top']}>
+    <SafeAreaView style={styles.safe} edges={['top']}>
       <StitchAppHeader onSettings={() => router.push('/(tabs)/profile')} />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView
@@ -266,7 +268,8 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+function homeStyles(colors: AppColors) {
+  return StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { paddingBottom: 120 },
   greet: { paddingHorizontal: spacing.lg, marginTop: spacing.md, marginBottom: spacing.sm },
@@ -345,4 +348,5 @@ const styles = StyleSheet.create({
   errorTitle: { color: colors.rose, fontWeight: '700', fontFamily: fonts.body },
   error: { color: colors.text2, fontSize: 13, marginTop: 4, fontFamily: fonts.body },
   errorRetry: { color: colors.primaryText, fontSize: 12, marginTop: 8, fontFamily: fonts.body },
-});
+  });
+}

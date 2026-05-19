@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import {
   Image,
   KeyboardAvoidingView,
@@ -10,10 +10,12 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { colors, fonts, radius, spacing } from '../constants/theme';
+import type { AppColors } from '../constants/theme';
+import { fonts, radius, spacing } from '../constants/theme';
+import { useTheme } from '../lib/ThemeContext';
+import ThemedSafeArea from '../components/ThemedSafeArea';
 import { persistSession } from '../lib/auth';
 import { sendOtp, verifyAuth } from '../api/client';
 import Button from '../components/ui/Button';
@@ -28,6 +30,8 @@ import { useI18n } from '../lib/i18n';
 
 export default function AuthScreen() {
   const { t } = useI18n();
+  const { colors } = useTheme();
+  const styles = useMemo(() => authStyles(colors), [colors]);
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [digits, setDigits] = useState('');
   const [phoneDigits, setPhoneDigits] = useState('');
@@ -114,7 +118,7 @@ export default function AuthScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <ThemedSafeArea edges={['top', 'bottom']}>
       <StitchAppHeader />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
@@ -204,11 +208,12 @@ export default function AuthScreen() {
           <GoogleBadge />
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </ThemedSafeArea>
   );
 }
 
-const styles = StyleSheet.create({
+function authStyles(colors: AppColors) {
+  return StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xl },
   brandBlock: { alignItems: 'center', marginTop: spacing.lg, marginBottom: spacing.lg },
@@ -288,4 +293,5 @@ const styles = StyleSheet.create({
   linkBtn: { alignItems: 'center', padding: spacing.sm },
   linkText: { color: colors.primaryText, fontSize: 14, fontWeight: '600', fontFamily: fonts.body },
   error: { color: colors.rose, textAlign: 'center', marginTop: spacing.md, fontFamily: fonts.body },
-});
+  });
+}

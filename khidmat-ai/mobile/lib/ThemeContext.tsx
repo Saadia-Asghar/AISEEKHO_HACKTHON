@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { Platform } from 'react-native';
 import { darkColors, lightColors, type AppColors } from '../constants/theme';
 import { getColorScheme, setColorScheme, type ColorScheme } from './themePrefs';
 
@@ -30,6 +31,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [scheme, setScheme]);
 
   const colors = scheme === 'light' ? lightColors : darkColors;
+
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+    document.documentElement.setAttribute('data-theme', scheme);
+    document.documentElement.style.colorScheme = scheme;
+    document.body.style.backgroundColor = colors.bg;
+    const root = document.getElementById('root');
+    if (root) root.style.backgroundColor = colors.bg;
+  }, [scheme, colors.bg]);
 
   const value = useMemo(
     () => ({

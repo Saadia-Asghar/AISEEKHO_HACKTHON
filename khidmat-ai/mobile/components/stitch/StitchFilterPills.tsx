@@ -1,5 +1,8 @@
+import { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, fonts, radius, spacing } from '../../constants/theme';
+import type { AppColors } from '../../constants/theme';
+import { fonts, radius, spacing } from '../../constants/theme';
+import { useTheme } from '../../lib/ThemeContext';
 
 export default function StitchFilterPills<T extends string>({
   options,
@@ -10,6 +13,9 @@ export default function StitchFilterPills<T extends string>({
   value: T;
   onChange: (key: T) => void;
 }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => pillStyles(colors), [colors]);
+
   return (
     <View style={styles.row}>
       {options.map((o) => {
@@ -28,18 +34,20 @@ export default function StitchFilterPills<T extends string>({
   );
 }
 
-const styles = StyleSheet.create({
-  row: { flexDirection: 'row', gap: 8, paddingHorizontal: spacing.lg },
-  pill: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border2,
-    alignItems: 'center',
-  },
-  pillOn: { backgroundColor: colors.violet, borderColor: colors.violet },
-  text: { fontSize: 13, fontWeight: '600', color: colors.text2, fontFamily: fonts.body },
-  textOn: { color: colors.onPrimaryContainer },
-});
+function pillStyles(colors: AppColors) {
+  return StyleSheet.create({
+    row: { flexDirection: 'row', gap: 8, paddingHorizontal: spacing.lg },
+    pill: {
+      flex: 1,
+      paddingVertical: 10,
+      borderRadius: radius.pill,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border2,
+      alignItems: 'center',
+    },
+    pillOn: { backgroundColor: colors.violet, borderColor: colors.violet },
+    text: { fontSize: 13, fontWeight: '600', color: colors.text2, fontFamily: fonts.body },
+    textOn: { color: colors.onPrimaryContainer },
+  });
+}

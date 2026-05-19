@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -9,13 +9,14 @@ import {
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import type { AppColors } from '../../constants/theme';
+import { fonts, spacing } from '../../constants/theme';
 import { router } from 'expo-router';
-import { colors, fonts, radius, spacing } from '../../constants/theme';
 import { getSession } from '../../lib/auth';
-import { cancelBooking, getBookings, startBooking } from '../../api/client';
+import { cancelBooking, getBookings } from '../../api/client';
 import { bookingRowId } from '../../lib/store';
 import { useI18n } from '../../lib/i18n';
+import { useTheme } from '../../lib/ThemeContext';
 import { showToast } from '../../lib/toastStore';
 import Avatar from '../../components/Avatar';
 import Button from '../../components/ui/Button';
@@ -24,6 +25,7 @@ import EmptyState from '../../components/EmptyState';
 import StitchFilterPills from '../../components/stitch/StitchFilterPills';
 import StitchGlassCard from '../../components/stitch/StitchGlassCard';
 import GoogleBadge from '../../components/GoogleBadge';
+import ThemedSafeArea from '../../components/ThemedSafeArea';
 
 import type { strings } from '../../constants/i18n';
 
@@ -49,15 +51,17 @@ function statusLabel(status: string | undefined, t: (k: keyof (typeof strings)['
   return t('status_pending');
 }
 
-function statusColor(status: string | undefined) {
+function statusColor(c: AppColors, status: string | undefined) {
   const s = (status || '').toUpperCase();
-  if (s.includes('CANCEL')) return colors.rose;
-  if (s === 'COMPLETED') return colors.text2;
-  return colors.jade;
+  if (s.includes('CANCEL')) return c.rose;
+  if (s === 'COMPLETED') return c.text2;
+  return c.jade;
 }
 
 export default function BookingsScreen() {
   const { t } = useI18n();
+  const { colors } = useTheme();
+  const styles = useMemo(() => bookingsStyles(colors), [colors]);
   const [tab, setTab] = useState<Tab>('upcoming');
   const [rows, setRows] = useState<BookingRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -102,7 +106,7 @@ export default function BookingsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <ThemedSafeArea edges={['top']}>
       <ScreenGuide title={t('bookings_title')} subtitle={t('bookings_sub')} />
       <StitchFilterPills
         options={[
@@ -144,7 +148,6 @@ export default function BookingsScreen() {
           ) : (
             rows.map((b) => {
               const bid = bookingRowId(b);
-              const st = (b.status || 'PENDING').toUpperCase();
               return (
                 <StitchGlassCard key={bid} style={styles.bCard}>
                   <View style={styles.bCardTop}>
@@ -162,8 +165,10 @@ export default function BookingsScreen() {
                     <View style={styles.metaCol}>
                       <Text style={styles.metaLabel}>STATUS</Text>
                       <View style={styles.statusRow}>
-                        <View style={[styles.statusDot, { backgroundColor: statusColor(b.status) }]} />
-                        <Text style={[styles.statusText, { color: statusColor(b.status) }]}>
+                        <View
+                          style={[styles.statusDot, { backgroundColor: statusColor(colors, b.status) }]}
+                        />
+                        <Text style={[styles.statusText, { color: statusColor(colors, b.status) }]}>
                           {statusLabel(b.status, t)}
                         </Text>
                       </View>
@@ -172,7 +177,7 @@ export default function BookingsScreen() {
                   {tab === 'upcoming' ? (
                     <View style={styles.bActions}>
                       <Button
-                        label="Reschedule"
+                        label={t('reschedule')}
                         variant="outline"
                         onPress={() => showToast('Reschedule — contact provider on WhatsApp')}
                         style={{ flex: 1 }}
@@ -212,31 +217,32 @@ export default function BookingsScreen() {
           <GoogleBadge />
         </ScrollView>
       )}
-    </SafeAreaView>
+    </ThemedSafeArea>
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bg },
-  list: { paddingHorizontal: spacing.lg, paddingBottom: 110, paddingTop: spacing.md, gap: spacing.md },
-  bCard: { padding: spacing.md },
-  bCardTop: { flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: spacing.md },
-  bName: { fontWeight: '700', fontSize: 16, color: colors.text, fontFamily: fonts.display },
-  bSub: { fontSize: 13, color: colors.text2, marginTop: 4, fontFamily: fonts.body },
-  metaRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.md },
-  metaCol: { flex: 1 },
-  metaLabel: {
-    fontSize: 10,
-    fontWeight: '700',
-    letterSpacing: 0.6,
-    color: colors.text3,
-    marginBottom: 4,
-    fontFamily: fonts.body,
-  },
-  metaVal: { fontSize: 14, fontWeight: '600', color: colors.text, fontFamily: fonts.body },
-  statusRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  statusDot: { width: 8, height: 8, borderRadius: 4 },
-  statusText: { fontSize: 14, fontWeight: '600', fontFamily: fonts.body },
-  bActions: { flexDirection: 'row', gap: 8 },
-  emptyWrap: { flexGrow: 1, justifyContent: 'center', padding: spacing.xl },
-});
+function bookingsStyles(colors: AppColors) {
+  return StyleSheet.create({
+    list: { paddingHorizontal: spacing.lg, paddingBottom: 110, paddingTop: spacing.md, gap: spacing.md },
+    bCard: { padding: spacing.md },
+    bCardTop: { flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: spacing.md },
+    bName: { fontWeight: '700', fontSize: 16, color: colors.text, fontFamily: fonts.display },
+    bSub: { fontSize: 13, color: colors.text2, marginTop: 4, fontFamily: fonts.body },
+    metaRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.md },
+    metaCol: { flex: 1 },
+    metaLabel: {
+      fontSize: 10,
+      fontWeight: '700',
+      letterSpacing: 0.6,
+      color: colors.text3,
+      marginBottom: 4,
+      fontFamily: fonts.body,
+    },
+    metaVal: { fontSize: 14, fontWeight: '600', color: colors.text, fontFamily: fonts.body },
+    statusRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    statusDot: { width: 8, height: 8, borderRadius: 4 },
+    statusText: { fontSize: 14, fontWeight: '600', fontFamily: fonts.body },
+    bActions: { flexDirection: 'row', gap: 8 },
+    emptyWrap: { flexGrow: 1, justifyContent: 'center', padding: spacing.xl },
+  });
+}

@@ -1,6 +1,9 @@
+import { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, ViewStyle, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, fonts, gradients, radius, spacing } from '../../constants/theme';
+import type { AppColors } from '../../constants/theme';
+import { fonts, gradients, radius, spacing } from '../../constants/theme';
+import { useTheme } from '../../lib/ThemeContext';
 
 type Variant = 'violet' | 'gradient' | 'jade' | 'outline' | 'ghost' | 'accent';
 
@@ -19,6 +22,9 @@ export default function Button({
   loading?: boolean;
   style?: ViewStyle;
 }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => buttonStyles(colors), [colors]);
+
   const isGradient = variant === 'gradient';
   const content = loading ? (
     <ActivityIndicator color={isGradient || variant === 'violet' ? colors.onPrimaryContainer : colors.text} />
@@ -76,43 +82,45 @@ export default function Button({
   );
 }
 
-const styles = StyleSheet.create({
-  base: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-    paddingVertical: 16,
-    paddingHorizontal: spacing.lg,
-    borderRadius: radius.pill,
-    minHeight: 52,
-  },
-  gradient: {},
-  violet: { backgroundColor: colors.violet },
-  jade: { backgroundColor: colors.jade, borderRadius: radius.pill },
-  outline: {
-    backgroundColor: 'transparent',
-    borderWidth: 1.5,
-    borderColor: colors.border2,
-    borderRadius: radius.pill,
-  },
-  ghost: {
-    backgroundColor: colors.violetSoft,
-    borderWidth: 1,
-    borderColor: 'rgba(124,58,237,0.25)',
-    borderRadius: radius.pill,
-  },
-  accent: {
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: colors.accent,
-    borderRadius: radius.pill,
-  },
-  disabled: { opacity: 0.5 },
-  pressed: { transform: [{ scale: 0.98 }], opacity: 0.92 },
-  text: { fontWeight: '700', fontSize: 15, fontFamily: fonts.body },
-  textOnFill: { color: colors.onPrimaryContainer },
-  textOutline: { color: colors.text },
-  textGhost: { color: colors.violetBright },
-  textAccent: { color: colors.accent },
-});
+function buttonStyles(colors: AppColors) {
+  return StyleSheet.create({
+    base: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.sm,
+      paddingVertical: 16,
+      paddingHorizontal: spacing.lg,
+      borderRadius: radius.pill,
+      minHeight: 52,
+    },
+    gradient: {},
+    violet: { backgroundColor: colors.violet },
+    jade: { backgroundColor: colors.jade, borderRadius: radius.pill },
+    outline: {
+      backgroundColor: colors.card,
+      borderWidth: 1.5,
+      borderColor: colors.border2,
+      borderRadius: radius.pill,
+    },
+    ghost: {
+      backgroundColor: colors.violetSoft,
+      borderWidth: 1,
+      borderColor: colors.border2,
+      borderRadius: radius.pill,
+    },
+    accent: {
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      borderColor: colors.accent,
+      borderRadius: radius.pill,
+    },
+    disabled: { opacity: 0.5 },
+    pressed: { transform: [{ scale: 0.98 }], opacity: 0.92 },
+    text: { fontWeight: '700', fontSize: 15, fontFamily: fonts.body },
+    textOnFill: { color: colors.onPrimaryContainer },
+    textOutline: { color: colors.text },
+    textGhost: { color: colors.primaryText },
+    textAccent: { color: colors.accent },
+  });
+}

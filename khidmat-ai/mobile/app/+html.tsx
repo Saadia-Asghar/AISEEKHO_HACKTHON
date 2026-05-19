@@ -20,7 +20,8 @@ export default function Root({ children }: PropsWithChildren) {
         <style
           dangerouslySetInnerHTML={{
             __html: `
-              html, body, #root { background-color: #0A0A0F; height: 100%; margin: 0; }
+              html, body, #root { background-color: #131315; height: 100%; margin: 0; }
+              html[data-theme="light"], html[data-theme="light"] body, html[data-theme="light"] #root { background-color: #f8f9fb; }
               body { overflow: auto; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
             `,
           }}

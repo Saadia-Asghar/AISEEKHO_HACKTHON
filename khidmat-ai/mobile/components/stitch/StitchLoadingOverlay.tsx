@@ -1,6 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
-import { colors, fonts, radius, spacing } from '../../constants/theme';
+import type { AppColors } from '../../constants/theme';
+import { fonts, radius, spacing } from '../../constants/theme';
+import { useTheme } from '../../lib/ThemeContext';
 
 const MESSAGES = [
   'AI agents are finding your perfect match...',
@@ -18,6 +20,8 @@ export default function StitchLoadingOverlay({
   visible: boolean;
   subtitle?: string;
 }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => overlayStyles(colors), [colors]);
   const spin = useRef(new Animated.Value(0)).current;
   const pulse = useRef(new Animated.Value(1)).current;
   const textOpacity = useRef(new Animated.Value(1)).current;
@@ -109,10 +113,11 @@ export default function StitchLoadingOverlay({
   );
 }
 
-const styles = StyleSheet.create({
+function overlayStyles(colors: AppColors) {
+  return StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#09090B',
+    backgroundColor: colors.bg,
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 200,
@@ -224,4 +229,5 @@ const styles = StyleSheet.create({
     color: colors.text3,
     fontFamily: fonts.body,
   },
-});
+  });
+}

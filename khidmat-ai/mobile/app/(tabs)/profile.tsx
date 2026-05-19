@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   Modal,
@@ -13,7 +13,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { colors, fonts, gradients, radius, spacing } from '../../constants/theme';
+import type { AppColors } from '../../constants/theme';
+import { fonts, gradients, radius, spacing } from '../../constants/theme';
 import { useTheme } from '../../lib/ThemeContext';
 import { clearSession, getSession, type Session } from '../../lib/auth';
 import { getBookings, getUserReviews } from '../../api/client';
@@ -38,6 +39,8 @@ function formatPhone(phone: string) {
 }
 
 function ProfileLangPill() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => profileStyles(colors), [colors]);
   const { lang, setLang } = useI18n();
   const pick = async (l: Lang) => {
     if (l === lang) return;
@@ -72,6 +75,8 @@ function SettingRow({
   onPress?: () => void;
   border?: boolean;
 }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => profileStyles(colors), [colors]);
   return (
     <Pressable
       style={[styles.settingRow, border && styles.settingBorder]}
@@ -89,6 +94,7 @@ function SettingRow({
 
 export default function ProfileScreen() {
   const { colors, isDark, setScheme } = useTheme();
+  const styles = useMemo(() => profileStyles(colors), [colors]);
   const [session, setSession] = useState<Session | null>(null);
   const { t } = useI18n();
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -152,7 +158,7 @@ export default function ProfileScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: colors.bg }]} edges={['top']}>
+    <SafeAreaView style={styles.safe} edges={['top']}>
       <StitchAppHeader />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.hero}>
@@ -191,7 +197,7 @@ export default function ProfileScreen() {
           <SettingRow
             icon="🌙"
             iconBg="rgba(124, 58, 237, 0.2)"
-            label={isDark ? t('dark_mode') : t('light_mode')}
+            label={t('dark_mode')}
             right={
               <Switch
                 value={isDark}
@@ -319,7 +325,8 @@ export default function ProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+function profileStyles(colors: AppColors) {
+  return StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { paddingHorizontal: spacing.lg, paddingBottom: 120 },
   hero: { alignItems: 'center', paddingTop: spacing.md, paddingBottom: spacing.lg },
@@ -585,4 +592,5 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontFamily: fonts.display,
   },
-});
+  });
+}

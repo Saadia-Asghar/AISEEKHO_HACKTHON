@@ -1,5 +1,8 @@
+import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, fonts, radius, shadows, spacing } from '../constants/theme';
+import type { AppColors } from '../constants/theme';
+import { fonts, shadows, spacing } from '../constants/theme';
+import { useTheme } from '../lib/ThemeContext';
 import Button from './ui/Button';
 import Avatar from './Avatar';
 import { useI18n } from '../lib/i18n';
@@ -22,6 +25,9 @@ export default function CheckoutBar({
   disabled,
 }: Props) {
   const { t } = useI18n();
+  const { colors } = useTheme();
+  const styles = useMemo(() => barStyles(colors), [colors]);
+
   return (
     <View style={styles.wrap}>
       <View style={styles.row}>
@@ -50,33 +56,35 @@ export default function CheckoutBar({
   );
 }
 
-const styles = StyleSheet.create({
-  wrap: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.md,
-    backgroundColor: colors.card,
-    borderTopWidth: 1,
-    borderTopColor: colors.border2,
-    gap: spacing.sm,
-    ...shadows.soft,
-  },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  info: { flex: 1 },
-  label: {
-    fontSize: 10,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    color: colors.violetBright,
-    fontFamily: fonts.body,
-  },
-  name: { fontSize: 15, fontWeight: '600', color: colors.text, fontFamily: fonts.body },
-  sub: { fontSize: 11, color: colors.text2, marginTop: 2, fontFamily: fonts.body },
-  estimate: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: colors.jade,
-    fontFamily: fonts.body,
-  },
-});
+function barStyles(colors: AppColors) {
+  return StyleSheet.create({
+    wrap: {
+      paddingHorizontal: spacing.lg,
+      paddingTop: spacing.md,
+      paddingBottom: spacing.md,
+      backgroundColor: colors.card,
+      borderTopWidth: 1,
+      borderTopColor: colors.border2,
+      gap: spacing.sm,
+      ...shadows.soft,
+    },
+    row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+    info: { flex: 1 },
+    label: {
+      fontSize: 10,
+      fontWeight: '700',
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+      color: colors.primaryText,
+      fontFamily: fonts.body,
+    },
+    name: { fontSize: 15, fontWeight: '600', color: colors.text, fontFamily: fonts.body },
+    sub: { fontSize: 11, color: colors.text2, marginTop: 2, fontFamily: fonts.body },
+    estimate: {
+      fontSize: 12,
+      fontWeight: '700',
+      color: colors.jade,
+      fontFamily: fonts.body,
+    },
+  });
+}
