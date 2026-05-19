@@ -7,6 +7,7 @@ import { useBookingStore } from '../lib/store';
 import Avatar from '../components/Avatar';
 import ScoreBar from '../components/ScoreBar';
 import Badge from '../components/ui/Badge';
+import StitchMatchBadge from '../components/stitch/StitchMatchBadge';
 import StitchAppHeader from '../components/stitch/StitchAppHeader';
 import NearbyMap from '../components/NearbyMap';
 import PriceSortChips from '../components/PriceSortChips';
@@ -68,18 +69,14 @@ function ProviderCard({
           <Text style={styles.selectedTagText}>✓ {t('selected')}</Text>
         </View>
       ) : null}
-      {top && !selected ? (
-        <View style={styles.topTag}>
-          <Text style={styles.topTagText}>⭐ Top Match</Text>
-        </View>
-      ) : null}
+      {top ? <StitchMatchBadge pct={98} /> : null}
       {topRated && !top ? (
         <View style={[styles.topTag, styles.topRatedTag]}>
           <Text style={styles.topTagText}>🏆 Top Rated</Text>
         </View>
       ) : null}
       <View style={styles.pcardTopRow}>
-        <Avatar name={provider.name} size={top ? 52 : 48} square />
+        <Avatar name={provider.name} size={top ? 64 : 48} square={!top} />
         <View style={styles.pinfo}>
           <Text style={styles.pname}>{provider.name}</Text>
           <Text style={styles.pmeta}>

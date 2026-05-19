@@ -2,35 +2,32 @@ import { useCallback, useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { colors, fonts, radius, shadows, spacing } from '../../constants/theme';
+import { colors, fonts, radius, spacing } from '../../constants/theme';
 import { clearSession, getSession, type Session } from '../../lib/auth';
 import { useI18n } from '../../lib/i18n';
 import LanguagePicker from '../../components/LanguagePicker';
 import { showToast } from '../../lib/toastStore';
 import Avatar from '../../components/Avatar';
-import Badge from '../../components/ui/Badge';
 import GoogleBadge from '../../components/GoogleBadge';
 import OnboardingModal from '../../components/OnboardingModal';
 import { getUserReviews } from '../../api/client';
 import { HOW_TO_SECTIONS } from '../../constants/guide';
 import GoogleStatusBanner from '../../components/GoogleStatusBanner';
 import StitchAppHeader from '../../components/stitch/StitchAppHeader';
+import StitchGlassCard from '../../components/stitch/StitchGlassCard';
+import StitchSectionLabel from '../../components/stitch/StitchSectionLabel';
 
 type Review = { rating: number; comment?: string; provider_name?: string };
 
-function menuItems(t: (k: string) => string) {
-  return [
-    { icon: '📖', label: t('how_to'), sub: 'Step-by-step', bg: colors.violetSoft, action: 'guide' as const },
-    { icon: '📋', label: t('my_bookings'), sub: t('tab_upcoming'), bg: colors.jadeSoft, route: '/(tabs)/bookings' as const },
-    { icon: '⭐', label: t('my_reviews'), sub: t('reviews'), bg: colors.amberSoft, action: 'reviews' as const },
-    { icon: '💬', label: t('help_support'), sub: 'support@khidmat.ai', bg: 'rgba(59,130,246,0.1)', action: 'help' as const },
-    { icon: '🔒', label: t('privacy'), sub: 'Data & permissions', bg: 'rgba(160,155,192,0.1)', action: 'privacy' as const },
-  ];
-}
+const SETTINGS = [
+  { icon: '🌐', label: 'Language', bg: colors.violetSoft, action: 'lang' as const },
+  { icon: '⭐', label: 'My Reviews', bg: colors.jadeSoft, action: 'reviews' as const },
+  { icon: '❓', label: 'Help & Support', bg: colors.amberSoft, action: 'help' as const },
+];
 
 export default function ProfileScreen() {
   const [session, setSession] = useState<Session | null>(null);
-  const { lang, t } = useI18n();
+  const { t } = useI18n();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [showReviews, setShowReviews] = useState(false);
   const [showHowTo, setShowHowTo] = useState(false);
@@ -52,6 +49,11 @@ export default function ProfileScreen() {
     load();
   }, [load]);
 
+  const avgRating =
+    reviews.length > 0
+      ? (reviews.reduce((a, r) => a + r.rating, 0) / reviews.length).toFixed(1)
+      : '—';
+
   if (!session) {
     return (
       <SafeAreaView style={styles.safe}>
@@ -66,57 +68,83 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <StitchAppHeader />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={styles.screenTitle}>Account</Text>
         <View style={styles.profileHero}>
-          <Avatar name={session.name} size={72} />
-          <Text style={styles.nameHero}>{session.name}</Text>
-          <Text style={styles.subHero}>{session.phone} · Karachi</Text>
-          <View style={styles.badges}>
-            <Badge label={`⭐ ${reviews.length} Reviews`} variant="violet" />
-            <Badge label={`✓ ${t('verified')}`} variant="jade" />
+          <View style={styles.avWrap}>
+            <Avatar name={session.name} size={88} />
+            <View style={styles.editBadge}>
+              <Text style={styles.editIcon}>✎</Text>
+            </View>
           </View>
+          <Text style={styles.nameHero}>{session.name}</Text>
+          <Text style={styles.subHero}>{session.phone}</Text>
         </View>
-        <LanguagePicker />
+
+        <View style={styles.statsRow}>
+          <StitchGlassCard style={styles.statCard}>
+            <Text style={[styles.statN, { color: colors.primaryText }]}>—</Text>
+            <Text style={styles.statL}>BOOKINGS</Text>
+          </StitchGlassCard>
+          <StitchGlassCard style={styles.statCard}>
+            <Text style={[styles.statN, { color: colors.jade }]}>{avgRating}</Text>
+            <Text style={styles.statL}>RATING</Text>
+          </StitchGlassCard>
+        </View>
+
         <GoogleStatusBanner />
-        <View style={styles.navCard}>
-          <Text style={styles.navTitle}>{t('profile_nav')}</Text>
-          <Text style={styles.navRow}>🏠 {t('profile_home')}</Text>
-          <Text style={styles.navRow}>📋 {t('profile_bookings')}</Text>
-          <Text style={styles.navRow}>🧠 {t('profile_trace')}</Text>
-          <Text style={styles.navRow}>👤 {t('profile_account')}</Text>
-        </View>
+        <StitchSectionLabel>Account Settings</StitchSectionLabel>
+        <StitchGlassCard style={styles.settingsCard}>
+          {SETTINGS.map((item, i) => (
+            <Pressable
+              key={item.label}
+              style={[styles.settingRow, i < SETTINGS.length - 1 && styles.settingBorder]}
+              onPress={() => {
+                if (item.action === 'lang') return;
+                if (item.action === 'reviews') setShowReviews((v) => !v);
+                if (item.action === 'help') setShowGuide(true);
+              }}
+            >
+              <View style={[styles.settingIcon, { backgroundColor: item.bg }]}>
+                <Text>{item.icon}</Text>
+              </View>
+              <Text style={styles.settingLabel}>{item.label}</Text>
+              <Text style={styles.settingArrow}>›</Text>
+            </Pressable>
+          ))}
+          <View style={styles.langPad}>
+            <LanguagePicker />
+          </View>
+        </StitchGlassCard>
 
-        <View style={styles.divider} />
+        {showReviews ? (
+          <View style={styles.reviews}>
+            {reviews.length === 0 ? (
+              <Text style={styles.miSmall}>No reviews yet — rate a provider after booking</Text>
+            ) : (
+              reviews.map((r, i) => (
+                <StitchGlassCard key={i} style={styles.reviewCard}>
+                  <Text style={styles.stars}>{'★'.repeat(r.rating)}</Text>
+                  <Text style={styles.miSmall}>{r.provider_name}</Text>
+                  {r.comment ? <Text style={styles.revText}>{r.comment}</Text> : null}
+                </StitchGlassCard>
+              ))
+            )}
+          </View>
+        ) : null}
 
-        {menuItems(t).map((item) => (
-          <Pressable
-            key={item.label}
-            style={styles.menuItem}
-            onPress={async () => {
-              if (item.action === 'guide') {
-                setShowHowTo((v) => !v);
-              } else if (item.route) {
-                router.push(item.route);
-              } else if (item.action === 'reviews') {
-                setShowReviews((v) => !v);
-              } else if (item.action === 'help') {
-                setShowGuide(true);
-              } else if (item.action === 'privacy') {
-                Alert.alert('Privacy', 'Your data stays on device and our secure API.');
-              }
-            }}
-          >
-            <View style={[styles.miIcon, { backgroundColor: item.bg }]}>
-              <Text>{item.icon}</Text>
-            </View>
-            <View style={styles.miText}>
-              <Text style={styles.miStrong}>{item.label}</Text>
-              <Text style={styles.miSmall}>{item.sub}</Text>
-            </View>
-            <Text style={styles.miArrow}>{item.action === 'guide' && showHowTo ? '▼' : '›'}</Text>
-          </Pressable>
-        ))}
+        <Pressable
+          style={styles.logoutBtn}
+          onPress={async () => {
+            await clearSession();
+            router.replace('/auth');
+          }}
+        >
+          <Text style={styles.logoutIcon}>🚪</Text>
+          <Text style={styles.logoutText}>Logout</Text>
+        </Pressable>
 
+        <Pressable onPress={() => setShowHowTo((v) => !v)} style={styles.howLink}>
+          <Text style={styles.howLinkText}>{showHowTo ? '▼' : '▶'} {t('how_to')}</Text>
+        </Pressable>
         {showHowTo ? (
           <View style={styles.howTo}>
             {HOW_TO_SECTIONS.map((sec) => (
@@ -129,43 +157,8 @@ export default function ProfileScreen() {
                 ))}
               </View>
             ))}
-            <Pressable onPress={() => setShowGuide(true)} style={styles.replayBtn}>
-              <Text style={styles.replayText}>▶ Replay welcome tour</Text>
-            </Pressable>
           </View>
         ) : null}
-
-        {showReviews ? (
-          <View style={styles.reviews}>
-            {reviews.length === 0 ? (
-              <Text style={styles.miSmall}>No reviews yet — rate a provider after booking</Text>
-            ) : (
-              reviews.map((r, i) => (
-                <View key={i} style={styles.reviewCard}>
-                  <Text style={styles.stars}>{'★'.repeat(r.rating)}</Text>
-                  <Text style={styles.miSmall}>{r.provider_name}</Text>
-                  {r.comment ? <Text style={styles.revText}>{r.comment}</Text> : null}
-                </View>
-              ))
-            )}
-          </View>
-        ) : null}
-
-        <Pressable
-          style={styles.menuItem}
-          onPress={async () => {
-            await clearSession();
-            router.replace('/auth');
-          }}
-        >
-          <View style={[styles.miIcon, { backgroundColor: colors.roseSoft }]}>
-            <Text>🚪</Text>
-          </View>
-          <View style={styles.miText}>
-            <Text style={[styles.miStrong, { color: colors.rose }]}>Logout</Text>
-          </View>
-          <Text style={[styles.miArrow, { color: colors.rose }]}>›</Text>
-        </Pressable>
 
         <GoogleBadge />
         <Text style={styles.version}>KhidmatAI v2.0 · Karachi, Pakistan</Text>
@@ -177,115 +170,92 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
-  scroll: { paddingBottom: 110, paddingTop: spacing.sm },
-  screenTitle: {
-    fontFamily: fonts.display,
-    fontSize: 24,
-    fontWeight: '600',
-    color: colors.primaryText,
-    paddingHorizontal: spacing.lg,
-    marginBottom: spacing.md,
-  },
-  profileHero: {
+  scroll: { paddingBottom: 110 },
+  profileHero: { alignItems: 'center', paddingVertical: spacing.lg },
+  avWrap: { position: 'relative', marginBottom: spacing.md },
+  editBadge: {
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.primaryText,
     alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 3,
+    borderColor: colors.bg,
+  },
+  editIcon: { fontSize: 14, color: colors.bg, fontWeight: '700' },
+  nameHero: { fontFamily: fonts.display, fontSize: 22, fontWeight: '700', color: colors.text },
+  subHero: { fontSize: 14, color: colors.text2, marginTop: 4, fontFamily: fonts.body },
+  statsRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.lg,
-    marginBottom: spacing.sm,
-  },
-  nameHero: { fontFamily: fonts.display, fontSize: 22, fontWeight: '700', color: colors.text, marginTop: 12 },
-  subHero: { fontSize: 12, color: colors.text2, marginTop: 4, fontFamily: fonts.body },
-  badges: { flexDirection: 'row', gap: 8, marginTop: 12 },
-  navCard: {
-    marginHorizontal: spacing.lg,
     marginBottom: spacing.md,
-    ...shadows.card,
-    padding: spacing.md,
-    backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
   },
-  navTitle: {
+  statCard: { flex: 1, alignItems: 'center', paddingVertical: spacing.md },
+  statN: { fontFamily: fonts.display, fontSize: 28, fontWeight: '700' },
+  statL: {
     fontSize: 11,
     fontWeight: '700',
-    letterSpacing: 0.6,
-    textTransform: 'uppercase',
-    color: colors.text3,
-    marginBottom: 8,
+    letterSpacing: 0.8,
+    color: colors.text2,
+    marginTop: 4,
     fontFamily: fonts.body,
   },
-  navRow: { fontSize: 13, color: colors.text2, marginBottom: 4, fontFamily: fonts.body },
-  langSection: {
-    marginHorizontal: spacing.lg,
-    marginBottom: spacing.md,
-    padding: spacing.md,
-    backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  langSectionTitle: {
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-    color: colors.text3,
-    marginBottom: 8,
-    fontFamily: fonts.body,
-  },
-  divider: { height: 1, backgroundColor: colors.border, marginHorizontal: spacing.lg },
-  menuItem: {
+  settingsCard: { marginHorizontal: spacing.lg, marginBottom: spacing.md, paddingVertical: 4 },
+  settingRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
     paddingVertical: 14,
-    paddingHorizontal: spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    paddingHorizontal: spacing.md,
   },
-  miIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: 11,
+  settingBorder: { borderBottomWidth: 1, borderBottomColor: colors.border },
+  settingIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  miText: { flex: 1 },
-  miStrong: { fontSize: 14, fontWeight: '500', color: colors.text, fontFamily: fonts.body },
-  miSmall: { fontSize: 12, color: colors.text3, marginTop: 2, fontFamily: fonts.body },
-  miArrow: { color: colors.text3, fontSize: 18 },
-  howTo: {
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.md,
+  settingLabel: { flex: 1, fontSize: 15, fontWeight: '500', color: colors.text, fontFamily: fonts.body },
+  settingArrow: { color: colors.text3, fontSize: 18 },
+  langPad: { paddingHorizontal: spacing.md, paddingBottom: spacing.sm },
+  reviews: { paddingHorizontal: spacing.lg, gap: spacing.sm, marginBottom: spacing.md },
+  reviewCard: { padding: spacing.md },
+  stars: { color: colors.amber, marginBottom: 4 },
+  miSmall: { fontSize: 12, color: colors.text3, fontFamily: fonts.body },
+  revText: { color: colors.text2, fontSize: 13, marginTop: 4, fontFamily: fonts.body },
+  logoutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.md,
+    paddingVertical: 16,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border2,
     backgroundColor: colors.surface,
   },
+  logoutIcon: { fontSize: 18 },
+  logoutText: { color: colors.rose, fontWeight: '600', fontSize: 15, fontFamily: fonts.body },
+  howLink: { alignItems: 'center', padding: spacing.md },
+  howLinkText: { color: colors.primaryText, fontWeight: '600', fontFamily: fonts.body },
+  howTo: { paddingHorizontal: spacing.lg, paddingBottom: spacing.md },
   howSection: { marginBottom: spacing.md },
   howTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: colors.violetBright,
+    color: colors.primaryText,
     marginBottom: 6,
     fontFamily: fonts.body,
   },
-  howStep: {
-    fontSize: 13,
-    color: colors.text2,
-    lineHeight: 20,
-    marginBottom: 4,
-    paddingLeft: 4,
-    fontFamily: fonts.body,
-  },
-  replayBtn: { paddingVertical: spacing.sm, alignItems: 'center' },
-  replayText: { color: colors.violetBright, fontWeight: '600', fontSize: 13, fontFamily: fonts.body },
-  reviews: { paddingHorizontal: spacing.lg, paddingBottom: spacing.md },
-  reviewCard: {
-    backgroundColor: colors.card,
-    padding: spacing.md,
-    borderRadius: radius.r,
-    marginBottom: spacing.sm,
-  },
-  stars: { color: colors.amber, marginBottom: 4 },
-  revText: { color: colors.text2, fontSize: 13, marginTop: 4, fontFamily: fonts.body },
+  howStep: { fontSize: 13, color: colors.text2, lineHeight: 20, marginBottom: 4, fontFamily: fonts.body },
   version: { textAlign: 'center', fontSize: 11, color: colors.text3, marginTop: 8, fontFamily: fonts.body },
-  link: { color: colors.violetBright, fontFamily: fonts.body },
+  link: { color: colors.primaryText, fontFamily: fonts.body },
 });

@@ -1,6 +1,8 @@
 /** Tokens extracted from stitch_khidmatai_mobile_service_hub.zip (Stitch HTML exports) */
+/** 1:1 map — folder name in stitch_khidmatai_mobile_service_hub → Expo route */
 export const stitchScreens = {
   login_authentication: 'app/auth.tsx',
+  khidmatai_service_discovery_flow: 'app/auth.tsx',
   home_screen: 'app/(tabs)/index.tsx',
   search_results: 'app/results.tsx',
   detailed_search_results: 'app/results.tsx',

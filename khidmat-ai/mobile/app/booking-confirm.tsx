@@ -125,17 +125,21 @@ export default function BookingConfirmScreen() {
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <StitchAppHeader onBack={() => router.back()} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <View style={styles.successHero}>
-          <Animated.View style={[styles.checkAnim, { transform: [{ scale }] }]}>
-            <Text style={styles.checkMark}>✓</Text>
-          </Animated.View>
-          <Text style={styles.confirmTitle}>{t('confirm_title')}</Text>
-          <Text style={styles.bookingRef}>
-            Code: <Text style={styles.code}>{code}</Text>
-          </Text>
-          <Badge label={`${b.provider_name} · ${b.slot}`} variant="jade" />
+        <Text style={styles.confirmTitle}>{t('confirm_title')}</Text>
+        <Text style={styles.bookingRef}>
+          Booking ID: <Text style={styles.code}>{code}</Text>
+        </Text>
+
+        <View style={styles.quickGrid}>
+          <Pressable style={styles.quickBtn} onPress={setReminder}>
+            <Text style={styles.quickIcon}>🔔</Text>
+            <Text style={styles.quickLabel}>{t('set_reminder')}</Text>
+          </Pressable>
+          <Pressable style={styles.quickBtn} onPress={() => router.push('/(tabs)/trace')}>
+            <Text style={styles.quickIcon}>🎯</Text>
+            <Text style={styles.quickLabel}>{t('view_trace')}</Text>
+          </Pressable>
         </View>
-        <Text style={styles.nextHint}>{t('confirm_next')}</Text>
 
         <View style={styles.card}>
           <View style={styles.detailRow}>
@@ -157,7 +161,8 @@ export default function BookingConfirmScreen() {
         {result.pricing ? <TransparentPricing pricing={result.pricing} /> : null}
 
         <View style={styles.card}>
-          <Text style={styles.reviewTitle}>{t('rate_experience')}</Text>
+          <Text style={styles.reviewTitle}>Experience</Text>
+          <Text style={styles.reviewSub}>How was your booking experience with us?</Text>
           <ReviewTagPicker selected={tags} onChange={setTags} />
           <View style={styles.starRow}>
             {[1, 2, 3, 4, 5].map((n) => (
@@ -186,14 +191,12 @@ export default function BookingConfirmScreen() {
           />
         </View>
 
-        <Button label={`🔔 ${t('set_reminder')}`} variant="outline" onPress={setReminder} style={{ width: '100%' }} />
         <Button
-          label={`🧠 ${t('view_trace')}`}
+          label={`← ${t('back_home')}`}
           variant="outline"
-          onPress={() => router.push('/(tabs)/trace')}
-          style={{ width: '100%', marginTop: 10 }}
+          onPress={() => router.replace('/')}
+          style={{ width: '100%', marginTop: spacing.md }}
         />
-        <Button label={`← ${t('back_home')}`} onPress={() => router.replace('/')} style={{ width: '100%', marginTop: 10 }} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -202,38 +205,30 @@ export default function BookingConfirmScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { padding: spacing.lg, paddingBottom: spacing.xl },
-  successHero: { alignItems: 'center', marginBottom: spacing.lg },
-  checkAnim: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    backgroundColor: colors.jadeSoft,
-    borderWidth: 3,
-    borderColor: colors.jade,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 14,
-  },
-  checkMark: { fontSize: 42, color: colors.jade, fontWeight: '700' },
   confirmTitle: {
     fontFamily: fonts.display,
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '700',
     color: colors.text,
-    marginBottom: 6,
+    marginBottom: 8,
   },
-  bookingRef: { fontSize: 13, color: colors.text2, marginBottom: 10, fontFamily: fonts.body },
-  nextHint: {
-    fontSize: 12,
-    color: colors.text2,
-    textAlign: 'center',
-    marginBottom: spacing.md,
-    lineHeight: 18,
-    fontFamily: fonts.body,
+  bookingRef: { fontSize: 15, color: colors.text2, marginBottom: spacing.lg, fontFamily: fonts.body },
+  quickGrid: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg },
+  quickBtn: {
+    flex: 1,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: spacing.md,
+    alignItems: 'center',
+    gap: 8,
   },
-  code: { color: colors.violetBright, fontWeight: '700', fontFamily: fonts.display },
+  quickIcon: { fontSize: 24 },
+  quickLabel: { fontSize: 12, fontWeight: '600', color: colors.text, textAlign: 'center', fontFamily: fonts.body },
+  code: { color: colors.primaryText, fontWeight: '700', fontFamily: fonts.display },
   card: {
-    backgroundColor: colors.card,
+    backgroundColor: colors.glass,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.lg,
@@ -250,7 +245,8 @@ const styles = StyleSheet.create({
   },
   detailLabel: { fontSize: 13, color: colors.text2, fontFamily: fonts.body },
   detailVal: { fontSize: 13, fontWeight: '500', color: colors.text, fontFamily: fonts.body },
-  reviewTitle: { fontSize: 13, fontWeight: '600', color: colors.text, marginBottom: 12, fontFamily: fonts.body },
+  reviewTitle: { fontSize: 16, fontWeight: '700', color: colors.text, marginBottom: 6, fontFamily: fonts.display },
+  reviewSub: { fontSize: 13, color: colors.text2, marginBottom: spacing.md, fontFamily: fonts.body },
   starRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
   starPick: { fontSize: 30, color: colors.text3 },
   starOn: { color: colors.amber },

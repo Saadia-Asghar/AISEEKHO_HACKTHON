@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { StyleSheet, View, type ViewStyle } from 'react-native';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { colors, radius } from '../../constants/theme';
 
 export default function StitchGlassCard({
@@ -7,7 +7,7 @@ export default function StitchGlassCard({
   style,
 }: {
   children: ReactNode;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
 }) {
   return <View style={[styles.card, style]}>{children}</View>;
 }
