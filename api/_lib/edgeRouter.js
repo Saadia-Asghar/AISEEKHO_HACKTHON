@@ -1,5 +1,6 @@
 const { runDiscover } = require('./orchestrateDiscover');
 const { sendOtp, verifyOtp } = require('./edgeAuth');
+const providers = require('../data/providers.json');
 
 function upstreamBase() {
   const raw =
@@ -50,6 +51,57 @@ function sendJson(res, status, data) {
   res.json(data);
 }
 
+function getHourFromReq(req) {
+  const raw = req?.query?.hour;
+  const val = Array.isArray(raw) ? raw[0] : raw;
+  const n = Number(val);
+  if (Number.isFinite(n) && n >= 0 && n <= 23) return n;
+  return new Date().getHours();
+}
+
+function buildSuggestions(hour) {
+  const morning = [
+    { service_type: 'cleaner', label: 'Cleaner' },
+    { service_type: 'plumber', label: 'Plumber' },
+    { service_type: 'electrician', label: 'Electrician' },
+  ];
+  const evening = [
+    { service_type: 'ac_technician', label: 'AC Technician' },
+    { service_type: 'tutor', label: 'Home Tutor' },
+    { service_type: 'beautician', label: 'Beautician' },
+  ];
+  return hour < 14 ? morning : evening;
+}
+
+function toProviderSummary(p, lat, lng) {
+  const d =
+    lat == null || lng == null
+      ? null
+      : Math.round(
+          10 *
+            (Math.acos(
+              Math.sin((lat * Math.PI) / 180) * Math.sin((p.lat * Math.PI) / 180) +
+                Math.cos((lat * Math.PI) / 180) *
+                  Math.cos((p.lat * Math.PI) / 180) *
+                  Math.cos(((p.lng - lng) * Math.PI) / 180),
+            ) * 6371),
+        ) / 10;
+  return {
+    id: p.id,
+    name: p.name,
+    rating: p.rating,
+    distance_km: d ?? 0,
+    phone: p.phone,
+    area: p.area,
+    category: p.category,
+    price_min_pkr: p.price_min_pkr,
+    price_max_pkr: p.price_max_pkr,
+    verified: !!p.verified,
+    lat: p.lat,
+    lng: p.lng,
+  };
+}
+
 /** Vercel edge handlers (no Render). Returns true if handled. */
 async function handleEdgeApi(pathPart, req, res) {
   if (req.method === 'OPTIONS') {
@@ -67,6 +119,72 @@ async function handleEdgeApi(pathPart, req, res) {
     } catch (e) {
       sendJson(res, 404, { detail: e instanceof Error ? e.message : String(e) });
     }
+    return true;
+  }
+
+  if (pathPart === 'suggestions' && req.method === 'GET') {
+    const hour = getHourFromReq(req);
+    sendJson(res, 200, { suggestions: buildSuggestions(hour) });
+    return true;
+  }
+
+  if (pathPart === 'google/status' && req.method === 'GET') {
+    sendJson(res, 200, {
+      gemini_configured: !!(process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY),
+      maps_configured: !!process.env.GOOGLE_MAPS_API_KEY,
+    });
+    return true;
+  }
+
+  if (/^users\/[^/]+\/contacted$/.test(pathPart) && req.method === 'GET') {
+    sendJson(res, 200, { contacted: [] });
+    return true;
+  }
+
+  if (pathPart === 'services/categories' && req.method === 'GET') {
+    const map = new Map();
+    for (const p of providers) {
+      const key = p.category;
+      if (!map.has(key)) {
+        map.set(key, {
+          id: key,
+          label: key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+          emoji: '🔧',
+          provider_count: 0,
+          price_min_pkr: p.price_min_pkr ?? 1000,
+          price_max_pkr: p.price_max_pkr ?? 5000,
+          search_template_en: `Need ${key.replace(/_/g, ' ')} in {area}`,
+          search_template_ur: `{area} mein ${key.replace(/_/g, ' ')} chahiye`,
+        });
+      }
+      const row = map.get(key);
+      row.provider_count += 1;
+      row.price_min_pkr = Math.min(row.price_min_pkr, p.price_min_pkr ?? row.price_min_pkr);
+      row.price_max_pkr = Math.max(row.price_max_pkr, p.price_max_pkr ?? row.price_max_pkr);
+    }
+    const categories = Array.from(map.values());
+    sendJson(res, 200, { categories, total_providers: providers.length });
+    return true;
+  }
+
+  if (pathPart === 'providers/list' && req.method === 'GET') {
+    const category = String(req.query?.category || '').trim();
+    const area = String(req.query?.area || '').trim().toUpperCase();
+    const limitRaw = Number(req.query?.limit);
+    const lat = req.query?.lat != null ? Number(req.query.lat) : null;
+    const lng = req.query?.lng != null ? Number(req.query.lng) : null;
+    const limit = Number.isFinite(limitRaw) ? Math.max(1, Math.min(100, limitRaw)) : 50;
+    const filtered = providers
+      .filter((p) => (!category ? true : (p.categories || [p.category]).includes(category)))
+      .filter((p) => (!area ? true : String(p.area || '').toUpperCase() === area))
+      .slice(0, limit)
+      .map((p) => toProviderSummary(p, lat, lng));
+    sendJson(res, 200, {
+      category: category || 'all',
+      area: area || 'ALL',
+      count: filtered.length,
+      providers: filtered,
+    });
     return true;
   }
 

@@ -102,9 +102,9 @@ export default function HomeScreen() {
       setInput(text);
       if (autoSubmit === '1' && text.trim()) setTimeout(() => runSearch(text), 500);
     }
-    getSuggestions(new Date().getHours()).then((sug) =>
-      setHighlight(new Set(sug.map((x) => x.service_type.replace(/_/g, ' '))))
-    );
+    getSuggestions(new Date().getHours())
+      .then((sug) => setHighlight(new Set(sug.map((x) => x.service_type.replace(/_/g, ' ')))))
+      .catch(() => setHighlight(new Set()));
     const loop = Animated.loop(
       Animated.sequence([
         Animated.timing(pulse, { toValue: 1.12, duration: voicePhase === 'listening' ? 700 : 1400, useNativeDriver: true }),
