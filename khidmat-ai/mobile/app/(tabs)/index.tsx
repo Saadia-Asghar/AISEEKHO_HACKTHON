@@ -39,6 +39,7 @@ import { hasSeenOnboarding } from '../../lib/onboarding';
 import { showToast } from '../../lib/toastStore';
 import StitchAppHeader from '../../components/stitch/StitchAppHeader';
 import { HeaderActions } from '../../components/NotificationBell';
+import { goToProfileTab } from '../../lib/navigation';
 import StitchSearchBox, { StitchSearchActions } from '../../components/stitch/StitchSearchBox';
 import StitchChipScroll from '../../components/stitch/StitchChipScroll';
 import StitchSectionLabel from '../../components/stitch/StitchSectionLabel';
@@ -239,7 +240,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <StitchAppHeader right={<HeaderActions onSettings={() => router.push('/(tabs)/profile')} />} />
+      <StitchAppHeader right={<HeaderActions onSettings={goToProfileTab} />} />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView
           contentContainerStyle={styles.scroll}

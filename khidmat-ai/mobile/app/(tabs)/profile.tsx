@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+  ActivityIndicator,
   Modal,
   Pressable,
   ScrollView,
@@ -10,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Redirect, router } from 'expo-router';
+import { Redirect, router, useFocusEffect } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import type { AppColors } from '../../constants/theme';
 import { fonts, gradients, radius, spacing } from '../../constants/theme';
@@ -96,6 +97,7 @@ export default function ProfileScreen() {
   const { colors, isDark, setScheme } = useTheme();
   const styles = useMemo(() => profileStyles(colors), [colors]);
   const [session, setSession] = useState<Session | null>(null);
+  const [sessionReady, setSessionReady] = useState(false);
   const { t } = useI18n();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [bookingsCount, setBookingsCount] = useState<number | null>(null);
@@ -110,6 +112,7 @@ export default function ProfileScreen() {
   const load = useCallback(async () => {
     const s = await getSession();
     setSession(s);
+    setSessionReady(true);
     if (!s) return;
     try {
       const [revs, bookings] = await Promise.all([
@@ -124,9 +127,12 @@ export default function ProfileScreen() {
     }
   }, []);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  useFocusEffect(
+    useCallback(() => {
+      setSessionReady(false);
+      void load();
+    }, [load]),
+  );
 
   useEffect(() => {
     if (session) {
@@ -167,6 +173,17 @@ export default function ProfileScreen() {
       setLoggingOut(false);
     }
   };
+
+  if (!sessionReady) {
+    return (
+      <SafeAreaView style={styles.safe} edges={['top']}>
+        <StitchAppHeader />
+        <View style={styles.loadingWrap}>
+          <ActivityIndicator size="large" color={colors.primaryText} />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   if (!session) {
     return <Redirect href="/auth" />;
@@ -405,6 +422,7 @@ export default function ProfileScreen() {
 function profileStyles(colors: AppColors) {
   return StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
+  loadingWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', minHeight: 200 },
   scroll: { paddingHorizontal: spacing.lg, paddingBottom: 120 },
   hero: { alignItems: 'center', paddingTop: spacing.md, paddingBottom: spacing.lg },
   avatarWrap: { position: 'relative', marginBottom: spacing.md },

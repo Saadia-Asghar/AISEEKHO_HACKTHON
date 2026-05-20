@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
+import { goToProfileTab } from '../lib/navigation';
 import { fonts, radius } from '../constants/theme';
 import { useTheme } from '../lib/ThemeContext';
 import { useAppNotifications } from '../lib/appNotifications';
@@ -42,18 +43,17 @@ export default function NotificationBell({ size = 'md' }: { size?: 'sm' | 'md' }
 
 /** Bell + optional settings for app headers */
 export function HeaderActions({ onSettings }: { onSettings?: () => void }) {
+  const openSettings = onSettings ?? goToProfileTab;
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
       <NotificationBell />
-      {onSettings ? (
-        <Pressable
-          onPress={onSettings}
-          style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
-          accessibilityLabel="Settings"
-        >
-          <Text style={{ fontSize: 20 }}>⚙️</Text>
-        </Pressable>
-      ) : null}
+      <Pressable
+        onPress={openSettings}
+        style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
+        accessibilityLabel="Settings"
+      >
+        <Text style={{ fontSize: 20 }}>⚙️</Text>
+      </Pressable>
     </View>
   );
 }

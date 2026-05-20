@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Redirect, Tabs } from 'expo-router';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, StyleSheet, Text, View } from 'react-native';
 import { getSessionSafe } from '../../lib/authBootstrap';
 import { onAuthChange } from '../../lib/authEvents';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -49,7 +49,13 @@ export default function TabLayout() {
     return onAuthChange(check);
   }, []);
 
-  if (hasSession === null) return null;
+  if (hasSession === null) {
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator size="large" color={colors.primaryText} />
+      </View>
+    );
+  }
   if (!hasSession) return <Redirect href="/auth" />;
 
   const tabBarStyle = {

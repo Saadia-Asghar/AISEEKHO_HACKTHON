@@ -87,7 +87,7 @@ export const EXAMPLE_PHRASES = [
 export const NAV_SHORTCUTS = [
   { icon: '📋', label: 'Bookings', route: '/(tabs)/bookings' },
   { icon: '🧠', label: 'AI Trace', route: '/(tabs)/trace' },
-  { icon: '📖', label: 'Help', route: '/(tabs)/profile' },
+  { icon: '📖', label: 'Help', route: '/profile' },
 ] as const;
 
 export const BOOKING_FLOW = [
