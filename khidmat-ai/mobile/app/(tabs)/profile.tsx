@@ -42,7 +42,7 @@ function formatPhone(phone: string) {
 function ProfileLangPill() {
   const { colors } = useTheme();
   const styles = useMemo(() => profileStyles(colors), [colors]);
-  const { lang, setLang } = useI18n();
+  const { lang, setLang, t } = useI18n();
   const pick = async (l: Lang) => {
     if (l === lang) return;
     await setLang(l);
@@ -51,11 +51,11 @@ function ProfileLangPill() {
   return (
     <View style={styles.langPill}>
       <Pressable onPress={() => pick('en')} hitSlop={6}>
-        <Text style={[styles.langOpt, lang === 'en' && styles.langOptActive]}>English</Text>
+        <Text style={[styles.langOpt, lang === 'en' && styles.langOptActive]}>{t('lang_english')}</Text>
       </Pressable>
       <Text style={styles.langSep}>/</Text>
       <Pressable onPress={() => pick('ur')} hitSlop={6}>
-        <Text style={[styles.langOpt, lang === 'ur' && styles.langOptActive]}>Urdu</Text>
+        <Text style={[styles.langOpt, lang === 'ur' && styles.langOptActive]}>{t('lang_urdu')}</Text>
       </Pressable>
     </View>
   );
@@ -168,7 +168,7 @@ export default function ProfileScreen() {
       await logout();
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } catch {
-      showToast('Could not log out — try again');
+      showToast(t('could_not_logout'));
     } finally {
       setLoggingOut(false);
     }
@@ -209,20 +209,20 @@ export default function ProfileScreen() {
         <View style={styles.statsRow}>
           <StitchGlassCard style={styles.statCard}>
             <Text style={[styles.statN, { color: colors.primaryText }]}>{bookingsDisplay}</Text>
-            <Text style={styles.statL}>Bookings</Text>
+            <Text style={styles.statL}>{t('stat_bookings')}</Text>
           </StitchGlassCard>
           <StitchGlassCard style={styles.statCard}>
             <Text style={[styles.statN, { color: colors.jade }]}>{avgRating}</Text>
-            <Text style={styles.statL}>Rating</Text>
+            <Text style={styles.statL}>{t('stat_rating')}</Text>
           </StitchGlassCard>
         </View>
 
-        <Text style={styles.sectionLabel}>Account Settings</Text>
+        <Text style={styles.sectionLabel}>{t('account_settings')}</Text>
         <StitchGlassCard style={styles.menuCard}>
           <SettingRow
             icon="🌐"
             iconBg="rgba(124, 58, 237, 0.2)"
-            label="Language"
+            label={t('language')}
             right={<ProfileLangPill />}
             border
           />
@@ -246,21 +246,21 @@ export default function ProfileScreen() {
           <SettingRow
             icon="🔔"
             iconBg="rgba(236, 106, 6, 0.2)"
-            label="Notifications"
+            label={t('notifications_title')}
             onPress={() => router.push('/notifications')}
             border
           />
           <SettingRow
             icon="💳"
             iconBg="rgba(124, 58, 237, 0.2)"
-            label="Payment Methods"
+            label={t('payment_methods')}
             onPress={() => router.push('/payment-methods')}
             border
           />
           <SettingRow
             icon="⭐"
             iconBg="rgba(0, 118, 80, 0.25)"
-            label="My Reviews"
+            label={t('my_reviews')}
             onPress={() => setShowReviews((v) => !v)}
             right={<Text style={styles.chevron}>{showReviews ? '▼' : '›'}</Text>}
             border
@@ -268,14 +268,14 @@ export default function ProfileScreen() {
           <SettingRow
             icon="❓"
             iconBg="rgba(236, 106, 6, 0.2)"
-            label="Help & Support"
+            label={t('help_support')}
             onPress={() => setShowGuide(true)}
             border
           />
           <SettingRow
             icon="📄"
             iconBg="rgba(124, 58, 237, 0.2)"
-            label="Terms of Service"
+            label={t('terms_of_service')}
             onPress={() => router.push('/legal/terms')}
           />
         </StitchGlassCard>
@@ -298,21 +298,21 @@ export default function ProfileScreen() {
 
         <Pressable style={styles.actionCard} onPress={() => setShowLogoutModal(true)}>
           <Text style={styles.logoutIcon}>🚪</Text>
-          <Text style={styles.logoutText}>Logout</Text>
+          <Text style={styles.logoutText}>{t('logout')}</Text>
         </Pressable>
 
         <Pressable style={styles.deleteCard} onPress={() => setShowDeleteModal(true)}>
           <Text style={styles.deleteIcon}>🗑️</Text>
-          <Text style={styles.deleteText}>Delete Account</Text>
+          <Text style={styles.deleteText}>{t('delete_account')}</Text>
         </Pressable>
 
-        <Text style={styles.footer}>Powered by Google</Text>
+        <Text style={styles.footer}>{t('powered_by_google')}</Text>
       </ScrollView>
 
       <Pressable
         style={styles.fab}
         onPress={() => router.push('/')}
-        accessibilityLabel="Voice search"
+        accessibilityLabel={t('voice_search')}
       >
         <LinearGradient colors={[...gradients.violet]} style={styles.fabGrad}>
           <Text style={styles.fabIcon}>🎤</Text>
@@ -324,8 +324,8 @@ export default function ProfileScreen() {
       <Modal visible={showAvatarModal} transparent animationType="slide" onRequestClose={() => setShowAvatarModal(false)}>
         <Pressable style={styles.modalBackdrop} onPress={() => setShowAvatarModal(false)}>
           <Pressable style={[styles.modalCard, { paddingVertical: spacing.lg }]} onPress={(e) => e.stopPropagation()}>
-            <Text style={styles.modalTitle}>Choose Avatar Style</Text>
-            <Text style={[styles.modalBody, { marginBottom: spacing.md }]}>Select a matching profile theme color.</Text>
+            <Text style={styles.modalTitle}>{t('choose_avatar_style')}</Text>
+            <Text style={[styles.modalBody, { marginBottom: spacing.md }]}>{t('choose_avatar_sub')}</Text>
             
             <View style={{ flexDirection: 'row', gap: spacing.md, marginVertical: spacing.md, justifyContent: 'center', alignItems: 'center' }}>
               <Pressable 
@@ -357,7 +357,7 @@ export default function ProfileScreen() {
             </View>
 
             <Pressable style={[styles.modalCancelBtn, { marginTop: spacing.md }]} onPress={() => setShowAvatarModal(false)}>
-              <Text style={styles.modalCancelLabel}>Cancel</Text>
+              <Text style={styles.modalCancelLabel}>{t('cancel')}</Text>
             </Pressable>
           </Pressable>
         </Pressable>
@@ -388,10 +388,8 @@ export default function ProfileScreen() {
             <View style={styles.modalIconWrap}>
               <Text style={styles.modalWarn}>⚠️</Text>
             </View>
-            <Text style={styles.modalTitle}>Delete Account?</Text>
-            <Text style={styles.modalBody}>
-              This action is permanent and cannot be undone. All your bookings and data will be lost.
-            </Text>
+            <Text style={styles.modalTitle}>{t('delete_account_title')}</Text>
+            <Text style={styles.modalBody}>{t('delete_account_body')}</Text>
             <Pressable
               style={styles.modalDeleteBtn}
               onPress={async () => {
@@ -400,17 +398,17 @@ export default function ProfileScreen() {
                 try {
                   await deleteUserAccount(session.userId);
                   setSession(null);
-                  showToast('Account deleted');
+                  showToast(t('account_deleted'));
                   await logout();
                 } catch {
-                  showToast('Could not delete account');
+                  showToast(t('could_not_delete'));
                 }
               }}
             >
-              <Text style={styles.modalDeleteLabel}>Delete</Text>
+              <Text style={styles.modalDeleteLabel}>{t('delete_confirm')}</Text>
             </Pressable>
             <Pressable style={styles.modalCancelBtn} onPress={() => setShowDeleteModal(false)}>
-              <Text style={styles.modalCancelLabel}>Cancel</Text>
+              <Text style={styles.modalCancelLabel}>{t('cancel')}</Text>
             </Pressable>
           </Pressable>
         </Pressable>

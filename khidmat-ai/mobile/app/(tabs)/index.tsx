@@ -249,9 +249,9 @@ export default function HomeScreen() {
         >
           <View style={styles.greet}>
             <Text style={styles.greetTitle}>
-              Assalamu Alaikum 👋 {name}
+              {t('greet_hi')} {name}
             </Text>
-            <Text style={styles.greetSub}>How can I assist you with your home today?</Text>
+            <Text style={styles.greetSub}>{t('greet_sub')}</Text>
           </View>
 
           <View style={styles.micSection}>
@@ -298,7 +298,7 @@ export default function HomeScreen() {
             {voiceLiveText || voicePhase === 'listening' ? (
               <View style={styles.voicePreview}>
                 <Text style={styles.voicePreviewLabel}>
-                  {voicePhase === 'listening' ? t('listening') : 'You said'}
+                  {voicePhase === 'listening' ? t('listening') : t('you_said')}
                 </Text>
                 <Text style={styles.voicePreviewText}>
                   {voiceLiveText || input || '…'}
@@ -313,7 +313,7 @@ export default function HomeScreen() {
                 voiceDraftRef.current = t;
                 if (voicePhase === 'listening') setVoiceLiveText(t);
               }}
-              placeholder="Describe what you need help with..."
+              placeholder={t('home_search_placeholder')}
               onFocus={() => setSearchFocused(true)}
               onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
               editable={!loading && voicePhase !== 'transcribing'}
@@ -351,7 +351,7 @@ export default function HomeScreen() {
             <SearchFilterDropdown value={searchFilters} onChange={setSearchFilters} />
           </View>
 
-          <StitchSectionLabel>Popular Services</StitchSectionLabel>
+          <StitchSectionLabel>{t('popular')}</StitchSectionLabel>
           <StitchChipScroll
             chips={chipItems}
             onSelect={(chip) => {
@@ -362,7 +362,7 @@ export default function HomeScreen() {
 
           {recent.length > 0 ? (
             <>
-              <StitchSectionLabel>Recent Searches</StitchSectionLabel>
+              <StitchSectionLabel>{t('recent_searches')}</StitchSectionLabel>
               <View style={styles.recentWrap}>
                 {recent.slice(0, 4).map((r) => (
                   <Pressable key={r} style={styles.recentPill} onPress={() => runSearch(r)}>

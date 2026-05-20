@@ -5,8 +5,8 @@ import { getSessionSafe } from '../../lib/authBootstrap';
 import { onAuthChange } from '../../lib/authEvents';
 import { MaterialIcons } from '@expo/vector-icons';
 import { fonts, radius, shadows, spacing } from '../../constants/theme';
-import { TAB_HINTS } from '../../constants/guide';
 import { useTheme } from '../../lib/ThemeContext';
+import { useI18n } from '../../lib/i18n';
 
 const TAB_ICONS: Record<string, keyof typeof MaterialIcons.glyphMap> = {
   Home: 'home',
@@ -15,10 +15,35 @@ const TAB_ICONS: Record<string, keyof typeof MaterialIcons.glyphMap> = {
   Profile: 'person',
 };
 
-function TabIcon({ label, focused }: { label: string; focused: boolean }) {
+type TabKey = 'home' | 'bookings' | 'trace' | 'profile';
+
+const TAB_LABEL_KEY: Record<TabKey, 'tab_home' | 'tab_bookings' | 'tab_trace' | 'tab_profile'> = {
+  home: 'tab_home',
+  bookings: 'tab_bookings',
+  trace: 'tab_trace',
+  profile: 'tab_profile',
+};
+
+const TAB_HINT_KEY: Record<TabKey, 'tab_hint_home' | 'tab_hint_bookings' | 'tab_hint_trace' | 'tab_hint_profile'> = {
+  home: 'tab_hint_home',
+  bookings: 'tab_hint_bookings',
+  trace: 'tab_hint_trace',
+  profile: 'tab_hint_profile',
+};
+
+const TAB_ICON_KEY: Record<TabKey, keyof typeof TAB_ICONS> = {
+  home: 'Home',
+  bookings: 'Bookings',
+  trace: 'Trace',
+  profile: 'Profile',
+};
+
+function TabIcon({ tab, focused }: { tab: TabKey; focused: boolean }) {
   const { colors } = useTheme();
-  const hint = TAB_HINTS[label] || '';
-  const iconName = TAB_ICONS[label] ?? 'circle';
+  const { t } = useI18n();
+  const label = t(TAB_LABEL_KEY[tab]);
+  const hint = t(TAB_HINT_KEY[tab]);
+  const iconName = TAB_ICONS[TAB_ICON_KEY[tab]] ?? 'circle';
   const styles = makeTabStyles(colors);
 
   return (
@@ -41,6 +66,7 @@ function TabIcon({ label, focused }: { label: string; focused: boolean }) {
 
 export default function TabLayout() {
   const { colors } = useTheme();
+  const { t } = useI18n();
   const [hasSession, setHasSession] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -77,29 +103,29 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ focused }) => <TabIcon label="Home" focused={focused} />,
+          title: t('tab_home'),
+          tabBarIcon: ({ focused }) => <TabIcon tab="home" focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="bookings"
         options={{
-          title: 'Bookings',
-          tabBarIcon: ({ focused }) => <TabIcon label="Bookings" focused={focused} />,
+          title: t('tab_bookings'),
+          tabBarIcon: ({ focused }) => <TabIcon tab="bookings" focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="trace"
         options={{
-          title: 'Trace',
-          tabBarIcon: ({ focused }) => <TabIcon label="Trace" focused={focused} />,
+          title: t('tab_trace'),
+          tabBarIcon: ({ focused }) => <TabIcon tab="trace" focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
-          tabBarIcon: ({ focused }) => <TabIcon label="Profile" focused={focused} />,
+          title: t('tab_profile'),
+          tabBarIcon: ({ focused }) => <TabIcon tab="profile" focused={focused} />,
         }}
       />
     </Tabs>
