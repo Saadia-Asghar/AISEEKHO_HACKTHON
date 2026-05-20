@@ -20,20 +20,22 @@ export function isProductionWeb(): boolean {
   return host !== 'localhost' && host !== '127.0.0.1';
 }
 
-/** Vercel hosts the static app; /api/* is proxied via repo `api/` serverless routes. */
+/** Deployed web (Vercel, etc.): AI runs on same origin `/api/*` — never call Render from the browser. */
 export function useHostedWebApiProxy(): boolean {
-  if (!isProductionWeb() || typeof window === 'undefined') return false;
-  const host = window.location.hostname;
-  return host.endsWith('.vercel.app') || host === 'aiseekho-hackthon.vercel.app';
+  return isProductionWeb();
 }
 
 /** Public API base URL (no trailing slash). */
 export function getApiBaseUrl(): string {
-  if (useHostedWebApiProxy()) {
+  if (useHostedWebApiProxy() && typeof window !== 'undefined') {
     return window.location.origin.replace(/\/$/, '');
   }
   let url = readEnvApiUrl();
-  if (!url && isProductionWeb()) {
+  // Native / local only — do not default production web to Render (that host is often down).
+  if (!url && !isProductionWeb()) {
+    url = DEFAULT_LOCAL;
+  }
+  if (!url && Platform.OS !== 'web') {
     url = DEFAULT_PRODUCTION_API;
   }
   if (!url) url = DEFAULT_LOCAL;

@@ -31,6 +31,8 @@ Then **Deployments** → **Redeploy**.
 
 Test: `https://aiseekho-hackthon.vercel.app/health` → JSON `"mode": "vercel-edge"`, `"agents": 6`.
 
+**If search shows Render URL (`khidmatai-api.onrender.com`):** remove `EXPO_PUBLIC_API_URL` from Vercel env (or leave empty), push latest code, **Redeploy**. The live bundle was built to call Render, which is not running.
+
 ## 4. Verify build log
 
 You should see:

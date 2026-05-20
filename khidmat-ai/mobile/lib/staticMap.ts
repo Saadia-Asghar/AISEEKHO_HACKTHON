@@ -3,8 +3,6 @@ import type { MapMarker } from '../api/client';
 
 import { getApiBaseUrl } from './apiConfig';
 
-const apiBase = getApiBaseUrl();
-
 const MAP_W = 640;
 const MAP_H = 400;
 
@@ -65,7 +63,7 @@ export async function fetchGoogleStaticMapFromApi(
   if (!markers.length) return null;
   try {
     const { data } = await axios.post<{ url: string }>(
-      `${apiBase}/api/maps/static`,
+      `${getApiBaseUrl()}/api/maps/static`,
       {
         markers,
         user_lat: userLat,
