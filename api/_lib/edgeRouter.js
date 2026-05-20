@@ -89,13 +89,24 @@ async function handleEdgeApi(pathPart, req, res) {
 }
 
 async function handleApi(pathPart, req, res) {
+  const normalizedPath = String(pathPart || '').replace(/^\/+|\/+$/g, '');
+
+  // Some clients probe /api or /api/; keep this healthy.
+  if (!normalizedPath) {
+    return sendJson(res, 200, {
+      ok: true,
+      mode: useRenderProxy() ? 'render-proxy-or-edge' : 'edge',
+      routes: ['discover', 'auth/send-otp', 'auth/verify', 'health'],
+    });
+  }
+
   if (useRenderProxy()) {
-    const upstream = await tryUpstream(pathPart, req);
+    const upstream = await tryUpstream(normalizedPath, req);
     if (upstream && !upstream.error) {
       sendUpstream(res, upstream);
       return;
     }
-    const edgeHandled = await handleEdgeApi(pathPart, req, res);
+    const edgeHandled = await handleEdgeApi(normalizedPath, req, res);
     if (edgeHandled) return;
 
     if (upstream?.error) {
@@ -104,15 +115,15 @@ async function handleApi(pathPart, req, res) {
       });
     }
     return sendJson(res, 502, {
-      detail: `Render returned an error for /api/${pathPart}. Check ${upstreamBase()}/health — or unset KHIDMAT_USE_RENDER to use Vercel edge AI only.`,
+      detail: `Render returned an error for /api/${normalizedPath}. Check ${upstreamBase()}/health — or unset KHIDMAT_USE_RENDER to use Vercel edge AI only.`,
       upstream_status: upstream?.status,
     });
   }
 
-  if (await handleEdgeApi(pathPart, req, res)) return;
+  if (await handleEdgeApi(normalizedPath, req, res)) return;
 
   return sendJson(res, 404, {
-    detail: `Unknown route /api/${pathPart}. For full backend set KHIDMAT_USE_RENDER=1 and a live KHIDMAT_API_UPSTREAM.`,
+    detail: `Unknown route /api/${normalizedPath}. For full backend set KHIDMAT_USE_RENDER=1 and a live KHIDMAT_API_UPSTREAM.`,
   });
 }
 
