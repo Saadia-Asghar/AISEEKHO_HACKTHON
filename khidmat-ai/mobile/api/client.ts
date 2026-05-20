@@ -1,8 +1,9 @@
 import axios, { AxiosError } from 'axios';
 import { router } from 'expo-router';
 import { getSession, clearSession } from '../lib/auth';
+import { assertApiReachable, formatApiNetworkError, getApiBaseUrl } from '../lib/apiConfig';
 
-const baseURL = process.env.EXPO_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+const baseURL = getApiBaseUrl();
 
 export const api = axios.create({
   baseURL,
@@ -157,9 +158,11 @@ export type OrchestrateResult = DiscoverResult & {
 function parseErr(err: unknown): string {
   if (axios.isAxiosError(err)) {
     const d = err.response?.data as { detail?: string };
-    return d?.detail || err.message || 'Connection error — tap to retry';
+    if (d?.detail) return d.detail;
+    if (!err.response) return formatApiNetworkError(err);
+    return err.message || 'Connection error — tap to retry';
   }
-  return err instanceof Error ? err.message : 'Connection error — tap to retry';
+  return formatApiNetworkError(err);
 }
 
 export type DiscoverOpts = {
@@ -424,6 +427,7 @@ export async function getProvider(id: string, userId?: string) {
 }
 
 export async function sendOtp(phone: string) {
+  assertApiReachable();
   const { data } = await api.post<{ phone: string; message: string; demo_otp?: string; twilio?: boolean }>(
     '/api/auth/send-otp',
     { phone }
@@ -432,6 +436,7 @@ export async function sendOtp(phone: string) {
 }
 
 export async function verifyAuth(phone: string, otp: string, name?: string) {
+  assertApiReachable();
   const { data } = await api.post<{ user_id: string; token: string; name: string }>('/api/auth/verify', {
     phone,
     otp,
@@ -445,6 +450,7 @@ export async function syncClerkUser(body: {
   display_name: string;
   phone?: string;
 }) {
+  assertApiReachable();
   const { data } = await api.post<{
     user_id: string;
     token: string;

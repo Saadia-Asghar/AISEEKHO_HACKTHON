@@ -1,7 +1,9 @@
 import axios from 'axios';
 import type { MapMarker } from '../api/client';
 
-const apiBase = process.env.EXPO_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+import { getApiBaseUrl } from './apiConfig';
+
+const apiBase = getApiBaseUrl();
 
 const MAP_W = 640;
 const MAP_H = 400;

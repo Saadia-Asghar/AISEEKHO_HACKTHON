@@ -95,11 +95,22 @@ function AuthScreenBody({
           setError('Clerk is loading — wait a moment');
           return;
         }
-        await clerkOtp.sendCode(phone);
-        setAuthMode('clerk');
-        setStep('otp');
-        setDigits('');
-        showToast(t('otp_sent_sms'));
+        try {
+          await clerkOtp.sendCode(phone);
+          setAuthMode('clerk');
+          setStep('otp');
+          setDigits('');
+          showToast(t('otp_sent_sms'));
+        } catch (clerkErr) {
+          const res = await sendOtp(phone);
+          setAuthMode('demo');
+          setStep('otp');
+          setDigits('');
+          showToast(res.twilio ? t('otp_sent_sms') : `${t('demo_code')} 1234`);
+          setError(
+            `Clerk SMS unavailable (${clerkErrorMessage(clerkErr)}). Use demo code 1234 below.`,
+          );
+        }
       } else {
         const res = await sendOtp(phone);
         setAuthMode('demo');

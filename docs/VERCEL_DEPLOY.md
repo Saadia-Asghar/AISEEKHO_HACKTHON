@@ -21,7 +21,7 @@ Set in Vercel → **Settings** → **Environment Variables** → apply to **Prod
 
 | Name | Example | Required |
 |------|---------|----------|
-| `EXPO_PUBLIC_API_URL` | `https://khidmatai-api.onrender.com` | **Yes** — backend URL |
+| `EXPO_PUBLIC_API_URL` | `https://khidmatai-api.onrender.com` | **Yes** — without this, auth shows **Network Error** (app tries `127.0.0.1`) |
 | `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` | `pk_test_...` | Optional — real SMS OTP; omit for demo `1234` |
 
 Then **Deployments** → latest → **Redeploy** (must rebuild after changing env vars).
