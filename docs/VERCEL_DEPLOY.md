@@ -22,8 +22,10 @@ Set in Vercel → **Settings** → **Environment Variables** → **Production** 
 | Name | Example | Required |
 |------|---------|----------|
 | `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` | `pk_test_...` | Optional — real SMS OTP; omit for demo `1234` |
-| `KHIDMAT_USE_RENDER` | `1` | Optional — only if you deploy FastAPI on Render and want bookings/DB there |
-| `KHIDMAT_API_UPSTREAM` | `https://…onrender.com` | Only when `KHIDMAT_USE_RENDER=1` |
+| `KHIDMAT_USE_RENDER` | `1` | Optional — proxy **all** `/api/*` to Render first; if Render is down, discover/auth fall back to Vercel edge |
+| `KHIDMAT_API_UPSTREAM` | `https://YOUR-SERVICE.onrender.com` | Required when `KHIDMAT_USE_RENDER=1` — must be a **live** Render URL (`/health` returns JSON) |
+
+**Do not set `KHIDMAT_USE_RENDER=1` unless Render is deployed.** If Render is down, leave it unset — AI works on Vercel edge without it.
 
 **AI/search works without Render** — `api/_lib/orchestrateDiscover.js` runs on Vercel with the same mock provider dataset.
 

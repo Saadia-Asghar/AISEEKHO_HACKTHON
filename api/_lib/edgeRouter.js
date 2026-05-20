@@ -1,17 +1,20 @@
 const { runDiscover } = require('./orchestrateDiscover');
 const { sendOtp, verifyOtp } = require('./edgeAuth');
 
-function useEdgeFirst() {
-  return process.env.KHIDMAT_EDGE_API !== '0';
-}
-
-async function tryUpstream(pathPart, req) {
+function upstreamBase() {
   const raw =
     process.env.KHIDMAT_API_UPSTREAM ||
     process.env.EXPO_PUBLIC_API_URL ||
     'https://khidmatai-api.onrender.com';
-  const base = String(raw).replace(/\/$/, '');
-  const target = new URL(`${base}/api/${pathPart}`);
+  return String(raw).replace(/\/$/, '');
+}
+
+function useRenderProxy() {
+  return process.env.KHIDMAT_USE_RENDER === '1' || process.env.KHIDMAT_USE_RENDER === 'true';
+}
+
+async function tryUpstream(pathPart, req) {
+  const target = new URL(`${upstreamBase()}/api/${pathPart}`);
   const headers = { 'Content-Type': 'application/json' };
   if (req.headers.authorization) headers.Authorization = req.headers.authorization;
 
@@ -19,10 +22,25 @@ async function tryUpstream(pathPart, req) {
   if (req.method !== 'GET' && req.method !== 'HEAD' && req.body != null) {
     init.body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
   }
-  const upstream = await fetch(target.toString(), init);
-  if (upstream.status === 404 || upstream.status === 502) return null;
-  const text = await upstream.text();
-  return { status: upstream.status, body: text, contentType: upstream.headers.get('content-type') };
+
+  try {
+    const upstream = await fetch(target.toString(), init);
+    const body = await upstream.text();
+    return {
+      status: upstream.status,
+      body,
+      contentType: upstream.headers.get('content-type') || 'application/json',
+    };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : String(e) };
+  }
+}
+
+function sendUpstream(res, upstream) {
+  res.status(upstream.status);
+  res.setHeader('Content-Type', upstream.contentType);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.send(upstream.body);
 }
 
 function sendJson(res, status, data) {
@@ -32,11 +50,11 @@ function sendJson(res, status, data) {
   res.json(data);
 }
 
-/** Route known API paths on Vercel edge (no Render required). Returns true if handled. */
+/** Vercel edge handlers (no Render). Returns true if handled. */
 async function handleEdgeApi(pathPart, req, res) {
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.status(204).end();
     return true;
@@ -53,16 +71,14 @@ async function handleEdgeApi(pathPart, req, res) {
   }
 
   if (pathPart === 'auth/send-otp' && req.method === 'POST') {
-    const phone = req.body?.phone || '';
-    sendJson(res, 200, sendOtp(phone));
+    sendJson(res, 200, sendOtp(req.body?.phone || ''));
     return true;
   }
 
   if (pathPart === 'auth/verify' && req.method === 'POST') {
     try {
       const { phone, otp, name } = req.body || {};
-      const data = verifyOtp(phone, otp, name);
-      sendJson(res, 200, data);
+      sendJson(res, 200, verifyOtp(phone, otp, name));
     } catch (e) {
       sendJson(res, 400, { detail: e instanceof Error ? e.message : String(e) });
     }
@@ -73,21 +89,31 @@ async function handleEdgeApi(pathPart, req, res) {
 }
 
 async function handleApi(pathPart, req, res) {
-  if (await handleEdgeApi(pathPart, req, res)) return;
-
-  if (process.env.KHIDMAT_USE_RENDER === '1') {
+  if (useRenderProxy()) {
     const upstream = await tryUpstream(pathPart, req);
-    if (upstream) {
-      res.status(upstream.status);
-      res.setHeader('Content-Type', upstream.contentType || 'application/json');
-      res.setHeader('Access-Control-Allow-Origin', '*');
-      return res.send(upstream.body);
+    if (upstream && !upstream.error) {
+      sendUpstream(res, upstream);
+      return;
     }
+    const edgeHandled = await handleEdgeApi(pathPart, req, res);
+    if (edgeHandled) return;
+
+    if (upstream?.error) {
+      return sendJson(res, 502, {
+        detail: `Cannot reach Render at ${upstreamBase()}: ${upstream.error}. Fix KHIDMAT_API_UPSTREAM or unset KHIDMAT_USE_RENDER.`,
+      });
+    }
+    return sendJson(res, 502, {
+      detail: `Render returned an error for /api/${pathPart}. Check ${upstreamBase()}/health — or unset KHIDMAT_USE_RENDER to use Vercel edge AI only.`,
+      upstream_status: upstream?.status,
+    });
   }
 
+  if (await handleEdgeApi(pathPart, req, res)) return;
+
   return sendJson(res, 404, {
-    detail: `Route not available on edge: ${pathPart}. Enable Render with KHIDMAT_USE_RENDER=1 for full backend.`,
+    detail: `Unknown route /api/${pathPart}. For full backend set KHIDMAT_USE_RENDER=1 and a live KHIDMAT_API_UPSTREAM.`,
   });
 }
 
-module.exports = { handleApi, useEdgeFirst };
+module.exports = { handleApi, upstreamBase, useRenderProxy };
