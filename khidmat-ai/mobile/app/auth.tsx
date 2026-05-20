@@ -28,8 +28,10 @@ import LanguagePicker from '../components/LanguagePicker';
 import { stitchAssets } from '../constants/stitchDesign';
 import { showToast } from '../lib/toastStore';
 import { useI18n } from '../lib/i18n';
+import { humanizeAuthError, isNetworkFailure } from '../lib/apiConfig';
 import { isClerkConfigured } from '../lib/clerkConfig';
 import { clerkErrorMessage, useClerkPhoneOtp } from '../lib/clerkPhoneOtp';
+import { persistOfflineGuest } from '../lib/offlineAuth';
 
 type AuthMode = 'demo' | 'clerk';
 
@@ -82,6 +84,14 @@ function AuthScreenBody({
   ).current;
   const phone = `+92${phoneDigits}`;
 
+  const openDemoOtpStep = (hint: string) => {
+    setAuthMode('demo');
+    setStep('otp');
+    setDigits('');
+    setError(hint);
+    showToast(`${t('demo_code')} 1234`);
+  };
+
   const requestOtp = async () => {
     if (phoneDigits.length < 10) {
       setError('Enter 10-digit number');
@@ -100,27 +110,41 @@ function AuthScreenBody({
           setAuthMode('clerk');
           setStep('otp');
           setDigits('');
+          setError(null);
           showToast(t('otp_sent_sms'));
         } catch (clerkErr) {
+          try {
+            const res = await sendOtp(phone);
+            setAuthMode('demo');
+            setStep('otp');
+            setDigits('');
+            setError(null);
+            showToast(res.twilio ? t('otp_sent_sms') : `${t('demo_code')} 1234`);
+          } catch {
+            openDemoOtpStep(
+              `Clerk SMS unavailable. API offline — use demo code 1234.`,
+            );
+          }
+        }
+      } else {
+        try {
           const res = await sendOtp(phone);
           setAuthMode('demo');
           setStep('otp');
           setDigits('');
+          setError(null);
           showToast(res.twilio ? t('otp_sent_sms') : `${t('demo_code')} 1234`);
-          setError(
-            `Clerk SMS unavailable (${clerkErrorMessage(clerkErr)}). Use demo code 1234 below.`,
-          );
+        } catch (apiErr) {
+          if (isNetworkFailure(apiErr)) {
+            openDemoOtpStep('API offline — use demo code 1234 below.');
+          } else {
+            throw apiErr;
+          }
         }
-      } else {
-        const res = await sendOtp(phone);
-        setAuthMode('demo');
-        setStep('otp');
-        setDigits('');
-        showToast(res.twilio ? t('otp_sent_sms') : `${t('demo_code')} 1234`);
       }
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } catch (e) {
-      setError(useClerk ? clerkErrorMessage(e) : e instanceof Error ? e.message : 'Could not send OTP');
+      setError(humanizeAuthError(e));
     } finally {
       setLoading(false);
     }
@@ -170,16 +194,27 @@ function AuthScreenBody({
           phone: synced.phone ?? phone,
         });
       } else {
-        const data = await verifyAuth(phone, otp, 'Guest');
-        await finishSession({
-          token: data.token,
-          user_id: data.user_id,
-          name: data.name,
-          phone,
-        });
+        try {
+          const data = await verifyAuth(phone, otp, 'Guest');
+          await finishSession({
+            token: data.token,
+            user_id: data.user_id,
+            name: data.name,
+            phone,
+          });
+        } catch (e) {
+          if (otp === '1234' && isNetworkFailure(e)) {
+            await persistOfflineGuest();
+            showToast('Offline demo — deploy API on Render for full features');
+            await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            router.replace('/(tabs)');
+            return;
+          }
+          throw e;
+        }
       }
     } catch (e) {
-      setError(useClerk && authMode === 'clerk' ? clerkErrorMessage(e) : e instanceof Error ? e.message : 'Verification failed');
+      setError(humanizeAuthError(e));
     } finally {
       setLoading(false);
     }
@@ -189,16 +224,23 @@ function AuthScreenBody({
     setLoading(true);
     setError(null);
     try {
-      await sendOtp(GUEST_PHONE);
-      const data = await verifyAuth(GUEST_PHONE, '1234', 'Guest');
-      await finishSession({
-        token: data.token,
-        user_id: data.user_id,
-        name: data.name || 'Guest',
-        phone: GUEST_PHONE,
-      });
+      try {
+        await sendOtp(GUEST_PHONE);
+        const data = await verifyAuth(GUEST_PHONE, '1234', 'Guest');
+        await finishSession({
+          token: data.token,
+          user_id: data.user_id,
+          name: data.name || 'Guest',
+          phone: GUEST_PHONE,
+        });
+      } catch {
+        await persistOfflineGuest();
+        showToast('Offline demo — deploy API on Render for search & booking');
+        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        router.replace('/(tabs)');
+      }
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Could not continue — is the backend running?');
+      setError(humanizeAuthError(e));
     } finally {
       setLoading(false);
     }
