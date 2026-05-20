@@ -1,11 +1,14 @@
 const { handleApi } = require('./_lib/edgeRouter');
 
 /**
- * /api/* — AI discover + demo auth run on Vercel (no Render).
- * Optional: set KHIDMAT_USE_RENDER=1 and KHIDMAT_API_UPSTREAM for full FastAPI backend.
+ * /api/* catch-all — booking, payments, trace, etc.
+ * Auth + discover also have explicit files in api/ for reliable routing.
  */
-export default async function handler(req, res) {
+async function handler(req, res) {
   const segments = req.query.path;
   const pathPart = Array.isArray(segments) ? segments.join('/') : segments || '';
   return handleApi(pathPart, req, res);
 }
+
+module.exports = handler;
+module.exports.default = handler;

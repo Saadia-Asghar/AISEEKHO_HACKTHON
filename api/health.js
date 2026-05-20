@@ -7,7 +7,7 @@ function upstreamBase() {
   return String(raw).replace(/\/$/, '');
 }
 
-export default async function handler(_req, res) {
+async function handler(_req, res) {
   const useRender =
     process.env.KHIDMAT_USE_RENDER === '1' || process.env.KHIDMAT_USE_RENDER === 'true';
   let renderOk = false;
@@ -33,3 +33,6 @@ export default async function handler(_req, res) {
     gemini: !!(process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY),
   });
 }
+
+module.exports = handler;
+module.exports.default = handler;
