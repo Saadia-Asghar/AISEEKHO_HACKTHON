@@ -15,16 +15,21 @@ Latest `main` must include: `vercel.json`, root `package.json`, `khidmat-ai/mobi
 | **Build Command** | *(from `vercel.json`)* `npm run build:web --prefix khidmat-ai/mobile` |
 | **Output Directory** | `khidmat-ai/mobile/dist` |
 
-## 3. Environment variables (required at build time)
+## 3. Environment variables
 
-Set in Vercel → **Settings** → **Environment Variables** → apply to **Production**, **Preview**, **Development**:
+Set in Vercel → **Settings** → **Environment Variables** → **Production** (and Preview if needed):
 
 | Name | Example | Required |
 |------|---------|----------|
-| `EXPO_PUBLIC_API_URL` | `https://khidmatai-api.onrender.com` | **Yes** — without this, auth shows **Network Error** (app tries `127.0.0.1`) |
 | `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` | `pk_test_...` | Optional — real SMS OTP; omit for demo `1234` |
+| `KHIDMAT_USE_RENDER` | `1` | Optional — only if you deploy FastAPI on Render and want bookings/DB there |
+| `KHIDMAT_API_UPSTREAM` | `https://…onrender.com` | Only when `KHIDMAT_USE_RENDER=1` |
 
-Then **Deployments** → latest → **Redeploy** (must rebuild after changing env vars).
+**AI/search works without Render** — `api/_lib/orchestrateDiscover.js` runs on Vercel with the same mock provider dataset.
+
+Then **Deployments** → **Redeploy**.
+
+Test: `https://aiseekho-hackthon.vercel.app/health` → JSON `"mode": "vercel-edge"`, `"agents": 6`.
 
 ## 4. Verify build log
 
@@ -39,6 +44,6 @@ You should see:
 - https://aiseekho-hackthon.vercel.app/auth → same
 - Not `404 NOT_FOUND`, not stuck on “AI agents are finding your perfect match…”
 
-## 6. Backend (Render)
+## 6. Backend (Render) — optional
 
-Deploy API via `render.yaml`, set `CLERK_SECRET_KEY` if using Clerk, then use that API URL in `EXPO_PUBLIC_API_URL` on Vercel.
+Use Render only for persistent bookings, Clerk sync, Stripe, etc. Set `KHIDMAT_USE_RENDER=1` and `KHIDMAT_API_UPSTREAM`. Demo AI search does **not** need Render.

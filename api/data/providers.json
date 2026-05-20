@@ -1,0 +1,1192 @@
+[
+  {
+    "id": "h1",
+    "name": "احمد الیکٹریشن",
+    "category": "electrician",
+    "categories": [
+      "electrician"
+    ],
+    "area": "G-9",
+    "lat": 33.6862,
+    "lng": 72.9804,
+    "rating": 3.9,
+    "reviews": 47,
+    "verified": false,
+    "price_min_pkr": 1800,
+    "price_max_pkr": 3057,
+    "bio": "Trusted electrician in G-9, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-323-2458591"
+  },
+  {
+    "id": "h2",
+    "name": "علی پلمبنگ",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "G-13",
+    "lat": 33.6884,
+    "lng": 72.9735,
+    "rating": 3.6,
+    "reviews": 141,
+    "verified": false,
+    "price_min_pkr": 1500,
+    "price_max_pkr": 2776,
+    "bio": "Trusted plumber in G-13, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-387-1445199"
+  },
+  {
+    "id": "h3",
+    "name": "حسن AC سروسز",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician"
+    ],
+    "area": "F-7",
+    "lat": 33.722,
+    "lng": 73.0555,
+    "rating": 4.6,
+    "reviews": 68,
+    "verified": true,
+    "price_min_pkr": 2200,
+    "price_max_pkr": 3859,
+    "bio": "Trusted ac_technician in F-7, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-367-5667265"
+  },
+  {
+    "id": "h4",
+    "name": "فاطمہ کلیننگ",
+    "category": "cleaner",
+    "categories": [
+      "cleaner"
+    ],
+    "area": "F-10",
+    "lat": 33.7,
+    "lng": 73.0101,
+    "rating": 4.7,
+    "reviews": 99,
+    "verified": true,
+    "price_min_pkr": 1200,
+    "price_max_pkr": 2865,
+    "bio": "Trusted cleaner in F-10, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-345-3608513"
+  },
+  {
+    "id": "h5",
+    "name": "عمر بڑھئی",
+    "category": "carpenter",
+    "categories": [
+      "carpenter"
+    ],
+    "area": "I-8",
+    "lat": 33.6634,
+    "lng": 73.0822,
+    "rating": 3.7,
+    "reviews": 36,
+    "verified": false,
+    "price_min_pkr": 1700,
+    "price_max_pkr": 3278,
+    "bio": "Trusted carpenter in I-8, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-355-6770619"
+  },
+  {
+    "id": "h6",
+    "name": "زین پینٹر",
+    "category": "painter",
+    "categories": [
+      "painter"
+    ],
+    "area": "G-9",
+    "lat": 33.6857,
+    "lng": 72.9929,
+    "rating": 4.6,
+    "reviews": 43,
+    "verified": true,
+    "price_min_pkr": 1900,
+    "price_max_pkr": 3798,
+    "bio": "Trusted painter in G-9, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-358-2322047"
+  },
+  {
+    "id": "h7",
+    "name": "بیلال الیکٹریشن",
+    "category": "electrician",
+    "categories": [
+      "electrician"
+    ],
+    "area": "G-13",
+    "lat": 33.6878,
+    "lng": 72.9863,
+    "rating": 4.4,
+    "reviews": 159,
+    "verified": true,
+    "price_min_pkr": 1800,
+    "price_max_pkr": 3340,
+    "bio": "Trusted electrician in G-13, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-334-2166941"
+  },
+  {
+    "id": "h8",
+    "name": "Usman Plumber",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "F-7",
+    "lat": 33.7137,
+    "lng": 73.0476,
+    "rating": 3.9,
+    "reviews": 71,
+    "verified": false,
+    "price_min_pkr": 1500,
+    "price_max_pkr": 2463,
+    "bio": "Trusted plumber in F-7, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-322-7377459"
+  },
+  {
+    "id": "h9",
+    "name": "کامران کولنگ",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician"
+    ],
+    "area": "F-10",
+    "lat": 33.6914,
+    "lng": 73.0202,
+    "rating": 4.0,
+    "reviews": 102,
+    "verified": false,
+    "price_min_pkr": 2200,
+    "price_max_pkr": 3758,
+    "bio": "Trusted ac_technician in F-10, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-336-5479144"
+  },
+  {
+    "id": "h10",
+    "name": "سارہ ہوم کلین",
+    "category": "cleaner",
+    "categories": [
+      "cleaner"
+    ],
+    "area": "I-8",
+    "lat": 33.6712,
+    "lng": 73.0809,
+    "rating": 3.6,
+    "reviews": 148,
+    "verified": false,
+    "price_min_pkr": 1200,
+    "price_max_pkr": 2350,
+    "bio": "Trusted cleaner in I-8, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-341-3741438"
+  },
+  {
+    "id": "h11",
+    "name": "جاوید کارپینٹر",
+    "category": "carpenter",
+    "categories": [
+      "carpenter"
+    ],
+    "area": "G-9",
+    "lat": 33.6834,
+    "lng": 72.9843,
+    "rating": 4.9,
+    "reviews": 68,
+    "verified": true,
+    "price_min_pkr": 1700,
+    "price_max_pkr": 3640,
+    "bio": "Trusted carpenter in G-9, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-397-6440561"
+  },
+  {
+    "id": "h12",
+    "name": "نادیہ پینٹ",
+    "category": "painter",
+    "categories": [
+      "painter"
+    ],
+    "area": "G-13",
+    "lat": 33.6925,
+    "lng": 72.9854,
+    "rating": 3.8,
+    "reviews": 218,
+    "verified": false,
+    "price_min_pkr": 1900,
+    "price_max_pkr": 2765,
+    "bio": "Trusted painter in G-13, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-350-7730428"
+  },
+  {
+    "id": "h13",
+    "name": "طارق وائرنگ",
+    "category": "electrician",
+    "categories": [
+      "electrician"
+    ],
+    "area": "F-7",
+    "lat": 33.7173,
+    "lng": 73.0474,
+    "rating": 4.9,
+    "reviews": 66,
+    "verified": true,
+    "price_min_pkr": 1800,
+    "price_max_pkr": 3244,
+    "bio": "Trusted electrician in F-7, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-393-9375710"
+  },
+  {
+    "id": "h14",
+    "name": "راشد پائپ فٹنگ",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "F-10",
+    "lat": 33.6933,
+    "lng": 73.0246,
+    "rating": 4.2,
+    "reviews": 47,
+    "verified": true,
+    "price_min_pkr": 1500,
+    "price_max_pkr": 2842,
+    "bio": "Trusted plumber in F-10, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-341-5408072"
+  },
+  {
+    "id": "h15",
+    "name": "شہباز AC",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician"
+    ],
+    "area": "I-8",
+    "lat": 33.672,
+    "lng": 73.0769,
+    "rating": 4.4,
+    "reviews": 68,
+    "verified": true,
+    "price_min_pkr": 2200,
+    "price_max_pkr": 3741,
+    "bio": "Trusted ac_technician in I-8, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-327-9548432"
+  },
+  {
+    "id": "h16",
+    "name": "مریم صفائی",
+    "category": "cleaner",
+    "categories": [
+      "cleaner"
+    ],
+    "area": "G-9",
+    "lat": 33.6839,
+    "lng": 72.9921,
+    "rating": 4.8,
+    "reviews": 172,
+    "verified": true,
+    "price_min_pkr": 1200,
+    "price_max_pkr": 2313,
+    "bio": "Trusted cleaner in G-9, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-330-8082668"
+  },
+  {
+    "id": "h17",
+    "name": "اقبال لکڑی",
+    "category": "carpenter",
+    "categories": [
+      "carpenter"
+    ],
+    "area": "G-13",
+    "lat": 33.6885,
+    "lng": 72.9792,
+    "rating": 4.4,
+    "reviews": 147,
+    "verified": true,
+    "price_min_pkr": 1700,
+    "price_max_pkr": 3458,
+    "bio": "Trusted carpenter in G-13, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-342-1192619"
+  },
+  {
+    "id": "h18",
+    "name": "سمیع رنگ",
+    "category": "painter",
+    "categories": [
+      "painter"
+    ],
+    "area": "F-7",
+    "lat": 33.7239,
+    "lng": 73.0458,
+    "rating": 4.8,
+    "reviews": 208,
+    "verified": true,
+    "price_min_pkr": 1900,
+    "price_max_pkr": 3246,
+    "bio": "Trusted painter in F-7, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-392-6707197"
+  },
+  {
+    "id": "h19",
+    "name": "فرحان الیکٹریشن",
+    "category": "electrician",
+    "categories": [
+      "electrician"
+    ],
+    "area": "F-10",
+    "lat": 33.6888,
+    "lng": 73.017,
+    "rating": 4.2,
+    "reviews": 140,
+    "verified": true,
+    "price_min_pkr": 1800,
+    "price_max_pkr": 3139,
+    "bio": "Trusted electrician in F-10, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-332-9517485"
+  },
+  {
+    "id": "h20",
+    "name": "عمران پلمبنگ",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "I-8",
+    "lat": 33.6746,
+    "lng": 73.0839,
+    "rating": 3.9,
+    "reviews": 167,
+    "verified": false,
+    "price_min_pkr": 1500,
+    "price_max_pkr": 3339,
+    "bio": "Trusted plumber in I-8, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-335-3564217"
+  },
+  {
+    "id": "h21",
+    "name": "واقس HVAC",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician"
+    ],
+    "area": "G-9",
+    "lat": 33.682,
+    "lng": 72.9826,
+    "rating": 4.9,
+    "reviews": 12,
+    "verified": true,
+    "price_min_pkr": 2200,
+    "price_max_pkr": 4086,
+    "bio": "Trusted ac_technician in G-9, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-386-6438436"
+  },
+  {
+    "id": "h22",
+    "name": "عائشہ کلینر",
+    "category": "cleaner",
+    "categories": [
+      "cleaner"
+    ],
+    "area": "G-13",
+    "lat": 33.6868,
+    "lng": 72.9748,
+    "rating": 4.0,
+    "reviews": 73,
+    "verified": false,
+    "price_min_pkr": 1200,
+    "price_max_pkr": 2629,
+    "bio": "Trusted cleaner in G-13, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-317-5041154"
+  },
+  {
+    "id": "h23",
+    "name": "ناصر فرنیچر",
+    "category": "carpenter",
+    "categories": [
+      "carpenter"
+    ],
+    "area": "F-7",
+    "lat": 33.727,
+    "lng": 73.0592,
+    "rating": 3.6,
+    "reviews": 220,
+    "verified": false,
+    "price_min_pkr": 1700,
+    "price_max_pkr": 3495,
+    "bio": "Trusted carpenter in F-7, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-318-9937326"
+  },
+  {
+    "id": "h24",
+    "name": "حنا ڈیکور",
+    "category": "painter",
+    "categories": [
+      "painter"
+    ],
+    "area": "F-10",
+    "lat": 33.6993,
+    "lng": 73.0121,
+    "rating": 4.2,
+    "reviews": 54,
+    "verified": true,
+    "price_min_pkr": 1900,
+    "price_max_pkr": 3825,
+    "bio": "Trusted painter in F-10, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-343-9852897"
+  },
+  {
+    "id": "h25",
+    "name": "عثمان الیکٹریشن",
+    "category": "electrician",
+    "categories": [
+      "electrician"
+    ],
+    "area": "I-8",
+    "lat": 33.674,
+    "lng": 73.0768,
+    "rating": 3.8,
+    "reviews": 205,
+    "verified": false,
+    "price_min_pkr": 1800,
+    "price_max_pkr": 3704,
+    "bio": "Trusted electrician in I-8, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-398-4374754"
+  },
+  {
+    "id": "h26",
+    "name": "بلال پلمبنگ",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "G-9",
+    "lat": 33.6874,
+    "lng": 72.9864,
+    "rating": 4.5,
+    "reviews": 124,
+    "verified": true,
+    "price_min_pkr": 1500,
+    "price_max_pkr": 3064,
+    "bio": "Trusted plumber in G-9, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-376-8574680"
+  },
+  {
+    "id": "h27",
+    "name": "عادل AC ماسٹر",
+    "category": "ac_technician",
+    "categories": [
+      "ac_technician"
+    ],
+    "area": "G-13",
+    "lat": 33.6809,
+    "lng": 72.9766,
+    "rating": 4.0,
+    "reviews": 70,
+    "verified": false,
+    "price_min_pkr": 2200,
+    "price_max_pkr": 4134,
+    "bio": "Trusted ac_technician in G-13, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-385-4694634"
+  },
+  {
+    "id": "h28",
+    "name": "ریحانہ کلین",
+    "category": "cleaner",
+    "categories": [
+      "cleaner"
+    ],
+    "area": "F-7",
+    "lat": 33.7131,
+    "lng": 73.0553,
+    "rating": 3.6,
+    "reviews": 20,
+    "verified": false,
+    "price_min_pkr": 1200,
+    "price_max_pkr": 2138,
+    "bio": "Trusted cleaner in F-7, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-352-2188789"
+  },
+  {
+    "id": "h29",
+    "name": "سجاد کارپینٹر",
+    "category": "carpenter",
+    "categories": [
+      "carpenter"
+    ],
+    "area": "F-10",
+    "lat": 33.6952,
+    "lng": 73.0145,
+    "rating": 4.2,
+    "reviews": 45,
+    "verified": true,
+    "price_min_pkr": 1700,
+    "price_max_pkr": 3604,
+    "bio": "Trusted carpenter in F-10, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-383-8930103"
+  },
+  {
+    "id": "h30",
+    "name": "ماہین پینٹ ورک",
+    "category": "painter",
+    "categories": [
+      "painter"
+    ],
+    "area": "I-8",
+    "lat": 33.6639,
+    "lng": 73.0776,
+    "rating": 4.1,
+    "reviews": 36,
+    "verified": false,
+    "price_min_pkr": 1900,
+    "price_max_pkr": 2893,
+    "bio": "Trusted painter in I-8, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-394-8231838"
+  },
+  {
+    "id": "h31",
+    "name": "آمنہ ہوم ٹیوٹر",
+    "category": "tutor",
+    "categories": [
+      "tutor"
+    ],
+    "area": "G-13",
+    "lat": 33.6841,
+    "lng": 72.9715,
+    "rating": 4.8,
+    "reviews": 32,
+    "verified": true,
+    "price_min_pkr": 3000,
+    "price_max_pkr": 6000,
+    "bio": "Experienced primary & secondary tutor in G-13, Islamabad",
+    "available_slots": [
+      "14:00",
+      "16:00",
+      "18:00"
+    ],
+    "phone": "+92-312-4456789"
+  },
+  {
+    "id": "h32",
+    "name": "طارق کمپیوٹرز",
+    "category": "pc_repair",
+    "categories": [
+      "pc_repair"
+    ],
+    "area": "I-8",
+    "lat": 33.6655,
+    "lng": 73.0811,
+    "rating": 4.5,
+    "reviews": 28,
+    "verified": true,
+    "price_min_pkr": 1500,
+    "price_max_pkr": 4500,
+    "bio": "Expert laptop & computer hardware technician in I-8, Islamabad",
+    "available_slots": [
+      "10:00",
+      "12:00",
+      "15:00",
+      "17:00"
+    ],
+    "phone": "+92-321-9876543"
+  },
+  {
+    "id": "h33",
+    "name": "ریاض گیزر سروسز",
+    "category": "appliance_repair",
+    "categories": [
+      "appliance_repair"
+    ],
+    "area": "F-7",
+    "lat": 33.7211,
+    "lng": 73.0533,
+    "rating": 4.1,
+    "reviews": 19,
+    "verified": false,
+    "price_min_pkr": 2000,
+    "price_max_pkr": 3500,
+    "bio": "Geyser, washing machine, fridge repair specialist in F-7",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "13:00",
+      "15:00"
+    ],
+    "phone": "+92-333-8884422"
+  },
+  {
+    "id": "h34",
+    "name": "زینب ہوم بیوٹی",
+    "category": "beautician",
+    "categories": [
+      "beautician"
+    ],
+    "area": "F-10",
+    "lat": 33.6981,
+    "lng": 73.0142,
+    "rating": 4.9,
+    "reviews": 55,
+    "verified": true,
+    "price_min_pkr": 2500,
+    "price_max_pkr": 8000,
+    "bio": "Professional salon & bridal services at home in F-10, Islamabad",
+    "available_slots": [
+      "11:00",
+      "13:00",
+      "15:00",
+      "17:00"
+    ],
+    "phone": "+92-345-7766554"
+  },
+  {
+    "id": "h35",
+    "name": "شفیق آٹو ریپیر",
+    "category": "car_mechanic",
+    "categories": [
+      "car_mechanic"
+    ],
+    "area": "G-9",
+    "lat": 33.6821,
+    "lng": 72.9811,
+    "rating": 4.3,
+    "reviews": 64,
+    "verified": true,
+    "price_min_pkr": 1800,
+    "price_max_pkr": 5000,
+    "bio": "Experienced car mechanic & tuning expert in G-9, Islamabad",
+    "available_slots": [
+      "09:00",
+      "11:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-5551234"
+  },
+  {
+    "id": "h36",
+    "name": "زاہد گیزر ماسٹر",
+    "category": "appliance_repair",
+    "categories": [
+      "appliance_repair"
+    ],
+    "area": "G-13",
+    "lat": 33.6891,
+    "lng": 72.9781,
+    "rating": 4.2,
+    "reviews": 15,
+    "verified": false,
+    "price_min_pkr": 1500,
+    "price_max_pkr": 3000,
+    "bio": "Trusted geyser and microwave repair expert in G-13",
+    "available_slots": [
+      "10:00",
+      "13:00",
+      "16:00"
+    ],
+    "phone": "+92-323-5556677"
+  },
+  {
+    "id": "h37",
+    "name": "سحرش بیوٹیشن",
+    "category": "beautician",
+    "categories": [
+      "beautician"
+    ],
+    "area": "G-9",
+    "lat": 33.6877,
+    "lng": 72.9899,
+    "rating": 4.7,
+    "reviews": 42,
+    "verified": true,
+    "price_min_pkr": 2000,
+    "price_max_pkr": 5000,
+    "bio": "Hair and makeup expert providing services at your doorstep in G-9",
+    "available_slots": [
+      "12:00",
+      "14:00",
+      "16:00",
+      "18:00"
+    ],
+    "phone": "+92-311-6667788"
+  },
+  {
+    "id": "h38",
+    "name": "کامران موبائل رپیر",
+    "category": "pc_repair",
+    "categories": [
+      "pc_repair"
+    ],
+    "area": "F-7",
+    "lat": 33.7199,
+    "lng": 73.0511,
+    "rating": 4.4,
+    "reviews": 38,
+    "verified": false,
+    "price_min_pkr": 1000,
+    "price_max_pkr": 4000,
+    "bio": "Mobile & laptop repair engineer in F-7 Markaz",
+    "available_slots": [
+      "11:00",
+      "13:00",
+      "15:00",
+      "17:00"
+    ],
+    "phone": "+92-344-9990011"
+  },
+  {
+    "id": "h39",
+    "name": "حماد آٹو سروس",
+    "category": "car_mechanic",
+    "categories": [
+      "car_mechanic"
+    ],
+    "area": "F-10",
+    "lat": 33.6922,
+    "lng": 73.0155,
+    "rating": 4.6,
+    "reviews": 49,
+    "verified": true,
+    "price_min_pkr": 2000,
+    "price_max_pkr": 6000,
+    "bio": "Premium home car detailing and repair service in F-10",
+    "available_slots": [
+      "09:00",
+      "12:00",
+      "15:00"
+    ],
+    "phone": "+92-355-8881122"
+  },
+  {
+    "id": "h40",
+    "name": "پروفیسر طارق (ریاضی)",
+    "category": "tutor",
+    "categories": [
+      "tutor"
+    ],
+    "area": "I-8",
+    "lat": 33.6688,
+    "lng": 73.0844,
+    "rating": 4.9,
+    "reviews": 51,
+    "verified": true,
+    "price_min_pkr": 4000,
+    "price_max_pkr": 8000,
+    "bio": "O/A Level Mathematics home tutor with 10+ years experience in I-8",
+    "available_slots": [
+      "15:00",
+      "17:00",
+      "19:00"
+    ],
+    "phone": "+92-366-7772233"
+  },
+  {
+    "id": "h41",
+    "name": "زبیر خان الیکٹریشن",
+    "category": "electrician",
+    "categories": [
+      "electrician"
+    ],
+    "area": "DHA",
+    "lat": 33.5284,
+    "lng": 73.1362,
+    "rating": 4.8,
+    "reviews": 32,
+    "verified": true,
+    "price_min_pkr": 2500,
+    "price_max_pkr": 4500,
+    "bio": "Certified industrial and residential electrician in DHA, Islamabad",
+    "available_slots": [
+      "09:00",
+      "12:00",
+      "15:00",
+      "18:00"
+    ],
+    "phone": "+92-333-1114455"
+  },
+  {
+    "id": "h42",
+    "name": "شازیہ بیوٹیشن",
+    "category": "beautician",
+    "categories": [
+      "beautician"
+    ],
+    "area": "F-11",
+    "lat": 33.6844,
+    "lng": 72.9866,
+    "rating": 4.7,
+    "reviews": 56,
+    "verified": true,
+    "price_min_pkr": 3000,
+    "price_max_pkr": 8000,
+    "bio": "Premium home salon services for female clients in F-11",
+    "available_slots": [
+      "10:00",
+      "13:00",
+      "16:00"
+    ],
+    "phone": "+92-321-2225566"
+  },
+  {
+    "id": "h43",
+    "name": "محمد اسلم پلمبر",
+    "category": "plumber",
+    "categories": [
+      "plumber"
+    ],
+    "area": "G-11",
+    "lat": 33.6766,
+    "lng": 72.9944,
+    "rating": 4.5,
+    "reviews": 29,
+    "verified": false,
+    "price_min_pkr": 1200,
+    "price_max_pkr": 3000,
+    "bio": "Expert plumbing repairs, bathroom fittings & leak fixes in G-11",
+    "available_slots": [
+      "08:00",
+      "11:00",
+      "14:00",
+      "17:00"
+    ],
+    "phone": "+92-300-3336677"
+  },
+  {
+    "id": "h44",
+    "name": "کاشف کمپیوٹر سروسز",
+    "category": "laptop_repair",
+    "categories": [
+      "laptop_repair"
+    ],
+    "area": "I-8",
+    "lat": 33.6688,
+    "lng": 73.0844,
+    "rating": 4.4,
+    "reviews": 18,
+    "verified": false,
+    "price_min_pkr": 1500,
+    "price_max_pkr": 5000,
+    "bio": "Home IT support, OS installation & laptop hardware repairs in I-8",
+    "available_slots": [
+      "11:00",
+      "14:00",
+      "17:00"
+    ],
+    "phone": "+92-345-4447788"
+  },
+  {
+    "id": "h45",
+    "name": "آمنہ ہوم ٹیوٹر",
+    "category": "tutor",
+    "categories": [
+      "tutor"
+    ],
+    "area": "F-7",
+    "lat": 33.722,
+    "lng": 73.0555,
+    "rating": 4.9,
+    "reviews": 42,
+    "verified": true,
+    "price_min_pkr": 5000,
+    "price_max_pkr": 10000,
+    "bio": "Qualified science & English home tutor for grades 5-10 in F-7",
+    "available_slots": [
+      "14:00",
+      "16:00",
+      "18:00"
+    ],
+    "phone": "+92-312-5558899"
+  },
+  {
+    "id": "h46",
+    "name": "عرفان پینٹنگ سروسز",
+    "category": "painter",
+    "categories": [
+      "painter"
+    ],
+    "area": "G-9",
+    "lat": 33.6862,
+    "lng": 72.9804,
+    "rating": 4.2,
+    "reviews": 15,
+    "verified": false,
+    "price_min_pkr": 5000,
+    "price_max_pkr": 25000,
+    "bio": "Professional wall painting and polishing service in G-9",
+    "available_slots": [
+      "09:00",
+      "13:00",
+      "17:00"
+    ],
+    "phone": "+92-323-6669900"
+  },
+  {
+    "id": "h47",
+    "name": "بلال کارپینٹر",
+    "category": "carpenter",
+    "categories": [
+      "carpenter"
+    ],
+    "area": "H-13",
+    "lat": 33.6711,
+    "lng": 72.9555,
+    "rating": 4.3,
+    "reviews": 23,
+    "verified": false,
+    "price_min_pkr": 1000,
+    "price_max_pkr": 6000,
+    "bio": "Wooden furniture repair, door fixing, and carpentry in H-13",
+    "available_slots": [
+      "09:00",
+      "12:00",
+      "15:00",
+      "18:00"
+    ],
+    "phone": "+92-300-7770011"
+  },
+  {
+    "id": "h48",
+    "name": "سدرہ ہاؤس کلینر",
+    "category": "cleaner",
+    "categories": [
+      "cleaner"
+    ],
+    "area": "E-7",
+    "lat": 33.7333,
+    "lng": 73.0444,
+    "rating": 4.6,
+    "reviews": 38,
+    "verified": true,
+    "price_min_pkr": 2000,
+    "price_max_pkr": 4500,
+    "bio": "Deep cleaning, dusting, and home organization in E-7",
+    "available_slots": [
+      "09:00",
+      "12:00",
+      "15:00"
+    ],
+    "phone": "+92-333-8881122"
+  },
+  {
+    "id": "h49",
+    "name": "طارق کار میکینک",
+    "category": "car_mechanic",
+    "categories": [
+      "car_mechanic"
+    ],
+    "area": "G-13",
+    "lat": 33.6884,
+    "lng": 72.9735,
+    "rating": 4.7,
+    "reviews": 61,
+    "verified": true,
+    "price_min_pkr": 1500,
+    "price_max_pkr": 10000,
+    "bio": "On-site car battery, electrical, & engine mechanical tuning in G-13",
+    "available_slots": [
+      "08:00",
+      "12:00",
+      "16:00"
+    ],
+    "phone": "+92-321-9992233"
+  },
+  {
+    "id": "h50",
+    "name": "سلیم گیس چولہا سروس",
+    "category": "appliance_repair",
+    "categories": [
+      "appliance_repair"
+    ],
+    "area": "F-10",
+    "lat": 33.7,
+    "lng": 73.0101,
+    "rating": 4.1,
+    "reviews": 12,
+    "verified": false,
+    "price_min_pkr": 800,
+    "price_max_pkr": 2500,
+    "bio": "Gas stove, geyser, and oven cleaning and repairs in F-10",
+    "available_slots": [
+      "10:00",
+      "12:00",
+      "14:00",
+      "16:00"
+    ],
+    "phone": "+92-300-8883344"
+  }
+]

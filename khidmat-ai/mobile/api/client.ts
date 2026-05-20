@@ -3,15 +3,13 @@ import { router } from 'expo-router';
 import { getSession, clearSession } from '../lib/auth';
 import { assertApiReachable, formatApiNetworkError, getApiBaseUrl } from '../lib/apiConfig';
 
-const baseURL = getApiBaseUrl();
-
 export const api = axios.create({
-  baseURL,
   timeout: 30000,
   headers: { 'Content-Type': 'application/json' },
 });
 
 api.interceptors.request.use(async (config) => {
+  config.baseURL = getApiBaseUrl();
   const session = await getSession();
   if (session?.token) {
     config.headers.Authorization = `Bearer ${session.token}`;

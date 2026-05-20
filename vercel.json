@@ -4,5 +4,8 @@
   "installCommand": "npm install --prefix khidmat-ai/mobile",
   "buildCommand": "npm run build:web --prefix khidmat-ai/mobile",
   "outputDirectory": "khidmat-ai/mobile/dist",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [
+    { "source": "/health", "destination": "/api/health" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }

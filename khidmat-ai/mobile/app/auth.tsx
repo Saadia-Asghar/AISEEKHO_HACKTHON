@@ -29,6 +29,7 @@ import { stitchAssets } from '../constants/stitchDesign';
 import { showToast } from '../lib/toastStore';
 import { useI18n } from '../lib/i18n';
 import { humanizeAuthError, isNetworkFailure } from '../lib/apiConfig';
+import { isApiHealthy } from '../lib/apiHealth';
 import { isClerkConfigured } from '../lib/clerkConfig';
 import { clerkErrorMessage, useClerkPhoneOtp } from '../lib/clerkPhoneOtp';
 import { persistOfflineGuest } from '../lib/offlineAuth';
@@ -203,9 +204,9 @@ function AuthScreenBody({
             phone,
           });
         } catch (e) {
-          if (otp === '1234' && isNetworkFailure(e)) {
+          if (otp === '1234' && isNetworkFailure(e) && !(await isApiHealthy())) {
             await persistOfflineGuest();
-            showToast('Offline demo — deploy API on Render for full features');
+            showToast('Offline demo — redeploy Vercel or use guest + 1234 on live site');
             await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             router.replace('/(tabs)');
             return;
@@ -234,8 +235,12 @@ function AuthScreenBody({
           phone: GUEST_PHONE,
         });
       } catch {
+        if (await isApiHealthy()) {
+          setError('Guest login failed — try again or use phone + demo code 1234');
+          return;
+        }
         await persistOfflineGuest();
-        showToast('Offline demo — deploy API on Render for search & booking');
+        showToast('Offline demo — open the Vercel URL after redeploy');
         await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         router.replace('/(tabs)');
       }

@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { discover } from '../api/client';
 import { clearSession, getSession } from './auth';
+import { formatApiNetworkError } from './apiConfig';
 import { getUserCoords } from './location';
 import { addRecentSearch } from './searchHistory';
 import { priceSortFromFilters } from '../components/SearchFilterDropdown';
@@ -69,7 +70,7 @@ export async function runDiscoverSearch(
     router.push('/results');
     return true;
   } catch (e) {
-    let msg = e instanceof Error ? e.message : 'Connection error — tap to retry';
+    let msg = e instanceof Error ? e.message : formatApiNetworkError(e);
     if (/invalid|expired token|401/i.test(msg)) {
       await clearSession();
       msg = t('auth_expired');

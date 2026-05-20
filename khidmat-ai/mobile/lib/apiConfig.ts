@@ -20,8 +20,18 @@ export function isProductionWeb(): boolean {
   return host !== 'localhost' && host !== '127.0.0.1';
 }
 
+/** Vercel hosts the static app; /api/* is proxied via repo `api/` serverless routes. */
+export function useHostedWebApiProxy(): boolean {
+  if (!isProductionWeb() || typeof window === 'undefined') return false;
+  const host = window.location.hostname;
+  return host.endsWith('.vercel.app') || host === 'aiseekho-hackthon.vercel.app';
+}
+
 /** Public API base URL (no trailing slash). */
 export function getApiBaseUrl(): string {
+  if (useHostedWebApiProxy()) {
+    return window.location.origin.replace(/\/$/, '');
+  }
   let url = readEnvApiUrl();
   if (!url && isProductionWeb()) {
     url = DEFAULT_PRODUCTION_API;
@@ -63,7 +73,10 @@ export function formatApiNetworkError(err: unknown): string {
     return 'Backend URL missing on Vercel. Set EXPO_PUBLIC_API_URL, then Redeploy.';
   }
   if (isNetworkFailure(err)) {
-    return `Cannot reach API at ${base}. Deploy the backend on Render (see docs/SUBMISSION.md) or use Skip — Continue as Guest for offline demo.`;
+    if (useHostedWebApiProxy()) {
+      return 'Cannot reach API. Redeploy Vercel (edge AI runs on the same domain). Try Skip guest + demo search.';
+    }
+    return `Cannot reach API at ${base}. Start local backend or open the Vercel deploy.`;
   }
   return err instanceof Error ? err.message : 'Connection error — try again';
 }
