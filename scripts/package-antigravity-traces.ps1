@@ -31,7 +31,7 @@ if (-not (Test-Path $memberTpl)) {
     Set-Content -Path (Join-Path $memberTpl "README.md") -Encoding UTF8 -Value @(
         "# Replace this folder per teammate",
         "",
-        "Export from Google Antigravity IDE (or Cursor agent sessions):",
+        "Export from Google Antigravity IDE (or Antigravity agent sessions):",
         "- implementation_plans.md",
         "- task_list.md",
         "- walkthrough.md"

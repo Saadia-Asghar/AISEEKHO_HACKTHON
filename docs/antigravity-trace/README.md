@@ -9,7 +9,7 @@ Create a folder named `member_<firstname>/` with any of:
 | File type | Source |
 |-----------|--------|
 | Antigravity **implementation plans** | Export from Antigravity IDE / agent sessions |
-| **Task lists** | Antigravity task panel or Cursor agent todos |
+| **Task lists** | Antigravity task panel or Antigravity agent todos |
 | **Walkthrough** | Generated walkthrough or session summary |
 | **Screenshots** | Optional PNG of workflow graph |
 
@@ -42,9 +42,9 @@ Invoke-WebRequest "$api/api/antigravity/workflow" -OutFile docs/antigravity-trac
 Invoke-WebRequest "$api/api/trace/SESSION_ID" -OutFile docs/antigravity-trace/samples/session_trace.json
 ```
 
-## Cursor / Antigravity IDE logs
+## Antigravity IDE logs
 
-If you used **Cursor** with Antigravity-style agent sessions:
+If you used **Antigravity** with Antigravity-style agent sessions:
 
 1. Export relevant chat sessions or save plans as `.md` into `member_<name>/`.
 2. Do **not** commit CNIC images or `.env` secrets into this folder.

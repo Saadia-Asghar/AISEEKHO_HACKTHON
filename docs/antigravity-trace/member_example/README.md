@@ -1,6 +1,6 @@
 # Replace this folder per teammate
 
-Export from **Google Antigravity IDE** (or Cursor agent sessions):
+Export from **Google Antigravity IDE** (or Antigravity agent sessions):
 
 - `implementation_plans.md` — plans generated during vibe coding
 - `task_list.md` — task breakdowns
